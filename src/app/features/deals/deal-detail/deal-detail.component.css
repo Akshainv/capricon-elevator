@@ -132,7 +132,6 @@
   align-items: center;
   margin-bottom: 30px;
   padding: 20px;
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.6), rgba(0, 0, 0, 0.8));
   border: 1px solid rgba(212, 179, 71, 0.2);
   border-radius: 15px;
 }
@@ -205,7 +204,6 @@
 }
 
 .info-item label {
-  color: rgba(255, 255, 255, 0.6);
   font-size: 0.85rem;
   font-weight: 600;
   margin-bottom: 8px;
@@ -214,7 +212,6 @@
 }
 
 .info-value {
-  color: #fff;
   font-size: 1rem;
   font-weight: 600;
 }
@@ -271,7 +268,6 @@
 
 /* Text Content */
 .text-content {
-  color: rgba(255, 255, 255, 0.8);
   line-height: 1.6;
   margin: 0;
 }
@@ -361,13 +357,12 @@
 }
 
 .activity-time {
-  color: rgba(255, 255, 255, 0.5);
+
   font-size: 0.8rem;
   white-space: nowrap;
 }
 
 .activity-description {
-  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
   line-height: 1.5;
   margin: 0 0 10px 0;
@@ -377,7 +372,6 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: rgba(255, 255, 255, 0.5);
   font-size: 0.85rem;
 }
 

@@ -20,7 +20,6 @@
 }
 
 .header-left p {
-  color: rgba(255, 255, 255, 0.6);
   font-size: 0.95rem;
   margin: 0;
 }
@@ -176,7 +175,6 @@ textarea.form-control {
 .type-label {
   font-weight: 600;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
 }
 

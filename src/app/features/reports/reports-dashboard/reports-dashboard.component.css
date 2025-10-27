@@ -25,7 +25,6 @@
 }
 
 .header-left p {
-  color: rgba(255, 255, 255, 0.6);
   font-size: 0.95rem;
   margin: 0;
 }
@@ -41,16 +40,13 @@
 .period-selector {
   display: flex;
   gap: 5px;
-  background: rgba(0, 0, 0, 0.3);
   padding: 5px;
   border-radius: 10px;
 }
 
 .period-btn {
   padding: 8px 20px;
-  background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.6);
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
@@ -168,7 +164,6 @@
 
 .stat-label {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 8px;
 }
 
@@ -207,7 +202,6 @@
 
 .card-subtitle {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.5);
 }
 
 .chart-body {
@@ -265,7 +259,6 @@
 
 .bar-label {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
   font-weight: 600;
 }
 
@@ -302,7 +295,6 @@
 
 .source-name {
   font-weight: 600;
-  color: #fff;
 }
 
 .source-stats {
@@ -375,13 +367,11 @@
 
 .stage-name {
   font-weight: 700;
-  color: #fff;
   font-size: 1rem;
 }
 
 .stage-count {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
 }
 
 .stage-value {
@@ -403,7 +393,6 @@
   align-items: center;
   gap: 15px;
   padding: 15px;
-  background: rgba(0, 0, 0, 0.3);
   border-radius: 12px;
   border: 1px solid rgba(212, 179, 71, 0.1);
   transition: all 0.3s ease;
@@ -437,18 +426,15 @@
 
 .performer-name {
   font-weight: 700;
-  color: #fff;
   margin-bottom: 5px;
 }
 
 .performer-stats {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
 }
 
 .separator {
   margin: 0 8px;
-  color: rgba(255, 255, 255, 0.3);
 }
 
 .performer-badge {
@@ -468,7 +454,6 @@
   align-items: center;
   gap: 15px;
   padding: 15px;
-  background: rgba(0, 0, 0, 0.2);
   border-radius: 10px;
   transition: all 0.3s ease;
 }
@@ -493,18 +478,15 @@
 
 .activity-type {
   font-weight: 700;
-  color: #fff;
   margin-bottom: 4px;
 }
 
 .activity-description {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
 }
 
 .activity-time {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
   white-space: nowrap;
 }
 

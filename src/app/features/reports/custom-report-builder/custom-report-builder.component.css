@@ -20,14 +20,12 @@
 }
 
 .header-left p {
-  color: rgba(255, 255, 255, 0.6);
   font-size: 0.95rem;
   margin: 0;
 }
 
 /* Builder Sections */
 .builder-section {
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.6), rgba(0, 0, 0, 0.8));
   border: 1px solid rgba(212, 179, 71, 0.2);
   border-radius: 15px;
   padding: 30px;
@@ -90,14 +88,12 @@
 }
 
 .template-info h4 {
-  color: #fff;
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0 0 8px 0;
 }
 
 .template-description {
-  color: rgba(255, 255, 255, 0.6);
   font-size: 0.85rem;
   margin: 0;
   line-height: 1.5;
@@ -162,8 +158,7 @@ select.form-control {
 }
 
 select.form-control option {
-  background: #1a1a1a;
-  color: #fff;
+ 
   padding: 10px;
 }
 
@@ -193,7 +188,6 @@ textarea.form-control {
 
 .format-option {
   padding: 15px;
-  background: rgba(0, 0, 0, 0.3);
   border: 2px solid rgba(212, 179, 71, 0.2);
   border-radius: 10px;
   text-align: center;
@@ -223,7 +217,6 @@ textarea.form-control {
 .format-option span {
   font-size: 0.9rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
 }
 
 .format-option.selected span {
@@ -239,7 +232,6 @@ textarea.form-control {
 
 .include-item {
   padding: 15px;
-  background: rgba(0, 0, 0, 0.3);
   border: 2px solid rgba(212, 179, 71, 0.2);
   border-radius: 10px;
   cursor: pointer;
@@ -267,16 +259,13 @@ textarea.form-control {
 
 .include-label {
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
 }
 
 .include-item.checked .include-label {
-  color: #fff;
 }
 
 /* Preview Section */
 .preview-section {
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.6), rgba(0, 0, 0, 0.8));
   border: 1px solid rgba(212, 179, 71, 0.2);
   border-radius: 15px;
   padding: 30px;
