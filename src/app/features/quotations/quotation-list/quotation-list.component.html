@@ -71,7 +71,6 @@
       <select [(ngModel)]="statusFilter" (change)="filterQuotations()" class="filter-select">
         <option value="">All Status</option>
         <option value="draft">Draft</option>
-        <option value="sent">Sent</option>
         <option value="accepted">Accepted</option>
         <option value="rejected">Rejected</option>
       </select>
@@ -138,6 +137,9 @@
                 </button>
                 <button class="action-btn btn-delete" (click)="deleteQuotation(quote.id)" title="Delete">
                   <i class="fas fa-trash"></i>
+                </button>
+                <button class="action-btn btn-approve" (click)="approveQuotation(quote)" title="Approve">
+                  <i class="fas fa-check"></i>
                 </button>
               </div>
             </td>

@@ -1,5 +1,6 @@
 <!-- src/app/shared/components/sidebar/sidebar.component.html -->
 <div class="sidebar">
+  <!-- Sidebar Header -->
   <div class="sidebar-header">
     <div class="logo-container">
       <img 
@@ -12,6 +13,7 @@
     <h3 class="brand-name">Capricorn CRM</h3>
   </div>
   
+  <!-- Sidebar Navigation -->
   <nav class="sidebar-nav">
     <div *ngFor="let section of menuSections" class="nav-section">
       <h4 class="section-title">{{ section.title }}</h4>
@@ -19,8 +21,9 @@
         *ngFor="let item of section.items" 
         [routerLink]="item.route" 
         routerLinkActive="active"
-        [routerLinkActiveOptions]="{exact: false}"
+        [routerLinkActiveOptions]="{exact: item.route === '/admin-dashboard'}"
         class="nav-item"
+        [title]="item.label"
       >
         <i class="fas {{ item.icon }} nav-icon"></i>
         <span class="nav-label">{{ item.label }}</span>
@@ -28,6 +31,7 @@
     </div>
   </nav>
   
+  <!-- Sidebar Footer -->
   <div class="sidebar-footer">
     <div class="user-info">
       <div class="user-avatar">
@@ -38,7 +42,7 @@
         <p class="user-role">Admin</p>
       </div>
     </div>
-    <button class="logout-btn" (click)="logout()">
+    <button class="logout-btn" (click)="logout()" title="Logout">
       <i class="fas fa-sign-out-alt"></i>
     </button>
   </div>

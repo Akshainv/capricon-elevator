@@ -209,7 +209,8 @@ export class ImportLeadsComponent {
     // Simulate API call
     setTimeout(() => {
       alert(`Successfully imported ${this.validLeadsCount} lead(s)!`);
-      this.router.navigate(['/leads']);
+      const redirect = this.router.url.startsWith('/admin') ? '/admin/leads' : '/leads';
+      this.router.navigate([redirect]);
     }, 1000);
   }
 
@@ -236,6 +237,7 @@ export class ImportLeadsComponent {
   }
 
   cancel(): void {
-    this.router.navigate(['/leads']);
+    const redirect = this.router.url.startsWith('/admin') ? '/admin/leads' : '/leads';
+    this.router.navigate([redirect]);
   }
 }

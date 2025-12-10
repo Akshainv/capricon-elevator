@@ -1,0 +1,280 @@
+<!-- src/app/sales-create-quotation/sales-create-quotation.component.html -->
+<div class="create-quotation-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>✏️ Create Quotation</h1>
+      <p>Build new quotation with products and pricing</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="cancel()">
+        <i class="fas fa-times"></i>
+        <span>Cancel</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="form-layout">
+    <!-- Left Column: Customer & Items -->
+    <div class="left-column">
+      <!-- Customer Information Card -->
+      <div class="form-card">
+        <div class="card-header">
+          <h3><i class="fas fa-user"></i> Customer Information</h3>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Customer Name <span class="required">*</span></label>
+              <input 
+                type="text" 
+                [(ngModel)]="customerName" 
+                placeholder="Enter customer name"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label>Email <span class="required">*</span></label>
+              <input 
+                type="email" 
+                [(ngModel)]="customerEmail" 
+                placeholder="customer@example.com"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone <span class="required">*</span></label>
+              <input 
+                type="tel" 
+                [(ngModel)]="customerPhone" 
+                placeholder="+91 9876543210"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label>Address</label>
+              <input 
+                type="text" 
+                [(ngModel)]="customerAddress" 
+                placeholder="Enter address"
+                class="form-input"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quotation Details Card -->
+      <div class="form-card">
+        <div class="card-header">
+          <h3><i class="fas fa-file-invoice"></i> Quotation Details</h3>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Quote Number</label>
+              <input 
+                type="text" 
+                [(ngModel)]="quoteNumber" 
+                readonly
+                class="form-input readonly"
+              />
+            </div>
+            <div class="form-group">
+              <label>Quote Date</label>
+              <input 
+                type="date" 
+                [ngModel]="quoteDate | date:'yyyy-MM-dd'" 
+                (ngModelChange)="quoteDate = $event"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Valid Until</label>
+              <input 
+                type="date" 
+                [ngModel]="validUntil | date:'yyyy-MM-dd'" 
+                (ngModelChange)="validUntil = $event"
+                class="form-input"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products & Services Card -->
+      <div class="form-card">
+        <div class="card-header">
+          <h3><i class="fas fa-boxes"></i> Products & Services</h3>
+          <button class="btn-add-item" (click)="addItem()">
+            <i class="fas fa-plus"></i> Add Item
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="items-container">
+            <div *ngFor="let item of quotationItems; let i = index" class="quotation-item">
+              <div class="item-header">
+                <span class="item-number">Item {{ i + 1 }}</span>
+                <button 
+                  *ngIf="quotationItems.length > 1" 
+                  class="btn-remove-item" 
+                  (click)="removeItem(i)"
+                  title="Remove Item"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+
+              <div class="item-form">
+                <div class="form-row">
+                  <div class="form-group full-width">
+                    <label>Product/Service <span class="required">*</span></label>
+                    <select 
+                      [(ngModel)]="item.product" 
+                      (ngModelChange)="onProductChange(i)"
+                      class="form-select"
+                    >
+                      <option [ngValue]="null">Select Product/Service</option>
+                      <option *ngFor="let product of availableProducts" [ngValue]="product">
+                        {{ product.name }} - {{ formatCurrency(product.price) }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Quantity</label>
+                    <input 
+                      type="number" 
+                      [(ngModel)]="item.quantity" 
+                      (ngModelChange)="calculateItemTotal(i)"
+                      min="1"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Price (₹)</label>
+                    <input 
+                      type="number" 
+                      [(ngModel)]="item.price" 
+                      (ngModelChange)="calculateItemTotal(i)"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Discount (%)</label>
+                    <input 
+                      type="number" 
+                      [(ngModel)]="item.discount" 
+                      (ngModelChange)="calculateItemTotal(i)"
+                      min="0"
+                      max="100"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Tax (%)</label>
+                    <input 
+                      type="number" 
+                      [(ngModel)]="item.tax" 
+                      (ngModelChange)="calculateItemTotal(i)"
+                      class="form-input"
+                    />
+                  </div>
+                </div>
+
+                <div class="item-total">
+                  <span class="total-label">Item Total:</span>
+                  <span class="total-value">{{ formatCurrency(item.total) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terms and Conditions Card -->
+      <div class="form-card">
+        <div class="card-header">
+          <h3><i class="fas fa-file-contract"></i> Terms & Conditions</h3>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <textarea 
+              [(ngModel)]="termsAndConditions" 
+              rows="6"
+              class="form-textarea"
+              placeholder="Enter terms and conditions..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Additional Notes</label>
+            <textarea 
+              [(ngModel)]="notes" 
+              rows="3"
+              class="form-textarea"
+              placeholder="Add any additional notes or comments..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Summary -->
+    <div class="right-column">
+      <div class="summary-card sticky">
+        <div class="card-header">
+          <h3><i class="fas fa-calculator"></i> Quotation Summary</h3>
+        </div>
+        <div class="card-body">
+          <div class="summary-row">
+            <span class="summary-label">Subtotal:</span>
+            <span class="summary-value">{{ formatCurrency(subtotal) }}</span>
+          </div>
+
+          <div class="summary-row discount">
+            <span class="summary-label">Total Discount:</span>
+            <span class="summary-value">- {{ formatCurrency(totalDiscount) }}</span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">Total Tax:</span>
+            <span class="summary-value">+ {{ formatCurrency(totalTax) }}</span>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-row grand-total">
+            <span class="summary-label">Grand Total:</span>
+            <span class="summary-value">{{ formatCurrency(grandTotal) }}</span>
+          </div>
+
+          <div class="summary-actions">
+            <button class="btn-action btn-preview" (click)="preview()">
+              <i class="fas fa-eye"></i>
+              <span>Preview</span>
+            </button>
+
+            <button class="btn-action btn-draft" (click)="saveAsDraft()">
+              <i class="fas fa-save"></i>
+              <span>Save as Draft</span>
+            </button>
+
+            <button class="btn-action btn-send" (click)="sendToClient()">
+              <i class="fas fa-paper-plane"></i>
+              <span>Send to Client</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

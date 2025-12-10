@@ -1,0 +1,166 @@
+<!-- src/app/sales-my-quotations/sales-my-quotations.component.html -->
+<div class="quotations-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>📋 My Quotations</h1>
+      <p>View and manage your quotations</p>
+    </div>
+    <button class="btn-primary" (click)="createQuotation()">
+      <i class="fas fa-plus"></i>
+      <span>Create Quotation</span>
+    </button>
+  </div>
+
+  <!-- Stats Summary -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon draft">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Draft</div>
+        <div class="stat-value">{{ draftCount }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon sent">
+        <i class="fas fa-paper-plane"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Sent</div>
+        <div class="stat-value">{{ sentCount }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon approved">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Approved</div>
+        <div class="stat-value">{{ approvedCount }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <i class="fas fa-file-invoice-dollar"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Value</div>
+        <div class="stat-value">{{ formatCurrency(totalValue) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Search by customer, quote number, email..." 
+        [(ngModel)]="searchTerm"
+        (input)="applyFiltersAndSort()"
+      />
+    </div>
+
+    <div class="filter-controls">
+      <select [(ngModel)]="statusFilter" (change)="applyFiltersAndSort()" class="filter-select">
+        <option value="">All Status</option>
+        <option value="draft">Draft</option>
+        <option value="sent">Sent</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+
+      <select [(ngModel)]="sortBy" (change)="applyFiltersAndSort()" class="filter-select">
+        <option value="date-desc">Latest First</option>
+        <option value="date-asc">Oldest First</option>
+        <option value="amount-desc">Highest Amount</option>
+        <option value="amount-asc">Lowest Amount</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Quotations Table -->
+  <div class="table-card">
+    <div class="table-container">
+      <table class="quotations-table">
+        <thead>
+          <tr>
+            <th>Quote #</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Elevator Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Valid Until</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let quote of filteredQuotations" class="table-row">
+            <td class="quote-number">{{ quote.quoteNumber }}</td>
+            <td>
+              <div class="customer-info">
+                <div class="customer-name">{{ quote.customerName }}</div>
+                <div class="customer-contact">{{ quote.email }}</div>
+              </div>
+            </td>
+            <td>{{ formatDate(quote.createdDate) }}</td>
+            <td>
+              <div class="elevator-info">
+                <div class="elevator-type">{{ quote.elevatorType }}</div>
+                <div class="elevator-floors">{{ quote.floors }} Floors</div>
+              </div>
+            </td>
+            <td class="amount">{{ formatCurrency(quote.amount) }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(quote.status)">
+                {{ getStatusLabel(quote.status) }}
+              </span>
+            </td>
+            <td>{{ formatDate(quote.validUntil) }}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="action-btn btn-view" (click)="viewQuotation(quote.id)" title="View">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn btn-pdf" (click)="downloadPDF(quote)" title="Download PDF">
+                  <i class="fas fa-file-pdf"></i>
+                </button>
+                <button class="action-btn btn-email" (click)="sendEmail(quote)" title="Send Email">
+                  <i class="fas fa-envelope"></i>
+                </button>
+                <button 
+                  class="action-btn btn-edit" 
+                  (click)="editQuotation(quote.id)" 
+                  title="Edit"
+                  [disabled]="quote.status !== 'draft'">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn btn-duplicate" (click)="duplicateQuotation(quote.id)" title="Duplicate">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredQuotations.length === 0" class="empty-state">
+        <i class="fas fa-file-invoice"></i>
+        <h3>No quotations found</h3>
+        <p>Try adjusting your search or filters, or create a new quotation</p>
+        <button class="btn-primary" (click)="createQuotation()">
+          <i class="fas fa-plus"></i>
+          <span>Create First Quotation</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

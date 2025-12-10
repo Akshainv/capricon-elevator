@@ -1,0 +1,548 @@
+<div class="profile-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>My Profile</h1>
+      <p>Manage your account settings and track your performance</p>
+    </div>
+    <div class="header-right">
+      <button class="btn-secondary" (click)="exportData()">
+        <i class="fas fa-download"></i>
+        Export Data
+      </button>
+    </div>
+  </div>
+
+  <!-- Profile Layout -->
+  <div class="profile-layout">
+    
+    <!-- Sidebar Navigation -->
+    <div class="profile-sidebar">
+      <div class="profile-card">
+        <div class="profile-image-section">
+          <div class="profile-image-wrapper">
+            <img [src]="user.profileImage" alt="Profile" class="profile-image">
+            <label class="upload-overlay">
+              <i class="fas fa-camera"></i>
+              <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
+            </label>
+          </div>
+          <h3>{{ user.fullName }}</h3>
+          <p class="user-role">{{ user.role }}</p>
+          <p class="user-id">{{ user.employeeId }}</p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+          <div class="stat-item">
+            <span class="stat-label">Department</span>
+            <span class="stat-value">{{ user.department }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Joined</span>
+            <span class="stat-value">{{ user.joinDate }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Reports To</span>
+            <span class="stat-value">{{ user.reportingTo }}</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="profile-nav">
+        <a 
+          class="nav-item" 
+          [class.active]="activeTab === 'profile'"
+          (click)="selectTab('profile')"
+        >
+          <i class="fas fa-user"></i>
+          <span>Personal Information</span>
+        </a>
+        <a 
+          class="nav-item" 
+          [class.active]="activeTab === 'performance'"
+          (click)="selectTab('performance')"
+        >
+          <i class="fas fa-chart-line"></i>
+          <span>Performance Stats</span>
+        </a>
+        <a 
+          class="nav-item" 
+          [class.active]="activeTab === 'activity'"
+          (click)="selectTab('activity')"
+        >
+          <i class="fas fa-history"></i>
+          <span>Activity History</span>
+        </a>
+        <a 
+          class="nav-item" 
+          [class.active]="activeTab === 'security'"
+          (click)="selectTab('security')"
+        >
+          <i class="fas fa-lock"></i>
+          <span>Security</span>
+        </a>
+        <a 
+          class="nav-item" 
+          [class.active]="activeTab === 'notifications'"
+          (click)="selectTab('notifications')"
+        >
+          <i class="fas fa-bell"></i>
+          <span>Notifications</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="profile-content">
+      
+      <!-- Personal Information Tab -->
+      <div class="content-section" *ngIf="activeTab === 'profile'">
+        <div class="section-header">
+          <h2>Personal Information</h2>
+          <p>Update your personal details and contact information</p>
+        </div>
+
+        <form class="profile-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>
+                <i class="fas fa-user"></i>
+                Full Name
+              </label>
+              <input 
+                type="text" 
+                [(ngModel)]="user.fullName" 
+                name="fullName"
+                placeholder="Enter your full name"
+              >
+            </div>
+            <div class="form-group">
+              <label>
+                <i class="fas fa-id-badge"></i>
+                Employee ID
+              </label>
+              <input 
+                type="text" 
+                [(ngModel)]="user.employeeId" 
+                name="employeeId"
+                placeholder="Employee ID"
+                disabled
+              >
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>
+                <i class="fas fa-envelope"></i>
+                Email Address
+              </label>
+              <input 
+                type="email" 
+                [(ngModel)]="user.email" 
+                name="email"
+                placeholder="Enter your email"
+              >
+            </div>
+            <div class="form-group">
+              <label>
+                <i class="fas fa-phone"></i>
+                Phone Number
+              </label>
+              <input 
+                type="tel" 
+                [(ngModel)]="user.phone" 
+                name="phone"
+                placeholder="Enter your phone number"
+              >
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>
+                <i class="fas fa-briefcase"></i>
+                Department
+              </label>
+              <input 
+                type="text" 
+                [(ngModel)]="user.department" 
+                name="department"
+                placeholder="Enter your department"
+                disabled
+              >
+            </div>
+            <div class="form-group">
+              <label>
+                <i class="fas fa-user-tie"></i>
+                Role
+              </label>
+              <input 
+                type="text" 
+                [(ngModel)]="user.role" 
+                name="role"
+                placeholder="Enter your role"
+                disabled
+              >
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>
+                <i class="fas fa-map-marker-alt"></i>
+                Location
+              </label>
+              <input 
+                type="text" 
+                [(ngModel)]="user.location" 
+                name="location"
+                placeholder="Enter your location"
+              >
+            </div>
+            <div class="form-group">
+              <label>
+                <i class="fas fa-user-shield"></i>
+                Reporting To
+              </label>
+              <input 
+                type="text" 
+                [(ngModel)]="user.reportingTo" 
+                name="reportingTo"
+                placeholder="Manager name"
+                disabled
+              >
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>
+              <i class="fas fa-info-circle"></i>
+              Bio
+            </label>
+            <textarea 
+              [(ngModel)]="user.bio" 
+              name="bio"
+              rows="4"
+              placeholder="Tell us about yourself"
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-primary" (click)="updateProfile()">
+              <i class="fas fa-save"></i>
+              Save Changes
+            </button>
+            <button type="button" class="btn-cancel">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Performance Stats Tab -->
+      <div class="content-section" *ngIf="activeTab === 'performance'">
+        <div class="section-header">
+          <h2>Performance Statistics</h2>
+          <p>Track your sales performance and achievements</p>
+        </div>
+
+        <div class="performance-grid">
+          <div *ngFor="let stat of performanceStats" class="performance-card">
+            <div class="perf-icon" [style.background]="stat.color + '22'" [style.color]="stat.color">
+              <i class="fas" [ngClass]="stat.icon"></i>
+            </div>
+            <div class="perf-info">
+              <h3>{{ stat.value }}</h3>
+              <p>{{ stat.label }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="performance-details">
+          <h3>Monthly Performance Overview</h3>
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-calendar"></i> Current Month</span>
+            <span class="detail-value">December 2024</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-trophy"></i> Rank in Team</span>
+            <span class="detail-value badge-success">2nd Place</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-fire"></i> Current Streak</span>
+            <span class="detail-value badge-warning">12 Days</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-star"></i> Total Revenue</span>
+            <span class="detail-value">₹45.5L</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity History Tab -->
+      <div class="content-section" *ngIf="activeTab === 'activity'">
+        <div class="section-header">
+          <h2>Recent Activity</h2>
+          <p>Your recent actions and interactions</p>
+        </div>
+
+        <div class="activity-timeline">
+          <div *ngFor="let activity of recentActivities" class="activity-item">
+            <div class="activity-icon" [style.background]="activity.color + '22'" [style.color]="activity.color">
+              <i class="fas" [ngClass]="activity.icon"></i>
+            </div>
+            <div class="activity-content">
+              <h4>{{ activity.description }}</h4>
+              <p class="activity-time">
+                <i class="fas fa-clock"></i> {{ activity.time }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Tab -->
+      <div class="content-section" *ngIf="activeTab === 'security'">
+        <div class="section-header">
+          <h2>Security Settings</h2>
+          <p>Manage your password and security preferences</p>
+        </div>
+
+        <form class="profile-form">
+          <div class="form-group">
+            <label>
+              <i class="fas fa-lock"></i>
+              Current Password
+            </label>
+            <input 
+              type="password" 
+              [(ngModel)]="passwordData.currentPassword" 
+              name="currentPassword"
+              placeholder="Enter current password"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>
+              <i class="fas fa-key"></i>
+              New Password
+            </label>
+            <input 
+              type="password" 
+              [(ngModel)]="passwordData.newPassword" 
+              name="newPassword"
+              placeholder="Enter new password"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>
+              <i class="fas fa-check-circle"></i>
+              Confirm New Password
+            </label>
+            <input 
+              type="password" 
+              [(ngModel)]="passwordData.confirmPassword" 
+              name="confirmPassword"
+              placeholder="Confirm new password"
+            >
+          </div>
+
+          <div class="password-requirements">
+            <h4>Password Requirements:</h4>
+            <ul>
+              <li><i class="fas fa-check-circle"></i> At least 8 characters</li>
+              <li><i class="fas fa-check-circle"></i> One uppercase letter</li>
+              <li><i class="fas fa-check-circle"></i> One lowercase letter</li>
+              <li><i class="fas fa-check-circle"></i> One number</li>
+              <li><i class="fas fa-check-circle"></i> One special character</li>
+            </ul>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-primary" (click)="changePassword()">
+              <i class="fas fa-shield-alt"></i>
+              Change Password
+            </button>
+            <button type="button" class="btn-cancel">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Notifications Tab -->
+      <div class="content-section" *ngIf="activeTab === 'notifications'">
+        <div class="section-header">
+          <h2>Notification Preferences</h2>
+          <p>Choose how you want to receive notifications</p>
+        </div>
+
+        <div class="notification-settings">
+          <div class="notification-group">
+            <h3>Communication Channels</h3>
+            <div class="notification-item">
+              <div class="notification-info">
+                <i class="fas fa-envelope"></i>
+                <div>
+                  <h4>Email Notifications</h4>
+                  <p>Receive notifications via email</p>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="notifications.emailNotifications"
+                  name="emailNotifications"
+                >
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="notification-item">
+              <div class="notification-info">
+                <i class="fas fa-mobile-alt"></i>
+                <div>
+                  <h4>Push Notifications</h4>
+                  <p>Receive push notifications in browser</p>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="notifications.pushNotifications"
+                  name="pushNotifications"
+                >
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="notification-item">
+              <div class="notification-info">
+                <i class="fas fa-sms"></i>
+                <div>
+                  <h4>SMS Notifications</h4>
+                  <p>Receive notifications via SMS</p>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="notifications.smsNotifications"
+                  name="smsNotifications"
+                >
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="notification-group">
+            <h3>Sales Activity Notifications</h3>
+            <div class="notification-item">
+              <div class="notification-info">
+                <i class="fas fa-user-plus"></i>
+                <div>
+                  <h4>Lead Assignments</h4>
+                  <p>Get notified when leads are assigned to you</p>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="notifications.leadAssignments"
+                  name="leadAssignments"
+                >
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="notification-item">
+              <div class="notification-info">
+                <i class="fas fa-handshake"></i>
+                <div>
+                  <h4>Deal Updates</h4>
+                  <p>Get notified about deal status changes</p>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="notifications.dealUpdates"
+                  name="dealUpdates"
+                >
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="notification-item">
+              <div class="notification-info">
+                <i class="fas fa-file-invoice"></i>
+                <div>
+                  <h4>Quotation Approvals</h4>
+                  <p>Get notified when quotations are approved</p>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="notifications.quotationApprovals"
+                  name="quotationApprovals"
+                >
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="notification-item">
+              <div class="notification-info">
+                <i class="fas fa-bell"></i>
+                <div>
+                  <h4>Task Reminders</h4>
+                  <p>Get reminders for upcoming tasks</p>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="notifications.taskReminders"
+                  name="taskReminders"
+                >
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="notification-item">
+              <div class="notification-info">
+                <i class="fas fa-phone-volume"></i>
+                <div>
+                  <h4>Follow-up Alerts</h4>
+                  <p>Get alerts for scheduled follow-ups</p>
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="notifications.followUpAlerts"
+                  name="followUpAlerts"
+                >
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-primary" (click)="updateNotifications()">
+            <i class="fas fa-save"></i>
+            Save Preferences
+          </button>
+          <button type="button" class="btn-cancel">
+            Cancel
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

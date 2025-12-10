@@ -1,0 +1,135 @@
+<!-- src/app/shared/components/sales-header/sales-header.component.html -->
+<header class="header">
+  <div class="header-left">
+    <button class="menu-toggle" title="Toggle Menu">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" placeholder="Search leads, quotations, deals...">
+    </div>
+  </div>
+  
+  <div class="header-right">
+    <!-- Quick Actions Dropdown -->
+    <div class="header-dropdown">
+      <button class="header-btn quick-actions-btn" (click)="toggleQuickActions()" title="Quick Actions">
+        <i class="fas fa-plus"></i>
+      </button>
+      
+      <div class="dropdown-menu quick-actions-menu" [class.show]="showQuickActions">
+        <div class="dropdown-header">
+          <h4>Quick Actions</h4>
+        </div>
+        <div class="dropdown-body">
+          <button 
+            *ngFor="let action of quickActions" 
+            class="quick-action-item"
+            (click)="handleQuickAction(action)"
+          >
+            <div class="action-icon">
+              <i class="fas {{ action.icon }}"></i>
+            </div>
+            <span class="action-label">{{ action.label }}</span>
+            <i class="fas fa-arrow-right action-arrow"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🌓 THEME TOGGLE BUTTON -->
+    <button 
+      class="header-btn theme-toggle" 
+      (click)="toggleTheme()"
+      [title]="getThemeLabel()"
+      [class.light-mode]="currentTheme === 'light'"
+    >
+      <i class="fas" [ngClass]="getThemeIcon()"></i>
+    </button>
+    
+    <!-- Notifications -->
+    <div class="header-dropdown">
+      <button class="header-btn notification-btn" (click)="toggleNotifications()" title="Notifications">
+        <i class="fas fa-bell"></i>
+        <span class="badge" *ngIf="getUnreadCount() > 0">{{ getUnreadCount() }}</span>
+      </button>
+      
+      <div class="dropdown-menu notifications-menu" [class.show]="showNotifications">
+        <div class="dropdown-header">
+          <h4>Notifications</h4>
+          <span class="badge-count">{{ getUnreadCount() }} new</span>
+        </div>
+        <div class="dropdown-body">
+          <div 
+            *ngFor="let notification of notifications" 
+            class="notification-item"
+            (click)="handleNotificationClick(notification)"
+          >
+            <div class="notification-icon" [class]="notification.type">
+              <i class="fas {{ notification.icon }}"></i>
+            </div>
+            <div class="notification-content">
+              <p class="notification-text">{{ notification.text }}</p>
+              <span class="notification-time">{{ notification.time }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="dropdown-footer">
+          <a (click)="navigateTo('/notifications')">View all notifications</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- User Profile -->
+    <div class="header-dropdown">
+      <button class="header-btn profile-btn" (click)="toggleProfile()" title="Profile">
+        <div class="profile-avatar">
+          {{ userInitials }}
+        </div>
+        <span class="profile-name">{{ userName }}</span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+      
+      <div class="dropdown-menu profile-menu" [class.show]="showProfile">
+        <div class="profile-info">
+          <div class="profile-avatar-large">
+            {{ userInitials }}
+          </div>
+          <h4>{{ userName }}</h4>
+          <p>{{ userEmail }}</p>
+          <span class="role-badge">{{ userRole }}</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-body">
+          <a (click)="navigateTo('/profile')" class="dropdown-item">
+            <i class="fas fa-user"></i>
+            <span>My Profile</span>
+          </a>
+          <a (click)="navigateTo('/dashboard')" class="dropdown-item">
+            <i class="fas fa-chart-line"></i>
+            <span>My Dashboard</span>
+          </a>
+          <a (click)="navigateTo('/reports/performance')" class="dropdown-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>My Performance</span>
+          </a>
+          <a (click)="navigateTo('/settings')" class="dropdown-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+          <a (click)="navigateTo('/help')" class="dropdown-item">
+            <i class="fas fa-question-circle"></i>
+            <span>Help & Support</span>
+          </a>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-footer">
+          <a (click)="logout()" class="logout-link">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

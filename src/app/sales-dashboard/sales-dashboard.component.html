@@ -1,0 +1,345 @@
+<!-- src/app/features/dashboard/sales-dashboard/sales-dashboard.component.html -->
+<div class="dashboard-container">
+  <!-- Enhanced Page Header with Greeting -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="greeting-section">
+        <h1>{{ greetingMessage }}, {{ userName }}! 👋</h1>
+        <p class="subtitle">Here's your sales performance overview for today</p>
+        <p class="date-info">
+          <i class="fas fa-calendar-alt"></i>
+          {{ currentDate | date: 'EEEE, MMMM d, yyyy' }}
+        </p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 8 Key Metric Cards - Sales Executive's Personal KPIs -->
+  <div class="stats-grid">
+    <div 
+      *ngFor="let stat of stats" 
+      class="stat-card"
+      (click)="navigateTo(stat.route || '')"
+      [style.cursor]="stat.route ? 'pointer' : 'default'"
+    >
+      <div class="stat-icon">
+        <i class="fas {{ stat.icon }}"></i>
+      </div>
+      <div class="stat-content">
+        <h4 class="stat-label">{{ stat.label }}</h4>
+        <div class="stat-value">{{ stat.value }}</div>
+        <div class="stat-change" [class]="'trend-' + stat.trend">
+          <i class="fas" 
+             [class.fa-arrow-up]="stat.trend === 'up'" 
+             [class.fa-arrow-down]="stat.trend === 'down'"
+             [class.fa-minus]="stat.trend === 'neutral'"></i>
+          <span>{{ stat.change }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid - 3 Columns Layout -->
+  <div class="content-grid">
+    <!-- Left Column - Charts & Pipeline -->
+    <div class="left-column">
+      <!-- Sales Performance Trend Chart -->
+      <div class="chart-card">
+        <div class="card-header">
+          <h3><i class="fas fa-chart-line"></i> My Sales Performance</h3>
+          <span class="time-filter">Last 6 Months</span>
+        </div>
+        <div class="chart-placeholder">
+          <div class="chart-stats">
+            <div class="chart-stat">
+              <span class="label">Total Revenue</span>
+              <span class="value">₹72.5L</span>
+            </div>
+            <div class="chart-stat">
+              <span class="label">Deals Closed</span>
+              <span class="value">45</span>
+            </div>
+            <div class="chart-stat">
+              <span class="label">Avg Deal Size</span>
+              <span class="value">₹1.61L</span>
+            </div>
+          </div>
+          <i class="fas fa-chart-area"></i>
+          <p>Monthly sales trend visualization</p>
+        </div>
+      </div>
+
+      <!-- Deal Pipeline Overview - My Deals -->
+      <div class="pipeline-card">
+        <div class="card-header">
+          <h3><i class="fas fa-filter"></i> My Deal Pipeline</h3>
+          <span class="total-value">Total Value: ₹153.5L</span>
+        </div>
+        <div class="pipeline-stages">
+          <div *ngFor="let stage of pipelineStages" class="pipeline-stage">
+            <div class="stage-header">
+              <span class="stage-name">{{ stage.name }}</span>
+              <span class="stage-count">{{ stage.count }} deals</span>
+            </div>
+            <div class="stage-progress">
+              <div class="stage-bar" 
+                   [style.background]="stage.color"
+                   [style.width.%]="stage.percentage"></div>
+            </div>
+            <div class="stage-footer">
+              <span class="stage-value">{{ stage.value }}</span>
+              <span class="stage-percentage">{{ stage.percentage }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lead Sources Distribution -->
+      <div class="sources-card">
+        <div class="card-header">
+          <h3><i class="fas fa-chart-pie"></i> Lead Sources</h3>
+          <span class="total-leads">Total: 84 Leads</span>
+        </div>
+        <div class="sources-list">
+          <div *ngFor="let source of leadSources" class="source-item">
+            <div class="source-header">
+              <div class="source-info">
+                <span class="source-dot" [style.background]="source.color"></span>
+                <span class="source-name">{{ source.name }}</span>
+              </div>
+              <span class="source-count">{{ source.count }}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" 
+                   [style.width.%]="source.percentage"
+                   [style.background]="source.color"></div>
+            </div>
+            <span class="source-percentage">{{ source.percentage }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Column - Tasks & Activities -->
+    <div class="middle-column">
+      <!-- My Tasks Today -->
+      <div class="tasks-card">
+        <div class="card-header">
+          <h3><i class="fas fa-tasks"></i> My Tasks Today</h3>
+          <span class="task-count">{{ todayTasks.length }} tasks</span>
+        </div>
+        <div class="tasks-list">
+          <div *ngFor="let task of todayTasks" class="task-item" [class.completed]="task.completed">
+            <div class="task-checkbox">
+              <input 
+                type="checkbox" 
+                [checked]="task.completed"
+                (change)="toggleTaskComplete(task)"
+                [id]="task.id"
+              >
+              <label [for]="task.id"></label>
+            </div>
+            <div class="task-icon" [class]="getPriorityClass(task.priority)">
+              <i class="fas {{ getTaskIcon(task.type) }}"></i>
+            </div>
+            <div class="task-info">
+              <h4>{{ task.title }}</h4>
+              <div class="task-meta">
+                <span class="task-time">
+                  <i class="fas fa-clock"></i> {{ task.time }}
+                </span>
+                <span class="task-priority" [class]="getPriorityClass(task.priority)">
+                  {{ task.priority }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="view-all-btn" (click)="navigateTo('/tasks')">
+            View All Tasks <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Activity Distribution Chart -->
+      <div class="activity-distribution-card">
+        <div class="card-header">
+          <h3><i class="fas fa-chart-bar"></i> Activity Distribution</h3>
+          <span class="time-filter">This Month</span>
+        </div>
+        <div class="activity-stats-grid">
+          <div *ngFor="let activity of activityDistribution" class="activity-stat-item">
+            <div class="activity-stat-icon" [style.background]="activity.color">
+              <i class="fas {{ activity.icon }}"></i>
+            </div>
+            <div class="activity-stat-info">
+              <span class="activity-stat-label">{{ activity.label }}</span>
+              <span class="activity-stat-value">{{ activity.count }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="activity-chart-placeholder">
+          <i class="fas fa-chart-pie"></i>
+          <p>Activity breakdown visualization</p>
+        </div>
+      </div>
+
+      <!-- Top Products -->
+      <div class="products-card">
+        <div class="card-header">
+          <h3><i class="fas fa-star"></i> My Top Products</h3>
+          <span class="time-filter">This Quarter</span>
+        </div>
+        <div class="products-list">
+          <div *ngFor="let product of topProducts; let i = index" class="product-item">
+            <span class="product-rank">{{ i + 1 }}</span>
+            <div class="product-info">
+              <h4>{{ product.name }}</h4>
+              <p>{{ product.sales }} sales • {{ product.revenue }}</p>
+            </div>
+            <div class="product-trend" [class]="'trend-' + product.trend">
+              <i class="fas {{ getTrendIcon(product.trend) }}"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Leads & Quotations -->
+    <div class="right-column">
+      <!-- Recent Leads Assigned to Me -->
+      <div class="leads-card">
+        <div class="card-header">
+          <h3><i class="fas fa-users"></i> Recent Leads</h3>
+          <span class="leads-count">{{ recentLeads.length }} latest</span>
+        </div>
+        <div class="leads-list">
+          <div *ngFor="let lead of recentLeads" 
+               class="lead-item"
+               (click)="viewLeadDetail(lead.id)">
+            <div class="lead-header">
+              <div class="lead-info">
+                <h4>{{ lead.name }}</h4>
+                <p>{{ lead.company }}</p>
+                <span class="lead-id">{{ lead.id }}</span>
+              </div>
+              <span class="lead-status" [class]="getStatusClass(lead.status)">
+                {{ lead.status }}
+              </span>
+            </div>
+            <div class="lead-footer">
+              <span class="lead-value">
+                <i class="fas fa-rupee-sign"></i> {{ lead.value }}
+              </span>
+              <span class="lead-date">
+                <i class="fas fa-clock"></i> {{ lead.date }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="view-all-btn" (click)="navigateTo('/leads')">
+            View All Leads (84) <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Activities -->
+      <div class="activities-card">
+        <div class="card-header">
+          <h3><i class="fas fa-history"></i> Recent Activities</h3>
+          <span class="activities-count">{{ recentActivities.length }} recent</span>
+        </div>
+        <div class="activities-list">
+          <div *ngFor="let activity of recentActivities" class="activity-item">
+            <div class="activity-icon" [class]="getStatusClass(activity.status)">
+              <i class="fas {{ getActivityIcon(activity.type) }}"></i>
+            </div>
+            <div class="activity-info">
+              <h4>{{ activity.title }}</h4>
+              <p class="activity-lead">{{ activity.leadName }}</p>
+              <span class="activity-time">
+                <i class="fas fa-clock"></i> {{ activity.time }}
+              </span>
+            </div>
+            <span class="activity-status" [class]="getStatusClass(activity.status)">
+              {{ activity.status }}
+            </span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="view-all-btn" (click)="navigateTo('/activities')">
+            View All Activities <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Quotations -->
+      <div class="quotations-card">
+        <div class="card-header">
+          <h3><i class="fas fa-file-invoice"></i> Recent Quotations</h3>
+          <span class="quotations-count">{{ recentQuotations.length }} latest</span>
+        </div>
+        <div class="quotations-list">
+          <div *ngFor="let quote of recentQuotations" 
+               class="quotation-item"
+               (click)="viewQuotationDetail(quote.id)">
+            <div class="quotation-header">
+              <div class="quotation-info">
+                <h4>{{ quote.id }}</h4>
+                <p>{{ quote.customer }}</p>
+              </div>
+              <span class="quotation-status" [class]="getStatusClass(quote.status)">
+                {{ quote.status }}
+              </span>
+            </div>
+            <div class="quotation-footer">
+              <span class="quotation-amount">
+                <i class="fas fa-rupee-sign"></i> {{ quote.amount }}
+              </span>
+              <span class="quotation-date">
+                <i class="fas fa-calendar"></i> {{ quote.date }}
+              </span>
+            </div>
+            <div class="quotation-validity" *ngIf="quote.validUntil !== 'Expired'">
+              <i class="fas fa-hourglass-half"></i> Valid until: {{ quote.validUntil }}
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="view-all-btn" (click)="navigateTo('/quotations')">
+            View All Quotations (23) <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Quick Actions Toolbar - Only at bottom for quick navigation -->
+  <div class="floating-actions">
+    <div class="fab-menu">
+      <button class="fab-toggle" title="Quick Actions">
+        <i class="fas fa-bolt"></i>
+      </button>
+      <div class="fab-items">
+        <button class="fab-item" (click)="navigateTo('/leads/add')" title="Add New Lead">
+          <i class="fas fa-user-plus"></i>
+          <span>Add Lead</span>
+        </button>
+        <button class="fab-item" (click)="navigateTo('/quotations/create')" title="Create Quotation">
+          <i class="fas fa-file-invoice"></i>
+          <span>New Quote</span>
+        </button>
+        <button class="fab-item" (click)="navigateTo('/activities')" title="Log Activity">
+          <i class="fas fa-phone"></i>
+          <span>Log Call</span>
+        </button>
+        <button class="fab-item" (click)="navigateTo('/tasks')" title="Add Task">
+          <i class="fas fa-tasks"></i>
+          <span>Add Task</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -433,8 +433,8 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-  transform: translateX(20.4px);
-  background: #000;
+  transform: translateX(24px);
+  background: var(--bg-secondary);
 }
 
 /* Security Grid */

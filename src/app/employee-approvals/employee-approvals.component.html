@@ -1,0 +1,319 @@
+<!-- src/app/features/employee/employee-approvals/employee-approvals.component.html -->
+<div class="approvals-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1><i class="fas fa-user-check"></i> Employee Approvals</h1>
+        <p class="subtitle">Review and manage employee registration requests</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-export" (click)="exportToCSV()">
+          <i class="fas fa-download"></i>
+          Export Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="stat-content">
+        <h4>Total Registrations</h4>
+        <div class="stat-value">{{ totalRegistrations }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon pending">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="stat-content">
+        <h4>Pending Review</h4>
+        <div class="stat-value">{{ pendingCount }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon approved">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <h4>Approved</h4>
+        <div class="stat-value">{{ approvedCount }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon rejected">
+        <i class="fas fa-times-circle"></i>
+      </div>
+      <div class="stat-content">
+        <h4>Rejected</h4>
+        <div class="stat-value">{{ rejectedCount }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="statusFilter">
+        <i class="fas fa-filter"></i>
+        Filter by Status
+      </label>
+      <select 
+        id="statusFilter" 
+        [(ngModel)]="filterStatus" 
+        (change)="onFilterChange()"
+        class="filter-select"
+      >
+        <option value="all">All Employees</option>
+        <option value="pending">Pending Only</option>
+        <option value="approved">Approved Only</option>
+        <option value="rejected">Rejected Only</option>
+      </select>
+    </div>
+
+    <div class="search-group">
+      <label for="searchInput">
+        <i class="fas fa-search"></i>
+        Search
+      </label>
+      <input 
+        id="searchInput"
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="onSearchChange()"
+        placeholder="Search by name, email, phone or ID..."
+        class="search-input"
+      >
+    </div>
+  </div>
+
+  <!-- Employees List -->
+  <div class="employees-section">
+    <div class="section-header">
+      <h3>
+        <i class="fas fa-list"></i>
+        Employee Registrations
+        <span class="count-badge">{{ filteredEmployees.length }}</span>
+      </h3>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredEmployees.length === 0" class="empty-state">
+      <i class="fas fa-inbox"></i>
+      <h3>No Registrations Found</h3>
+      <p>{{ searchQuery ? 'Try adjusting your search criteria' : 'No employee registrations match the current filter' }}</p>
+    </div>
+
+    <!-- Employee Cards -->
+    <div class="employees-grid" *ngIf="filteredEmployees.length > 0">
+      <div 
+        *ngFor="let employee of filteredEmployees" 
+        class="employee-card"
+        [class.pending]="employee.status === 'pending'"
+        [class.approved]="employee.status === 'approved'"
+        [class.rejected]="employee.status === 'rejected'"
+      >
+        <!-- Card Header -->
+        <div class="card-header">
+          <div class="employee-avatar">
+            <img 
+              *ngIf="employee.photo" 
+              [src]="employee.photo" 
+              [alt]="employee.name"
+              (error)="$any($event.target).style.display='none'; $any($event.target).nextElementSibling.style.display='flex'"
+            >
+            <div class="avatar-placeholder" [style.display]="employee.photo ? 'none' : 'flex'">
+              {{ getInitials(employee.name) }}
+            </div>
+          </div>
+          <div class="employee-info">
+            <h4>{{ employee.name }}</h4>
+            <p class="employee-id">{{ employee.id }}</p>
+          </div>
+          <span class="status-badge" [class]="getStatusClass(employee.status)">
+            <i class="fas {{ getStatusIcon(employee.status) }}"></i>
+            {{ employee.status | titlecase }}
+          </span>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="info-row">
+            <i class="fas fa-envelope"></i>
+            <span>{{ employee.email }}</span>
+          </div>
+          <div class="info-row">
+            <i class="fas fa-phone"></i>
+            <span>{{ employee.phoneNumber }}</span>
+          </div>
+          <div class="info-row">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Submitted: {{ formatDate(employee.submittedDate) }}</span>
+          </div>
+          <div class="info-row" *ngIf="employee.reviewedDate">
+            <i class="fas fa-user-check"></i>
+            <span>Reviewed: {{ formatDate(employee.reviewedDate) }}</span>
+          </div>
+          <div class="info-row" *ngIf="employee.reviewedBy">
+            <i class="fas fa-user-shield"></i>
+            <span>{{ employee.reviewedBy }}</span>
+          </div>
+        </div>
+
+        <!-- Card Actions -->
+        <div class="card-actions">
+          <button 
+            class="btn-view" 
+            (click)="viewDetails(employee)"
+            title="View Details"
+          >
+            <i class="fas fa-eye"></i>
+            View Details
+          </button>
+
+          <div class="action-buttons" *ngIf="employee.status === 'pending'">
+            <button 
+              class="btn-approve" 
+              (click)="approveEmployee(employee)"
+              title="Approve Employee"
+            >
+              <i class="fas fa-check"></i>
+              Approve
+            </button>
+            <button 
+              class="btn-reject" 
+              (click)="rejectEmployee(employee)"
+              title="Reject Employee"
+            >
+              <i class="fas fa-times"></i>
+              Reject
+            </button>
+          </div>
+
+          <button 
+            class="btn-delete" 
+            (click)="deleteEmployee(employee)"
+            title="Delete Record"
+          >
+            <i class="fas fa-trash"></i>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetailModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" *ngIf="selectedEmployee">
+      <div class="modal-header">
+        <h2><i class="fas fa-user-circle"></i> Employee Details</h2>
+        <button class="close-btn" (click)="closeDetailModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Employee Photo -->
+        <div class="detail-photo-section">
+          <div class="photo-container">
+            <img 
+              *ngIf="selectedEmployee.photo" 
+              [src]="selectedEmployee.photo" 
+              [alt]="selectedEmployee.name"
+              (error)="$any($event.target).style.display='none'; $any($event.target).nextElementSibling.style.display='flex'"
+            >
+            <div class="photo-placeholder" [style.display]="selectedEmployee.photo ? 'none' : 'flex'">
+              {{ getInitials(selectedEmployee.name) }}
+            </div>
+          </div>
+          <div class="status-indicator" [class]="getStatusClass(selectedEmployee.status)">
+            <i class="fas {{ getStatusIcon(selectedEmployee.status) }}"></i>
+            {{ selectedEmployee.status | titlecase }}
+          </div>
+        </div>
+
+        <!-- Personal Information -->
+        <div class="detail-section">
+          <h3><i class="fas fa-id-card"></i> Personal Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Employee ID</label>
+              <p>{{ selectedEmployee.id }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Full Name</label>
+              <p>{{ selectedEmployee.name }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Email Address</label>
+              <p>{{ selectedEmployee.email }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Phone Number</label>
+              <p>{{ selectedEmployee.phoneNumber }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Registration Information -->
+        <div class="detail-section">
+          <h3><i class="fas fa-info-circle"></i> Registration Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Submitted Date</label>
+              <p>{{ selectedEmployee.submittedDate | date: 'medium' }}</p>
+            </div>
+            <div class="detail-item" *ngIf="selectedEmployee.reviewedDate">
+              <label>Reviewed Date</label>
+              <p>{{ selectedEmployee.reviewedDate | date: 'medium' }}</p>
+            </div>
+            <div class="detail-item" *ngIf="selectedEmployee.reviewedBy">
+              <label>Reviewed By</label>
+              <p>{{ selectedEmployee.reviewedBy }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Current Status</label>
+              <p>
+                <span class="status-badge" [class]="getStatusClass(selectedEmployee.status)">
+                  <i class="fas {{ getStatusIcon(selectedEmployee.status) }}"></i>
+                  {{ selectedEmployee.status | titlecase }}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-close" (click)="closeDetailModal()">
+          Close
+        </button>
+        
+        <div class="action-buttons" *ngIf="selectedEmployee.status === 'pending'">
+          <button class="btn-approve" (click)="approveEmployee(selectedEmployee); closeDetailModal()">
+            <i class="fas fa-check"></i>
+            Approve
+          </button>
+          <button class="btn-reject" (click)="rejectEmployee(selectedEmployee); closeDetailModal()">
+            <i class="fas fa-times"></i>
+            Reject
+          </button>
+        </div>
+
+        <button class="btn-delete" (click)="deleteEmployee(selectedEmployee)">
+          <i class="fas fa-trash"></i>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

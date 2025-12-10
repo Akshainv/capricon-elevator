@@ -114,8 +114,8 @@ select.form-control {
 }
 
 select.form-control option {
-  background: #1a1a1a;
-  color: #fff;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   padding: 10px;
 }
 

@@ -36,12 +36,14 @@ export class DealPipelineComponent implements OnInit {
   allDeals: Deal[] = [];
   columns: Column[] = [];
   draggedDeal: Deal | null = null;
+  wonDeals: Deal[] = [];
 
   constructor(public router: Router) {}
 
   ngOnInit(): void {
     this.initializeColumns();
     this.loadDeals();
+    this.wonDeals = this.getWonDeals();
   }
 
   initializeColumns(): void {
@@ -49,14 +51,12 @@ export class DealPipelineComponent implements OnInit {
       { title: 'Lead', status: 'lead', color: '#3b82f6', deals: [] },
       { title: 'Qualified', status: 'qualified', color: '#8b5cf6', deals: [] },
       { title: 'Proposal', status: 'proposal', color: '#f59e0b', deals: [] },
-      { title: 'Negotiation', status: 'negotiation', color: '#ec4899', deals: [] },
-      { title: 'Won', status: 'won', color: '#10b981', deals: [] },
-      { title: 'Lost', status: 'lost', color: '#ef4444', deals: [] }
+      { title: 'Negotiation', status: 'negotiation', color: '#ec4899', deals: [] }
     ];
   }
 
   loadDeals(): void {
-    // Sample data with deals in all stages
+    // Sample data with deals in all stages (excluding lost deals)
     this.allDeals = [
       {
         id: '1',
@@ -115,20 +115,6 @@ export class DealPipelineComponent implements OnInit {
         email: 'john@sunrisemall.com'
       },
       {
-        id: '5',
-        title: 'Budget Housing Project',
-        company: 'ABC Builders',
-        amount: 1200000,
-        elevatorType: 'Passenger Elevator',
-        probability: 0,
-        closeDate: '2024-09-15',
-        assignedTo: 'Mike Johnson',
-        status: 'lost',
-        contactPerson: 'Ramesh Kumar',
-        phone: '+91 9876543213',
-        email: 'ramesh@abc.com'
-      },
-      {
         id: '6',
         title: 'Residential Tower Project',
         company: 'Skyline Developers',
@@ -141,6 +127,62 @@ export class DealPipelineComponent implements OnInit {
         contactPerson: 'Vijay Singh',
         phone: '+91 9876543214',
         email: 'vijay@skyline.com'
+      },
+      {
+        id: '7',
+        title: 'Metro Station Project',
+        company: 'Delhi Metro Rail Corporation',
+        amount: 5500000,
+        elevatorType: 'Heavy-Duty Escalator',
+        probability: 100,
+        closeDate: '2024-08-25',
+        assignedTo: 'Rajesh Kumar',
+        status: 'won',
+        contactPerson: 'Deepak Verma',
+        phone: '+91 9876543216',
+        email: 'deepak@dmrc.com'
+      },
+      {
+        id: '8',
+        title: 'Hospital Modernization',
+        company: 'City General Hospital',
+        amount: 2800000,
+        elevatorType: 'Medical Elevator',
+        probability: 100,
+        closeDate: '2024-09-10',
+        assignedTo: 'Priya Sharma',
+        status: 'won',
+        contactPerson: 'Dr. Sharma',
+        phone: '+91 9876543217',
+        email: 'admin@cityhospital.com'
+      },
+      {
+        id: '9',
+        title: 'Premium Residential Complex',
+        company: 'Godrej Properties',
+        amount: 4200000,
+        elevatorType: 'High-Speed Passenger Elevator',
+        probability: 100,
+        closeDate: '2024-07-20',
+        assignedTo: 'John Doe',
+        status: 'won',
+        contactPerson: 'Rahul Mehta',
+        phone: '+91 9876543218',
+        email: 'rahul@godrej.com'
+      },
+      {
+        id: '10',
+        title: 'Corporate Tech Hub',
+        company: 'Infosys Campus',
+        amount: 6800000,
+        elevatorType: 'Smart Elevator System',
+        probability: 100,
+        closeDate: '2024-06-15',
+        assignedTo: 'Jane Smith',
+        status: 'won',
+        contactPerson: 'Anita Singh',
+        phone: '+91 9876543219',
+        email: 'anita@infosys.com'
       }
     ];
 
@@ -153,13 +195,28 @@ export class DealPipelineComponent implements OnInit {
       column.deals = [];
     });
 
-    // Distribute deals to columns
+    // Distribute deals to columns (only active deals, not won)
     this.allDeals.forEach(deal => {
-      const column = this.columns.find(col => col.status === deal.status);
-      if (column) {
-        column.deals.push(deal);
+      if (deal.status !== 'won') {
+        const column = this.columns.find(col => col.status === deal.status);
+        if (column) {
+          column.deals.push(deal);
+        }
       }
     });
+
+    // Update won deals
+    this.wonDeals = this.getWonDeals();
+  }
+
+  // Get won deals only
+  getWonDeals(): Deal[] {
+    return this.allDeals.filter(deal => deal.status === 'won');
+  }
+
+  // Total value methods
+  getTotalWonValue(): number {
+    return this.getWonDeals().reduce((sum, deal) => sum + deal.amount, 0);
   }
 
   // Drag and Drop Methods
@@ -186,8 +243,6 @@ export class DealPipelineComponent implements OnInit {
       // Update probability based on status
       if (newStatus === 'won') {
         this.draggedDeal.probability = 100;
-      } else if (newStatus === 'lost') {
-        this.draggedDeal.probability = 0;
       }
       
       // Reorganize deals into columns
@@ -220,7 +275,7 @@ export class DealPipelineComponent implements OnInit {
     });
   }
 
-  // ✅ UPDATED: View Deal Details - Navigation enabled
+  // View Deal Details
   viewDealDetails(deal: Deal): void {
     console.log('Viewing deal:', deal);
     this.router.navigate(['/deals', deal.id]);
@@ -237,7 +292,7 @@ export class DealPipelineComponent implements OnInit {
 
   getTotalPipelineValue(): number {
     return this.allDeals
-      .filter(deal => deal.status !== 'won' && deal.status !== 'lost')
+      .filter(deal => deal.status !== 'won')
       .reduce((sum, deal) => sum + deal.amount, 0);
   }
 
@@ -245,6 +300,10 @@ export class DealPipelineComponent implements OnInit {
     return this.allDeals
       .filter(deal => deal.status === 'won')
       .reduce((sum, deal) => sum + deal.amount, 0);
+  }
+
+  getActiveDealsCount(): number {
+    return this.allDeals.filter(deal => deal.status !== 'won').length;
   }
 
   formatCurrency(amount: number): string {
@@ -263,5 +322,9 @@ export class DealPipelineComponent implements OnInit {
       day: 'numeric',
       year: 'numeric'
     });
+  }
+
+  getStatusBadgeClass(status: string): string {
+    return `status-${status}`;
   }
 }

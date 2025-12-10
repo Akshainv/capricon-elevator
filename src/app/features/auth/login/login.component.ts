@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';  // ← Add this
-import { CommonModule } from '@angular/common';  // ← Add this
+import { Router, RouterModule } from '@angular/router';  // Added RouterModule
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 declare var AOS: any;
 
 @Component({
   selector: 'app-login',
-  standalone: true,  // ← Should be here
-  imports: [FormsModule, CommonModule],  // ← Add this line
+  standalone: true,
+  imports: [FormsModule, CommonModule, RouterModule],  // Added RouterModule
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })

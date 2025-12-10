@@ -4,7 +4,7 @@
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-left">
-      <h1> Projects</h1>
+      <h1>🏗️ Projects</h1>
       <p>Track and manage installation projects</p>
     </div>
   </div>
@@ -26,7 +26,7 @@
         <i class="fas fa-tasks"></i>
       </div>
       <div class="stat-content">
-        <div class="stat-label">Active Projects</div>
+        <div class="stat-label">In Progress</div>
         <div class="stat-value">{{ getActiveProjects() }}</div>
       </div>
     </div>
@@ -52,10 +52,57 @@
     </div>
   </div>
 
+  <!-- Filters & Search -->
+  <div class="controls-section">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Search by project name, customer, or code..."
+        (input)="onSearch($event)"
+      />
+    </div>
+    
+    <div class="filter-buttons">
+      <button 
+        class="filter-btn" 
+        [class.active]="selectedFilter === 'all'"
+        (click)="filterByStatus('all')"
+      >
+        <i class="fas fa-list"></i>
+        <span>All</span>
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="selectedFilter === 'planning'"
+        (click)="filterByStatus('planning')"
+      >
+        <i class="fas fa-clipboard-list"></i>
+        <span>Planning</span>
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="selectedFilter === 'in-progress'"
+        (click)="filterByStatus('in-progress')"
+      >
+        <i class="fas fa-spinner"></i>
+        <span>In Progress</span>
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="selectedFilter === 'completed'"
+        (click)="filterByStatus('completed')"
+      >
+        <i class="fas fa-check-circle"></i>
+        <span>Completed</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Projects Grid -->
-  <div class="projects-grid">
+  <div class="projects-grid" *ngIf="getFilteredProjects().length > 0">
     <div 
-      *ngFor="let project of projects"
+      *ngFor="let project of getFilteredProjects()"
       class="project-card"
       (click)="viewProject(project)"
     >
@@ -120,6 +167,20 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="getFilteredProjects().length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-project-diagram"></i>
+    </div>
+    <h3>No Projects Found</h3>
+    <p *ngIf="!searchTerm && selectedFilter === 'all'">
+      No projects available at the moment.
+    </p>
+    <p *ngIf="searchTerm || selectedFilter !== 'all'">
+      No projects match your current filters. Try adjusting your search.
+    </p>
   </div>
 
 </div>

@@ -170,6 +170,17 @@ export class QuotationListComponent implements OnInit {
     }
   }
 
+  approveQuotation(quote: Quotation): void {
+    console.log('Approving quotation:', quote.quoteNumber);
+    // Update status to accepted
+    const quotation = this.quotations.find(q => q.id === quote.id);
+    if (quotation && confirm(`Approve quotation ${quote.quoteNumber}?`)) {
+      quotation.status = 'accepted';
+      this.filterQuotations();
+      alert(`Quotation ${quote.quoteNumber} has been approved`);
+    }
+  }
+
   getStatusClass(status: string): string {
     return `status-${status}`;
   }

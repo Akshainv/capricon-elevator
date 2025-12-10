@@ -1,0 +1,205 @@
+<!-- src/app/sales-my-projects/sales-my-projects.component.html -->
+<div class="projects-container">
+  
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>🏗️ My Projects</h1>
+      <p>Track your won deals converted to active projects</p>
+    </div>
+  </div>
+
+  <!-- Stats Summary -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <i class="fas fa-project-diagram"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">My Projects</div>
+        <div class="stat-value">{{ projects.length }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon active">
+        <i class="fas fa-tasks"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">In Progress</div>
+        <div class="stat-value">{{ getActiveProjects() }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon completed">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value">{{ getCompletedProjects() }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon value">
+        <i class="fas fa-dollar-sign"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Value</div>
+        <div class="stat-value">{{ formatCurrency(getTotalValue()) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search -->
+  <div class="controls-section">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Search by project name, customer, or code..."
+        (input)="onSearch($event)"
+      />
+    </div>
+    
+    <div class="filter-buttons">
+      <button 
+        class="filter-btn" 
+        [class.active]="selectedFilter === 'all'"
+        (click)="filterByStatus('all')"
+      >
+        <i class="fas fa-list"></i>
+        <span>All</span>
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="selectedFilter === 'planning'"
+        (click)="filterByStatus('planning')"
+      >
+        <i class="fas fa-clipboard-list"></i>
+        <span>Planning</span>
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="selectedFilter === 'in-progress'"
+        (click)="filterByStatus('in-progress')"
+      >
+        <i class="fas fa-spinner"></i>
+        <span>In Progress</span>
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="selectedFilter === 'completed'"
+        (click)="filterByStatus('completed')"
+      >
+        <i class="fas fa-check-circle"></i>
+        <span>Completed</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Info Banner -->
+  <div class="info-banner">
+    <i class="fas fa-info-circle"></i>
+    <span>These are projects converted from your won deals. Contact project team for detailed updates.</span>
+  </div>
+
+  <!-- Projects Grid -->
+  <div class="projects-grid" *ngIf="getFilteredProjects().length > 0">
+    <div 
+      *ngFor="let project of getFilteredProjects()"
+      class="project-card"
+      (click)="viewProject(project)"
+    >
+      <div class="card-header">
+        <div class="card-title-section">
+          <h3 class="card-title">{{ project.name }}</h3>
+          <p class="card-code">{{ project.projectCode }}</p>
+        </div>
+        <span 
+          class="status-badge"
+          [style.background]="getStatusColor(project.status) + '33'"
+          [style.border-color]="getStatusColor(project.status)"
+          [style.color]="getStatusColor(project.status)"
+        >
+          <i class="fas" [ngClass]="getStatusIcon(project.status)"></i>
+          <span>{{ project.status | titlecase }}</span>
+        </span>
+      </div>
+
+      <div class="card-body">
+        <div class="info-row">
+          <div class="info-item">
+            <i class="fas fa-building"></i>
+            <span>{{ project.customer }}</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-user-tie"></i>
+            <span>{{ project.teamLeader }}</span>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Started: {{ formatDate(project.startDate) }}</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>Due: {{ formatDate(project.expectedCompletion) }}</span>
+          </div>
+        </div>
+
+        <div class="milestone-row">
+          <div class="milestone-label">
+            <i class="fas fa-flag"></i>
+            <span>Current Milestone:</span>
+          </div>
+          <div class="milestone-value">{{ project.currentMilestone }}</div>
+        </div>
+
+        <div class="value-row">
+          <span class="value-label">Project Value:</span>
+          <span class="value-amount">{{ formatCurrency(project.value) }}</span>
+        </div>
+
+        <div class="timeline-info" *ngIf="project.status !== 'completed'">
+          <i class="fas fa-clock"></i>
+          <span>{{ getDaysRemaining(project.expectedCompletion) }} days remaining</span>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Installation Progress</span>
+            <span class="progress-percentage">{{ project.progress }}%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div 
+              class="progress-bar-fill"
+              [style.width.%]="project.progress"
+              [style.background]="getProgressColor(project.progress)"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="getFilteredProjects().length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-project-diagram"></i>
+    </div>
+    <h3>No Projects Found</h3>
+    <p *ngIf="!searchTerm && selectedFilter === 'all'">
+      Projects from your won deals will appear here once converted by admin.
+    </p>
+    <p *ngIf="searchTerm || selectedFilter !== 'all'">
+      No projects match your current filters. Try adjusting your search.
+    </p>
+  </div>
+
+</div>

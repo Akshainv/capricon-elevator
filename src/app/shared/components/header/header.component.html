@@ -76,22 +76,22 @@
         </div>
         <div class="dropdown-divider"></div>
         <div class="dropdown-body">
-          <a href="/profile" class="dropdown-item">
+          <a (click)="navigateTo('/profile')" class="dropdown-item">
             <i class="fas fa-user"></i>
             <span>My Profile</span>
           </a>
-          <a href="/settings" class="dropdown-item">
+          <a (click)="navigateTo('/settings')" class="dropdown-item">
             <i class="fas fa-cog"></i>
             <span>Settings</span>
           </a>
-          <a href="#" class="dropdown-item">
+          <a (click)="navigateTo('/help')" class="dropdown-item">
             <i class="fas fa-question-circle"></i>
             <span>Help</span>
           </a>
         </div>
         <div class="dropdown-divider"></div>
         <div class="dropdown-footer">
-          <a href="/login" class="logout-link">
+          <a (click)="navigateTo('/login')" class="logout-link">
             <i class="fas fa-sign-out-alt"></i>
             <span>Logout</span>
           </a>

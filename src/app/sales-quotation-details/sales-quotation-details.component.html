@@ -1,0 +1,151 @@
+<!-- src/app/sales-quotation-details/sales-quotation-details.component.html -->
+<div class="details-container">
+  
+  <!-- Header Actions -->
+  <div class="details-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="header-info">
+        <h1 class="page-title">Quotation Details</h1>
+        <span class="status-badge" [ngClass]="getStatusClass(quotationData.status)">
+          {{ getStatusLabel(quotationData.status) }}
+        </span>
+      </div>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn-action btn-print" (click)="printQuotation()">
+        <i class="fas fa-print"></i>
+        <span>Print</span>
+      </button>
+      <button class="btn-action btn-pdf" (click)="downloadPDF()">
+        <i class="fas fa-file-pdf"></i>
+        <span>PDF</span>
+      </button>
+      <button class="btn-action btn-email" (click)="sendEmail()">
+        <i class="fas fa-envelope"></i>
+        <span>Email</span>
+      </button>
+      <button class="btn-action btn-duplicate" (click)="duplicateQuotation()">
+        <i class="fas fa-copy"></i>
+        <span>Duplicate</span>
+      </button>
+      <button class="btn-action btn-edit" (click)="editQuotation()">
+        <i class="fas fa-edit"></i>
+        <span>Edit</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Quotation Document Card -->
+  <div class="quotation-card">
+    <div class="quotation-document">
+      
+      <!-- Document Header -->
+      <div class="doc-header">
+        <div class="company-info">
+          <div class="company-logo-section">
+            <img src="assets/images/capricorn.png" alt="Capricorn Elevators Logo" class="company-logo-img" 
+                 onerror="this.style.display='none'">
+          </div>
+          <h2 class="company-name">{{ companyInfo.name }}</h2>
+          <p class="company-detail">{{ companyInfo.address }}</p>
+          <p class="company-detail">{{ companyInfo.phone }}</p>
+          <p class="company-detail">{{ companyInfo.website }}</p>
+          <p class="company-detail">GST: {{ companyInfo.gst }}</p>
+        </div>
+        
+        <div class="quote-info">
+          <h3 class="quote-header">QUOTATION</h3>
+          <p class="quote-detail"><strong>Quote #:</strong> {{ quotationData.quoteNumber }}</p>
+          <p class="quote-detail"><strong>Date:</strong> {{ quotationData.date }}</p>
+          <p class="quote-detail"><strong>Valid Until:</strong> {{ quotationData.validUntil }}</p>
+        </div>
+      </div>
+
+      <!-- Bill To Section -->
+      <div class="bill-to-section">
+        <h4 class="section-heading">Bill To:</h4>
+        <p class="customer-name">{{ quotationData.customer.name }}</p>
+        <p class="customer-detail" *ngIf="quotationData.customer.company">
+          {{ quotationData.customer.company }}
+        </p>
+        <p class="customer-detail">{{ quotationData.customer.email }}</p>
+        <p class="customer-detail">{{ quotationData.customer.phone }}</p>
+        <p class="customer-detail" *ngIf="quotationData.customer.address">
+          {{ quotationData.customer.address }}
+        </p>
+      </div>
+
+      <!-- Items Table -->
+      <div class="items-section">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th class="col-description">Description</th>
+              <th class="col-qty">Qty</th>
+              <th class="col-rate">Rate</th>
+              <th class="col-amount">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of quotationData.items">
+              <td class="item-description">{{ item.description }}</td>
+              <td class="item-qty">{{ item.quantity }}</td>
+              <td class="item-rate">{{ formatCurrency(item.rate) }}</td>
+              <td class="item-amount">{{ formatCurrency(item.amount) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Totals Section -->
+      <div class="totals-section">
+        <div class="totals-table">
+          <div class="total-row">
+            <span class="total-label">Subtotal:</span>
+            <span class="total-value">{{ formatCurrency(quotationData.subtotal) }}</span>
+          </div>
+          <div class="total-row tax">
+            <span class="total-label">CGST (9%):</span>
+            <span class="total-value">{{ formatCurrency(quotationData.cgst) }}</span>
+          </div>
+          <div class="total-row tax">
+            <span class="total-label">SGST (9%):</span>
+            <span class="total-value">{{ formatCurrency(quotationData.sgst) }}</span>
+          </div>
+          <div class="total-divider"></div>
+          <div class="total-row grand-total">
+            <span class="total-label">Total:</span>
+            <span class="total-value">{{ formatCurrency(quotationData.total) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terms & Conditions -->
+      <div class="terms-section">
+        <h4 class="terms-heading">Terms & Conditions:</h4>
+        <ul class="terms-list">
+          <li>Payment: 30% advance, 60% on delivery, 10% after installation</li>
+          <li>Delivery time: 60-90 days from order confirmation</li>
+          <li>Installation: 15-20 days after delivery</li>
+          <li>Warranty: 12 months from installation date</li>
+          <li>All prices are in Indian Rupees (INR)</li>
+        </ul>
+      </div>
+
+      <!-- Footer -->
+      <div class="doc-footer">
+        <p class="footer-text">Thank you for your business!</p>
+        <p class="footer-signature">
+          <strong>Authorized Signature</strong><br>
+          {{ companyInfo.name }}
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</div>

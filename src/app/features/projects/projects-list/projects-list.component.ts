@@ -82,6 +82,25 @@ export class ProjectsListComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  getFilteredProjects(): Project[] {
+    let filtered = this.projects;
+
+    if (this.selectedFilter !== 'all') {
+      filtered = filtered.filter(p => p.status === this.selectedFilter);
+    }
+
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.name.toLowerCase().includes(term) ||
+        p.customer.toLowerCase().includes(term) ||
+        p.projectCode.toLowerCase().includes(term)
+      );
+    }
+
+    return filtered;
+  }
+
   getStatusColor(status: string): string {
     const colors: { [key: string]: string } = {
       'planning': '#60a5fa',
@@ -120,6 +139,10 @@ export class ProjectsListComponent implements OnInit {
     return this.projects.filter(p => p.status === 'completed').length;
   }
 
+  getPlanningProjects(): number {
+    return this.projects.filter(p => p.status === 'planning').length;
+  }
+
   viewProject(project: Project): void {
     this.router.navigate(['/projects', project.id]);
   }
@@ -134,5 +157,13 @@ export class ProjectsListComponent implements OnInit {
       month: 'short',
       year: 'numeric'
     });
+  }
+
+  onSearch(event: Event): void {
+    this.searchTerm = (event.target as HTMLInputElement).value;
+  }
+
+  filterByStatus(status: string): void {
+    this.selectedFilter = status;
   }
 }

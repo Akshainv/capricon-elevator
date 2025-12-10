@@ -127,14 +127,7 @@ router-outlet ~ * {
   color: var(--text-primary) !important;
 }
 
-/* All container divs */
-div[class*="container"],
-div[class*="wrapper"],
-div[class*="content"],
-main,
-section {
- 
-}
+
 
 /* ==========================================
    CARDS & PANELS
@@ -160,9 +153,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Playfair Display', serif;
 }
 
-p {
 
-}
 
 span {
   color: inherit;
@@ -367,6 +358,353 @@ header {
 }
 
 /* ==========================================
+   DARK GRADIENT & RGBA OVERRIDES FOR LIGHT THEME
+   ========================================== */
+
+/* Override dark gradient backgrounds in light mode */
+html.light-theme [style*="linear-gradient(135deg, rgba(26"],
+html[data-theme="light"] [style*="linear-gradient(135deg, rgba(26"] {
+  background: var(--bg-card) !important;
+}
+
+html.light-theme [style*="linear-gradient(135deg, rgba(26, 26, 26"],
+html[data-theme="light"] [style*="linear-gradient(135deg, rgba(26, 26, 26"] {
+  background: var(--bg-card) !important;
+}
+
+/* Card elements with dark backgrounds */
+.card,
+.stat-card,
+.chart-card,
+.table-card,
+.modal-content,
+.modal-overlay,
+.drawer,
+.popover {
+  background: var(--bg-card) !important;
+}
+
+/* Modal overlay backgrounds */
+.modal-overlay,
+.modal-backdrop,
+[role="dialog"]::backdrop,
+.overlay {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+html.light-theme .modal-overlay,
+html[data-theme="light"] .modal-overlay,
+html.light-theme .modal-backdrop,
+html[data-theme="light"] .modal-backdrop {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ==========================================
+   COMPREHENSIVE LIGHT THEME RGBA OVERRIDES
+   ========================================== */
+
+/* Override all dark rgba values in light theme */
+html.light-theme [style*="rgba(0, 0, 0"],
+html[data-theme="light"] [style*="rgba(0, 0, 0"] {
+  background: var(--bg-tertiary) !important;
+}
+
+html.light-theme [style*="rgba(26, 26, 26"],
+html[data-theme="light"] [style*="rgba(26, 26, 26"] {
+  background: var(--bg-tertiary) !important;
+}
+
+/* Light theme text color fixes */
+html.light-theme [style*="color: #000"],
+html[data-theme="light"] [style*="color: #000"] {
+  color: var(--text-primary) !important;
+}
+
+/* ==========================================
+   COMPONENT-LEVEL LIGHT THEME FIXES
+   ========================================== */
+
+/* Sales Dashboard */
+html.light-theme .sales-dashboard,
+html[data-theme="light"] .sales-dashboard {
+  background: var(--bg-primary) !important;
+}
+
+/* Sales Calendar */
+html.light-theme .event-details-modal,
+html[data-theme="light"] .event-details-modal {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Upload Overlay */
+html.light-theme .upload-overlay,
+html[data-theme="light"] .upload-overlay {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 2px dashed var(--border-color) !important;
+}
+
+/* Form Select Options */
+html.light-theme .form-select,
+html[data-theme="light"] .form-select {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light-theme .form-select option,
+html[data-theme="light"] .form-select option {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Datepicker */
+html.light-theme .datepicker-popup,
+html[data-theme="light"] .datepicker-popup {
+  background: var(--bg-card) !important;
+}
+
+/* Tables in light mode */
+html.light-theme tbody,
+html[data-theme="light"] tbody {
+  background: var(--bg-secondary) !important;
+}
+
+html.light-theme thead,
+html[data-theme="light"] thead {
+  background: var(--bg-tertiary) !important;
+}
+
+/* Shadows in light mode */
+html.light-theme .card,
+html[data-theme="light"] .card,
+html.light-theme [class*="card"],
+html[data-theme="light"] [class*="card"] {
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* Form inputs light mode */
+html.light-theme input,
+html[data-theme="light"] input,
+html.light-theme textarea,
+html[data-theme="light"] textarea {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Dropdown menus */
+html.light-theme .dropdown-menu,
+html[data-theme="light"] .dropdown-menu {
+  background: var(--dropdown-bg) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Charts - override text color */
+html.light-theme [class*="chart"],
+html[data-theme="light"] [class*="chart"] {
+  color: var(--text-primary) !important;
+}
+
+html.light-theme .chart-title,
+html[data-theme="light"] .chart-title,
+html.light-theme .chart-label,
+html[data-theme="light"] .chart-label {
+  color: var(--text-secondary) !important;
+}
+
+/* Sidebar link hover states */
+html.light-theme .sidebar-item:hover,
+html[data-theme="light"] .sidebar-item:hover {
+  background: var(--bg-tertiary) !important;
+}
+
+/* Active navigation items */
+html.light-theme .nav-item.active,
+html[data-theme="light"] .nav-item.active,
+html.light-theme .sidebar-item.active,
+html[data-theme="light"] .sidebar-item.active {
+  background: var(--bg-tertiary) !important;
+  color: var(--accent-gold) !important;
+}
+
+/* ==========================================
+   SELECT & OPTION ELEMENTS (GLOBAL)
+   ========================================== */
+
+select,
+select option {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+option {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ==========================================
+   AGGRESSIVE LIGHT THEME OVERRIDES
+   ========================================== */
+
+/* Override ALL elements with dark backgrounds in light theme */
+html.light-theme * {
+  --applied-bg-check: var(--bg-primary);
+}
+
+/* Target all elements with dark gradients */
+html.light-theme [style*="linear-gradient"],
+html[data-theme="light"] [style*="linear-gradient"] {
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9)) !important;
+  background-attachment: fixed;
+}
+
+/* Target ALL rgba(0, 0, 0) backgrounds - convert to light equivalents */
+html.light-theme [style*="background: rgba(0"],
+html[data-theme="light"] [style*="background: rgba(0"],
+html.light-theme [style*="background-color: rgba(0"],
+html[data-theme="light"] [style*="background-color: rgba(0"] {
+  background-color: var(--bg-tertiary) !important;
+  background-image: none !important;
+}
+
+/* Target ALL rgba(26, 26, 26) backgrounds */
+html.light-theme [style*="background: rgba(26"],
+html[data-theme="light"] [style*="background: rgba(26"],
+html.light-theme [style*="background-color: rgba(26"],
+html[data-theme="light"] [style*="background-color: rgba(26"] {
+  background-color: var(--bg-tertiary) !important;
+  background-image: none !important;
+}
+
+/* Override color: #000 to use light theme text color */
+html.light-theme [style*="color: #000"],
+html[data-theme="light"] [style*="color: #000"],
+html.light-theme [style*="color: #000000"],
+html[data-theme="light"] [style*="color: #000000"] {
+  color: var(--text-primary) !important;
+}
+
+/* CRITICAL: Convert ALL white text to black in light theme */
+html.light-theme [style*="color: #fff"],
+html[data-theme="light"] [style*="color: #fff"],
+html.light-theme [style*="color: #ffffff"],
+html[data-theme="light"] [style*="color: #ffffff"],
+html.light-theme [style*="color: white"],
+html[data-theme="light"] [style*="color: white"] {
+  color: var(--text-primary) !important;
+}
+
+/* Convert ALL rgba(255, 255, 255) text to dark in light theme */
+html.light-theme [style*="color: rgba(255, 255, 255"],
+html[data-theme="light"] [style*="color: rgba(255, 255, 255"] {
+  color: var(--text-secondary) !important;
+}
+
+/* Page containers and main content areas */
+html.light-theme [class*="container"],
+html[data-theme="light"] [class*="container"],
+html.light-theme [class*="page"],
+html[data-theme="light"] [class*="page"],
+html.light-theme [class*="content"],
+html[data-theme="light"] [class*="content"],
+html.light-theme [class*="wrapper"],
+html[data-theme="light"] [class*="wrapper"],
+html.light-theme [class*="settings"],
+html[data-theme="light"] [class*="settings"],
+html.light-theme main,
+html[data-theme="light"] main,
+html.light-theme section,
+html[data-theme="light"] section {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Card, modal, and panel backgrounds */
+html.light-theme [class*="card"],
+html[data-theme="light"] [class*="card"],
+html.light-theme [class*="modal"],
+html[data-theme="light"] [class*="modal"],
+html.light-theme [class*="panel"],
+html[data-theme="light"] [class*="panel"],
+html.light-theme [class*="dialog"],
+html[data-theme="light"] [class*="dialog"],
+html.light-theme [class*="drawer"],
+html[data-theme="light"] [class*="drawer"],
+html.light-theme [class*="popup"],
+html[data-theme="light"] [class*="popup"] {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Light theme specific - ensure no dark overlays */
+html.light-theme [class*="overlay"],
+html[data-theme="light"] [class*="overlay"] {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Light theme button and interactive elements */
+html.light-theme [class*="btn"],
+html[data-theme="light"] [class*="btn"],
+html.light-theme button,
+html[data-theme="light"] button {
+  color: var(--text-primary) !important;
+}
+
+/* FORCE: All text elements in light theme should be dark */
+html.light-theme h1,
+html[data-theme="light"] h1,
+html.light-theme h2,
+html[data-theme="light"] h2,
+html.light-theme h3,
+html[data-theme="light"] h3,
+html.light-theme h4,
+html[data-theme="light"] h4,
+html.light-theme h5,
+html[data-theme="light"] h5,
+html.light-theme h6,
+html[data-theme="light"] h6,
+html.light-theme p,
+html[data-theme="light"] p,
+html.light-theme span,
+html[data-theme="light"] span,
+html.light-theme label,
+html[data-theme="light"] label,
+html.light-theme div,
+html[data-theme="light"] div {
+  color: var(--text-primary) !important;
+}
+
+/* Input text in light theme */
+html.light-theme input,
+html[data-theme="light"] input,
+html.light-theme textarea,
+html[data-theme="light"] textarea,
+html.light-theme select,
+html[data-theme="light"] select {
+  color: var(--text-primary) !important;
+}
+
+/* Table text in light theme */
+html.light-theme table,
+html[data-theme="light"] table,
+html.light-theme th,
+html[data-theme="light"] th,
+html.light-theme td,
+html[data-theme="light"] td {
+  color: var(--text-primary) !important;
+}
+
+/* List items in light theme */
+html.light-theme li,
+html[data-theme="light"] li,
+html.light-theme ul,
+html[data-theme="light"] ul,
+html.light-theme ol,
+html[data-theme="light"] ol {
+  color: var(--text-primary) !important;
+}
+
+/* ==========================================
    LIGHT THEME SPECIFIC OVERRIDES
    ========================================== */
 
@@ -378,6 +716,134 @@ html[data-theme="light"] .btn-primary {
 html.light-theme .sidebar,
 html[data-theme="light"] .sidebar {
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================
+   ULTRA-AGGRESSIVE LIGHT THEME FIXES
+   ========================================== */
+
+/* Override ANY element with background property in light theme */
+html.light-theme *,
+html[data-theme="light"] * {
+  --bg-override: var(--bg-primary);
+}
+
+/* Target all elements - ensure proper text color */
+html.light-theme {
+  color: var(--text-primary) !important;
+  background: var(--bg-primary) !important;
+}
+
+html[data-theme="light"] {
+  color: var(--text-primary) !important;
+  background: var(--bg-primary) !important;
+}
+
+/* Override ANY inline styles with dark colors */
+html.light-theme [style],
+html[data-theme="light"] [style] {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Specific targeting for common problem selectors */
+html.light-theme .dark,
+html[data-theme="light"] .dark,
+html.light-theme [class*="dark"],
+html[data-theme="light"] [class*="dark"] {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Forms in light theme */
+html.light-theme input:not([type="radio"]):not([type="checkbox"]),
+html[data-theme="light"] input:not([type="radio"]):not([type="checkbox"]) {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html.light-theme textarea,
+html[data-theme="light"] textarea {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html.light-theme select,
+html[data-theme="light"] select {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light-theme option,
+html[data-theme="light"] option {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Ensure text in specific elements is dark */
+html.light-theme .page-header,
+html[data-theme="light"] .page-header,
+html.light-theme .card-header,
+html[data-theme="light"] .card-header,
+html.light-theme .section-header,
+html[data-theme="light"] .section-header {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Content sections */
+html.light-theme .content,
+html[data-theme="light"] .content,
+html.light-theme .main-content,
+html[data-theme="light"] .main-content {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Task items, list items, etc */
+html.light-theme .item,
+html[data-theme="light"] .item,
+html.light-theme [class*="item"],
+html[data-theme="light"] [class*="item"],
+html.light-theme .list-item,
+html[data-theme="light"] .list-item {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* All grid items and flex children */
+html.light-theme [class*="grid"] > *,
+html[data-theme="light"] [class*="grid"] > *,
+html.light-theme [class*="flex"] > *,
+html[data-theme="light"] [class*="flex"] > * {
+  color: var(--text-primary) !important;
+}
+
+/* Text color enforcement for all common tags */
+html.light-theme strong,
+html[data-theme="light"] strong,
+html.light-theme em,
+html[data-theme="light"] em,
+html.light-theme small,
+html[data-theme="light"] small,
+html.light-theme a,
+html[data-theme="light"] a {
+  color: var(--text-primary) !important;
+}
+
+/* Enforce light backgrounds on containers */
+html.light-theme main,
+html[data-theme="light"] main,
+html.light-theme .main,
+html[data-theme="light"] .main,
+html.light-theme article,
+html[data-theme="light"] article,
+html.light-theme aside,
+html[data-theme="light"] aside {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
 }
 
 /* ==========================================
