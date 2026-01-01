@@ -1,3 +1,4 @@
+<!-- src/app/features/auth/register-here/register-here.component.html -->
 <div class="register-page">
   <!-- Animated Background Shapes -->
   <div class="bg-shapes">
@@ -77,18 +78,22 @@
         <!-- Register Form -->
         <form (ngSubmit)="onSubmit()" data-aos="fade-up" data-aos-delay="400">
           
-          <!-- Photo Upload -->
+          <!-- Photo Upload - REQUIRED -->
           <div class="form-group photo-upload-group">
+            <label class="photo-label">
+              <i class="fas fa-camera label-icon"></i>
+              Upload Photo <span class="required-star">*</span>
+            </label>
             <div class="photo-upload-container">
               <div class="photo-preview" *ngIf="photoPreview">
                 <img [src]="photoPreview" alt="Photo Preview" />
-                <button type="button" class="remove-photo" (click)="removePhoto()">
+                <button type="button" class="remove-photo" (click)="removePhoto()" [disabled]="isLoading">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
               <div class="photo-placeholder" *ngIf="!photoPreview" (click)="triggerFileInput()">
                 <i class="fas fa-user-circle"></i>
-                <p>Upload Photo</p>
+                <p>Click to Upload</p>
               </div>
               <input 
                 type="file" 
@@ -96,23 +101,26 @@
                 id="photo"
                 accept="image/*"
                 (change)="onFileSelected($event)"
+                [disabled]="isLoading"
                 style="display: none;"
+                required
               />
             </div>
           </div>
 
           <!-- Full Name -->
           <div class="form-group">
-            <label for="name">
+            <label for="fullName">
               <i class="fas fa-user label-icon"></i>
-              Full Name
+              Full Name <span class="required-star">*</span>
             </label>
             <input 
               type="text" 
-              id="name"
-              [(ngModel)]="name" 
-              name="name"
+              id="fullName"
+              [(ngModel)]="fullName" 
+              name="fullName"
               placeholder="Enter your full name"
+              [disabled]="isLoading"
               required
             />
           </div>
@@ -121,7 +129,7 @@
           <div class="form-group">
             <label for="email">
               <i class="fas fa-envelope label-icon"></i>
-              Email Address
+              Email Address <span class="required-star">*</span>
             </label>
             <input 
               type="email" 
@@ -129,6 +137,7 @@
               [(ngModel)]="email" 
               name="email"
               placeholder="your.email@example.com"
+              [disabled]="isLoading"
               required
             />
           </div>
@@ -137,7 +146,7 @@
           <div class="form-group">
             <label for="phoneNumber">
               <i class="fas fa-phone label-icon"></i>
-              Phone Number
+              Phone Number <span class="required-star">*</span>
             </label>
             <input 
               type="tel" 
@@ -145,6 +154,7 @@
               [(ngModel)]="phoneNumber" 
               name="phoneNumber"
               placeholder="+91 1234567890"
+              [disabled]="isLoading"
               required
             />
           </div>
@@ -153,7 +163,7 @@
           <div class="form-group">
             <label for="password">
               <i class="fas fa-lock label-icon"></i>
-              Password
+              Password <span class="required-star">*</span>
             </label>
             <div class="password-input">
               <input 
@@ -161,13 +171,15 @@
                 id="password"
                 [(ngModel)]="password" 
                 name="password"
-                placeholder="Create a strong password"
+                placeholder="Create a strong password (min 6 characters)"
+                [disabled]="isLoading"
                 required
               />
               <button 
                 type="button" 
                 class="toggle-password"
                 (click)="togglePassword()"
+                [disabled]="isLoading"
               >
                 <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
               </button>
@@ -178,7 +190,7 @@
           <div class="form-group">
             <label for="confirmPassword">
               <i class="fas fa-lock label-icon"></i>
-              Confirm Password
+              Confirm Password <span class="required-star">*</span>
             </label>
             <div class="password-input">
               <input 
@@ -187,12 +199,14 @@
                 [(ngModel)]="confirmPassword" 
                 name="confirmPassword"
                 placeholder="Re-enter your password"
+                [disabled]="isLoading"
                 required
               />
               <button 
                 type="button" 
                 class="toggle-password"
                 (click)="toggleConfirmPassword()"
+                [disabled]="isLoading"
               >
                 <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
               </button>
@@ -206,6 +220,7 @@
                 type="checkbox" 
                 [(ngModel)]="agreedToTerms"
                 name="agreedToTerms"
+                [disabled]="isLoading"
                 required
               />
               <span class="checkbox-text">
@@ -215,17 +230,21 @@
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" class="btn-register">
-            <span>Register</span>
-            <i class="fas fa-user-plus arrow"></i>
+          <button type="submit" class="btn-register" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Register</span>
+            <span *ngIf="isLoading">
+              <i class="fas fa-spinner fa-spin"></i> Registering...
+            </span>
+            <i *ngIf="!isLoading" class="fas fa-user-plus arrow"></i>
+          </button>
+
+          <!-- Sign In Button -->
+          <button type="button" class="btn-signin" (click)="navigateToLogin()" [disabled]="isLoading">
+            <span>Already have an account? Sign In</span>
+            <i class="fas fa-arrow-right arrow"></i>
           </button>
 
         </form>
-
-        <!-- Footer -->
-        <div class="register-footer" data-aos="fade-up" data-aos-delay="600">
-          <p>Already have an account? <a routerLink="/login" class="signin-link">Sign In</a></p>
-        </div>
 
       </div>
     </div>

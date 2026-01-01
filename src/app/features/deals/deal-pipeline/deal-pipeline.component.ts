@@ -1,309 +1,248 @@
-// src/app/features/deals/deal-pipeline/deal-pipeline.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { DealService, Deal } from '../../../services/deal.service';
+import { ProjectService } from '../../../services/project.service';
+import { AuthService } from '../../../services/auth.service';
 
-interface Deal {
-  id: string;
-  title: string;
-  company: string;
-  amount: number;
-  elevatorType: string;
-  probability: number;
-  closeDate: string;
-  assignedTo: string;
-  status: string;
-  contactPerson?: string;
-  phone?: string;
-  email?: string;
-}
-
-interface Column {
-  title: string;
-  status: string;
-  color: string;
-  deals: Deal[];
-}
+declare var Toastify: any;  // For Toastify
 
 @Component({
   selector: 'app-deal-pipeline',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './deal-pipeline.component.html',
   styleUrls: ['./deal-pipeline.component.css']
 })
 export class DealPipelineComponent implements OnInit {
   allDeals: Deal[] = [];
-  columns: Column[] = [];
-  draggedDeal: Deal | null = null;
-  wonDeals: Deal[] = [];
+  loading: boolean = false;
 
-  constructor(public router: Router) {}
+  constructor(
+    public router: Router,
+    private dealService: DealService,
+    private projectService: ProjectService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.initializeColumns();
     this.loadDeals();
-    this.wonDeals = this.getWonDeals();
-  }
-
-  initializeColumns(): void {
-    this.columns = [
-      { title: 'Lead', status: 'lead', color: '#3b82f6', deals: [] },
-      { title: 'Qualified', status: 'qualified', color: '#8b5cf6', deals: [] },
-      { title: 'Proposal', status: 'proposal', color: '#f59e0b', deals: [] },
-      { title: 'Negotiation', status: 'negotiation', color: '#ec4899', deals: [] }
-    ];
   }
 
   loadDeals(): void {
-    // Sample data with deals in all stages (excluding lost deals)
-    this.allDeals = [
-      {
-        id: '1',
-        title: 'Luxury Apartment Complex',
-        company: 'Prestige Group',
-        amount: 2500000,
-        elevatorType: 'Passenger Elevator',
-        probability: 75,
-        closeDate: '2024-12-15',
-        assignedTo: 'John Doe',
-        status: 'proposal',
-        contactPerson: 'Raj Kumar',
-        phone: '+91 9876543210',
-        email: 'raj@prestige.com'
-      },
-      {
-        id: '2',
-        title: 'Corporate Office Building',
-        company: 'Tech Park Ltd',
-        amount: 3200000,
-        elevatorType: 'High-Speed Elevator',
-        probability: 90,
-        closeDate: '2024-11-30',
-        assignedTo: 'Jane Smith',
-        status: 'negotiation',
-        contactPerson: 'Suresh Reddy',
-        phone: '+91 9876543211',
-        email: 'suresh@techpark.com'
-      },
-      {
-        id: '3',
-        title: 'Shopping Mall Expansion',
-        company: 'Phoenix Mills',
-        amount: 1800000,
-        elevatorType: 'Freight Elevator',
-        probability: 50,
-        closeDate: '2025-01-20',
-        assignedTo: 'Mike Johnson',
-        status: 'qualified',
-        contactPerson: 'Amit Shah',
-        phone: '+91 9876543212',
-        email: 'amit@phoenixmalls.com'
-      },
-      {
-        id: '4',
-        title: 'Sunrise Mall',
-        company: 'Sunrise Mall Pvt Ltd',
-        amount: 4500000,
-        elevatorType: '15-Floor Passenger Elevator',
-        probability: 100,
-        closeDate: '2024-10-18',
-        assignedTo: 'Amit Shah',
-        status: 'won',
-        contactPerson: 'John Smith',
-        phone: '+91 9876543215',
-        email: 'john@sunrisemall.com'
-      },
-      {
-        id: '6',
-        title: 'Residential Tower Project',
-        company: 'Skyline Developers',
-        amount: 3500000,
-        elevatorType: 'Passenger Elevator',
-        probability: 25,
-        closeDate: '2025-02-10',
-        assignedTo: 'Priya Sharma',
-        status: 'lead',
-        contactPerson: 'Vijay Singh',
-        phone: '+91 9876543214',
-        email: 'vijay@skyline.com'
-      },
-      {
-        id: '7',
-        title: 'Metro Station Project',
-        company: 'Delhi Metro Rail Corporation',
-        amount: 5500000,
-        elevatorType: 'Heavy-Duty Escalator',
-        probability: 100,
-        closeDate: '2024-08-25',
-        assignedTo: 'Rajesh Kumar',
-        status: 'won',
-        contactPerson: 'Deepak Verma',
-        phone: '+91 9876543216',
-        email: 'deepak@dmrc.com'
-      },
-      {
-        id: '8',
-        title: 'Hospital Modernization',
-        company: 'City General Hospital',
-        amount: 2800000,
-        elevatorType: 'Medical Elevator',
-        probability: 100,
-        closeDate: '2024-09-10',
-        assignedTo: 'Priya Sharma',
-        status: 'won',
-        contactPerson: 'Dr. Sharma',
-        phone: '+91 9876543217',
-        email: 'admin@cityhospital.com'
-      },
-      {
-        id: '9',
-        title: 'Premium Residential Complex',
-        company: 'Godrej Properties',
-        amount: 4200000,
-        elevatorType: 'High-Speed Passenger Elevator',
-        probability: 100,
-        closeDate: '2024-07-20',
-        assignedTo: 'John Doe',
-        status: 'won',
-        contactPerson: 'Rahul Mehta',
-        phone: '+91 9876543218',
-        email: 'rahul@godrej.com'
-      },
-      {
-        id: '10',
-        title: 'Corporate Tech Hub',
-        company: 'Infosys Campus',
-        amount: 6800000,
-        elevatorType: 'Smart Elevator System',
-        probability: 100,
-        closeDate: '2024-06-15',
-        assignedTo: 'Jane Smith',
-        status: 'won',
-        contactPerson: 'Anita Singh',
-        phone: '+91 9876543219',
-        email: 'anita@infosys.com'
-      }
-    ];
+    this.loading = true;
 
-    this.organizeDeals();
+    this.dealService.getPendingDeals().subscribe({
+      next: (deals) => {
+        console.log('Loaded pending deals:', deals);
+        this.allDeals = deals;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading deals:', error);
+        this.loading = false;
+        this.showToast('Failed to load deals. Please try again.', 'error');
+      }
+    });
   }
 
-  organizeDeals(): void {
-    // Clear all columns first
-    this.columns.forEach(column => {
-      column.deals = [];
-    });
+  convertToProject(deal: Deal): void {
+    if (deal.converted) {
+      this.showToast('This deal has already been converted to a project.', 'info');
+      return;
+    }
 
-    // Distribute deals to columns (only active deals, not won)
-    this.allDeals.forEach(deal => {
-      if (deal.status !== 'won') {
-        const column = this.columns.find(col => col.status === deal.status);
-        if (column) {
-          column.deals.push(deal);
+    // Toastify Confirmation
+    if (typeof Toastify !== 'undefined') {
+      const toast = Toastify({
+        text: `Convert "${this.getDealTitle(deal)}" to a project? This will create a new project and mark this deal as converted.`,
+        duration: -1,
+        close: true,
+        gravity: "top",
+        position: "center",
+        stopOnFocus: true,
+        style: {
+          background: "linear-gradient(to right, #667eea, #764ba2)",
+          borderRadius: "12px",
+          fontSize: "15px",
+          fontWeight: "500",
+          textAlign: "center",
+          maxWidth: "420px",
+          padding: "20px"
         }
+      }).showToast();
+
+      setTimeout(() => {
+        const toastElement = document.querySelector('.toastify') as HTMLElement;
+        if (toastElement) {
+          const buttonsHTML = `
+            <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center;">
+              <button id="toast-confirm-convert" style="padding: 10px 24px; background: #00b09b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Yes, Convert
+              </button>
+              <button id="toast-cancel-convert" style="padding: 10px 24px; background: #ff5f6d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Cancel
+              </button>
+            </div>
+          `;
+          toastElement.insertAdjacentHTML('beforeend', buttonsHTML);
+
+          document.getElementById('toast-confirm-convert')?.addEventListener('click', () => {
+            toast.hideToast();
+            this.proceedConvertToProject(deal);
+          });
+
+          document.getElementById('toast-cancel-convert')?.addEventListener('click', () => {
+            toast.hideToast();
+            this.showToast('Conversion cancelled', 'info');
+          });
+        }
+      }, 100);
+    } else {
+      if (confirm(`Convert "${this.getDealTitle(deal)}" to a project?\n\nThis will create a new project and mark this deal as converted.`)) {
+        this.proceedConvertToProject(deal);
       }
-    });
-
-    // Update won deals
-    this.wonDeals = this.getWonDeals();
-  }
-
-  // Get won deals only
-  getWonDeals(): Deal[] {
-    return this.allDeals.filter(deal => deal.status === 'won');
-  }
-
-  // Total value methods
-  getTotalWonValue(): number {
-    return this.getWonDeals().reduce((sum, deal) => sum + deal.amount, 0);
-  }
-
-  // Drag and Drop Methods
-  onDragStart(event: DragEvent, deal: Deal): void {
-    this.draggedDeal = deal;
-    event.dataTransfer!.effectAllowed = 'move';
-    console.log('Drag started:', deal.title);
-  }
-
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    event.dataTransfer!.dropEffect = 'move';
-  }
-
-  onDrop(event: DragEvent, newStatus: string): void {
-    event.preventDefault();
-    
-    if (this.draggedDeal) {
-      console.log(`Moving ${this.draggedDeal.title} from ${this.draggedDeal.status} to ${newStatus}`);
-      
-      // Update the deal status
-      this.draggedDeal.status = newStatus;
-      
-      // Update probability based on status
-      if (newStatus === 'won') {
-        this.draggedDeal.probability = 100;
-      }
-      
-      // Reorganize deals into columns
-      this.organizeDeals();
-      
-      // Clear dragged deal
-      this.draggedDeal = null;
-      
-      console.log('Deal moved successfully');
     }
   }
 
-  // Convert Deal to Project
-  convertToProject(deal: Deal): void {
-    console.log('Converting deal to project:', deal);
-    
-    this.router.navigate(['/projects/create'], { 
-      state: { 
-        deal: {
-          id: deal.id,
-          title: deal.title,
-          company: deal.company,
-          amount: deal.amount,
-          elevatorType: deal.elevatorType,
-          contactPerson: deal.contactPerson || deal.assignedTo,
-          phone: deal.phone || '+91 9876543210',
-          email: deal.email || 'contact@example.com'
-        }
-      } 
+  private proceedConvertToProject(deal: Deal): void {
+    this.loading = true;
+
+    this.projectService.createProjectFromDeal(deal).subscribe({
+      next: (project) => {
+        console.log('Project created:', project);
+        const dealId = deal._id || deal.id || '';
+        const projectId = project._id || project.id || '';
+
+        this.dealService.markAsConverted(dealId, projectId).subscribe({
+          next: (updatedDeal) => {
+            this.loading = false;
+            
+            this.allDeals = this.allDeals.filter(d => (d._id || d.id) !== dealId);
+
+            this.showToast(`Successfully converted to project!\nProject Code: ${project.projectCode}\nProject Name: ${project.projectName}`, 'success');
+
+            this.router.navigate(['/projects'], { 
+              queryParams: { 
+                newProject: projectId,
+                highlight: 'true'
+              }
+            });
+          },
+          error: (error) => {
+            this.loading = false;
+            console.error('Error marking deal as converted:', error);
+            this.showToast('Project created but failed to update deal status. Please refresh.', 'error');
+            this.loadDeals();
+          }
+        });
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Error converting deal to project:', error);
+        this.showToast('Failed to convert deal to project. Please try again.', 'error');
+      }
     });
   }
 
-  // View Deal Details
+  deleteDeal(deal: Deal, event: Event): void {
+    event.stopPropagation();
+
+    if (deal.converted) {
+      this.showToast('Cannot delete a converted deal. Please delete the associated project first.', 'info');
+      return;
+    }
+
+    // Toastify Confirmation for Delete
+    if (typeof Toastify !== 'undefined') {
+      const toast = Toastify({
+        text: `Are you sure you want to delete the deal "${this.getDealTitle(deal)}"? This action cannot be undone.`,
+        duration: -1,
+        close: true,
+        gravity: "top",
+        position: "center",
+        stopOnFocus: true,
+        style: {
+          background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+          borderRadius: "12px",
+          fontSize: "15px",
+          fontWeight: "500",
+          textAlign: "center",
+          maxWidth: "420px",
+          padding: "20px"
+        }
+      }).showToast();
+
+      setTimeout(() => {
+        const toastElement = document.querySelector('.toastify') as HTMLElement;
+        if (toastElement) {
+          const buttonsHTML = `
+            <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center;">
+              <button id="toast-confirm-delete" style="padding: 10px 24px; background: #ff5f6d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Yes, Delete
+              </button>
+              <button id="toast-cancel-delete" style="padding: 10px 24px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Cancel
+              </button>
+            </div>
+          `;
+          toastElement.insertAdjacentHTML('beforeend', buttonsHTML);
+
+          document.getElementById('toast-confirm-delete')?.addEventListener('click', () => {
+            toast.hideToast();
+            this.proceedDeleteDeal(deal);
+          });
+
+          document.getElementById('toast-cancel-delete')?.addEventListener('click', () => {
+            toast.hideToast();
+            this.showToast('Delete cancelled', 'info');
+          });
+        }
+      }, 100);
+    } else {
+      if (confirm(`Are you sure you want to delete the deal "${this.getDealTitle(deal)}"? This action cannot be undone.`)) {
+        this.proceedDeleteDeal(deal);
+      }
+    }
+  }
+
+  private proceedDeleteDeal(deal: Deal): void {
+    this.loading = true;
+    const dealId = deal._id || deal.id || '';
+
+    this.dealService.deleteDeal(dealId).subscribe({
+      next: () => {
+        this.loading = false;
+        
+        this.allDeals = this.allDeals.filter(d => (d._id || d.id) !== dealId);
+        
+        this.showToast('Deal deleted successfully!', 'success');
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Error deleting deal:', error);
+        this.showToast('Failed to delete deal. Please try again.', 'error');
+      }
+    });
+  }
+
   viewDealDetails(deal: Deal): void {
-    console.log('Viewing deal:', deal);
-    this.router.navigate(['/deals', deal.id]);
+    const dealId = deal._id || deal.id;
+    console.log('Viewing deal:', dealId);
+    this.router.navigate(['/deals', dealId]);
   }
 
-  // Utility Methods
-  getColumnCount(column: Column): number {
-    return column.deals.length;
+  getTotalValue(): number {
+    return this.allDeals.reduce((sum, deal) => sum + deal.dealAmount, 0);
   }
 
-  getColumnTotal(column: Column): number {
-    return column.deals.reduce((sum, deal) => sum + deal.amount, 0);
+  getPendingDealsCount(): number {
+    return this.allDeals.length;
   }
 
-  getTotalPipelineValue(): number {
-    return this.allDeals
-      .filter(deal => deal.status !== 'won')
-      .reduce((sum, deal) => sum + deal.amount, 0);
-  }
-
-  getWonDealsValue(): number {
-    return this.allDeals
-      .filter(deal => deal.status === 'won')
-      .reduce((sum, deal) => sum + deal.amount, 0);
-  }
-
-  getActiveDealsCount(): number {
-    return this.allDeals.filter(deal => deal.status !== 'won').length;
+  getConvertedDealsCount(): number {
+    return 0;
   }
 
   formatCurrency(amount: number): string {
@@ -324,7 +263,64 @@ export class DealPipelineComponent implements OnInit {
     });
   }
 
-  getStatusBadgeClass(status: string): string {
-    return `status-${status}`;
+  getStatusBadgeClass(deal: Deal): string {
+    if (deal.converted) return 'status-converted';
+    if (deal.DealStatus === 'won') return 'status-won';
+    if (deal.DealStatus === 'pending') return 'status-pending';
+    return 'status-default';
+  }
+
+  getStatusText(deal: Deal): string {
+    if (deal.converted) return 'Converted';
+    if (deal.DealStatus === 'won') return 'Won';
+    if (deal.DealStatus === 'pending') return 'Pending';
+    return deal.DealStatus || 'Unknown';
+  }
+
+  getDealTitle(deal: Deal): string {
+    return deal.title || deal.dealTitle || 'Untitled Deal';
+  }
+
+  getDealCompany(deal: Deal): string {
+    return deal.company || deal.companyName || 'N/A';
+  }
+
+  getDealElevatorType(deal: Deal): string {
+    return deal.elevatorType || deal.dealDetails || 'N/A';
+  }
+
+  getDealExpectedCloseDate(deal: Deal): string {
+    return deal.expectedCloseDate || deal.expectedClosingDate || '';
+  }
+
+  getAssignedToName(deal: Deal): string {
+    return deal.assignedToName || 'Sales Executive';
+  }
+
+  showToast(message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') {
+    if (typeof Toastify !== 'undefined') {
+      const backgroundColor = 
+        type === 'success' ? 'linear-gradient(to right, #00b09b, #96c93d)' :
+        type === 'error' ? 'linear-gradient(to right, #ff5f6d, #ffc371)' :
+        type === 'warning' ? 'linear-gradient(to right, #f39c12, #e67e22)' :
+        'linear-gradient(to right, #667eea, #764ba2)';
+
+      Toastify({
+        text: message,
+        duration: 4000,
+        close: true,
+        gravity: "top",
+        position: "right",
+        stopOnFocus: true,
+        style: {
+          background: backgroundColor,
+          borderRadius: "10px",
+          fontSize: "14px",
+          fontWeight: "500"
+        }
+      }).showToast();
+    } else {
+      alert(message);
+    }
   }
 }

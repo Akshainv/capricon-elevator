@@ -54,7 +54,7 @@
         </div>
 
         <div class="company-info" data-aos="fade-up" data-aos-delay="1000">
-          <p>Powered by <strong>Inspite Technologies </strong></p>
+          <p>Powered by <strong>Inspite Technologies</strong></p>
           <p class="location"><i class="fas fa-map-marker-alt"></i> Infopark, Kochi, Kerala</p>
         </div>
       </div>
@@ -70,20 +70,12 @@
           <p>Sign in to continue to your dashboard</p>
         </div>
 
-        <!-- Social Login -->
-        <div class="social-login" data-aos="fade-up" data-aos-delay="400">
-          <button class="social-btn google">
-            <i class="fab fa-google"></i>
-            Continue with Google
-          </button>
-        </div>
-
-        <div class="divider" data-aos="fade-up" data-aos-delay="500">
-          <span>or sign in with email</span>
+        <div class="divider" data-aos="fade-up" data-aos-delay="400">
+          <span>Enter your credentials</span>
         </div>
 
         <!-- Login Form -->
-        <form (ngSubmit)="onSubmit()" data-aos="fade-up" data-aos-delay="600">
+        <form (ngSubmit)="onSubmit()" data-aos="fade-up" data-aos-delay="500">
           
           <div class="form-group">
             <label for="email">
@@ -96,7 +88,9 @@
               [(ngModel)]="email" 
               name="email"
               placeholder="admin@inspitetech.com"
+              [disabled]="isLoading"
               required
+              autocomplete="email"
             />
           </div>
 
@@ -112,12 +106,15 @@
                 [(ngModel)]="password" 
                 name="password"
                 placeholder="Enter your password"
+                [disabled]="isLoading"
                 required
+                autocomplete="current-password"
               />
               <button 
                 type="button" 
                 class="toggle-password"
                 (click)="togglePassword()"
+                [disabled]="isLoading"
               >
                 <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
               </button>
@@ -130,28 +127,29 @@
                 type="checkbox" 
                 [(ngModel)]="rememberMe"
                 name="rememberMe"
+                [disabled]="isLoading"
               />
               <span class="checkbox-text">Remember me</span>
             </label>
-            <a href="#" class="forgot-link">Forgot Password?</a>
           </div>
 
-          <button type="submit" class="btn-login">
-            <span>Sign In</span>
-            <i class="fas fa-arrow-right arrow"></i>
+          <button type="submit" class="btn-login" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Sign In</span>
+            <span *ngIf="isLoading">
+              <i class="fas fa-spinner fa-spin"></i> Signing In...
+            </span>
+            <i *ngIf="!isLoading" class="fas fa-arrow-right arrow"></i>
           </button>
 
         </form>
 
         <!-- Footer -->
-        <div class="login-footer" data-aos="fade-up" data-aos-delay="800">
-          <p>Don't have an account? <a routerLink="/register">Register Here</a></p>
+        <div class="login-footer" data-aos="fade-up" data-aos-delay="600">
+          <p>Don't have an account? <a routerLink="/register" class="register-link">Register Here</a></p>
         </div>
 
       </div>
     </div>
 
   </div>
-
- 
 </div>

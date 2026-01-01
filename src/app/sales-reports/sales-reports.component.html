@@ -1,218 +1,61 @@
 <!-- src/app/sales-reports/sales-reports.component.html -->
 <div class="reports-container">
   
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <h1>📈 Sales Reports</h1>
-      <p>Detailed sales analysis and trends</p>
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your performance data...</p>
+  </div>
+
+  <div *ngIf="!loading">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1>📊 My Sales Performance</h1>
+      </div>
+    </div>
+
+    <!-- Performance Summary -->
+    <div class="section-title">
+      <i class="fas fa-chart-line"></i>
+      <span>Performance Summary</span>
     </div>
     
-    <div class="header-actions">
-      <div class="period-selector">
-        <button 
-          *ngFor="let period of ['week', 'month', 'quarter', 'year']"
-          class="period-btn"
-          [class.active]="selectedPeriod === period"
-          (click)="changePeriod(period)"
-        >
-          {{ period | titlecase }}
-        </button>
-      </div>
-      
-      <button class="btn-export excel" (click)="exportToExcel()">
-        <i class="fas fa-file-excel"></i>
-        <span>Excel</span>
-      </button>
-      
-      <button class="btn-export pdf" (click)="exportToPDF()">
-        <i class="fas fa-file-pdf"></i>
-        <span>PDF</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Product-wise Sales -->
-  <div class="section-card">
-    <div class="section-header">
-      <h3><i class="fas fa-boxes"></i> Product-wise Sales</h3>
-      <span class="section-subtitle">Total: {{ formatCurrency(getTotalRevenue()) }} | {{ getTotalQuantity() }} units</span>
-    </div>
-    
-    <div class="products-grid">
-      <div *ngFor="let product of productSales" class="product-card">
-        <div class="product-header">
-          <div class="product-info">
-            <span class="product-dot" [style.background]="product.color"></span>
-            <span class="product-name">{{ product.product }}</span>
-          </div>
-          <span class="product-percentage">{{ product.percentage }}%</span>
+    <div class="stats-grid">
+      <div *ngFor="let stat of stats" class="stat-card">
+        <div class="stat-icon" [style.background]="stat.color + '22'" [style.color]="stat.color">
+          <i class="fas" [ngClass]="stat.icon"></i>
         </div>
-        
-        <div class="product-stats">
-          <div class="stat-item">
-            <span class="stat-label">Quantity</span>
-            <span class="stat-value">{{ product.quantity }} units</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Revenue</span>
-            <span class="stat-value" [style.color]="product.color">{{ formatCurrency(product.revenue) }}</span>
-          </div>
-        </div>
-        
-        <div class="product-bar-bg">
-          <div 
-            class="product-bar-fill"
-            [style.width.%]="product.percentage"
-            [style.background]="product.color"
-          ></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Source Analysis -->
-  <div class="section-card">
-    <div class="section-header">
-      <h3><i class="fas fa-chart-pie"></i> Source Analysis</h3>
-      <span class="section-subtitle">Overall Conversion: {{ getOverallConversionRate() }}%</span>
-    </div>
-    
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Lead Source</th>
-            <th>Total Leads</th>
-            <th>Converted</th>
-            <th>Conversion Rate</th>
-            <th>Revenue</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let source of sourceAnalysis">
-            <td>
-              <div class="source-cell">
-                <span class="source-dot" [style.background]="source.color"></span>
-                <span>{{ source.source }}</span>
-              </div>
-            </td>
-            <td>{{ source.leads }}</td>
-            <td><strong>{{ source.converted }}</strong></td>
-            <td>
-              <span class="conversion-badge" [style.background]="source.color + '22'" [style.color]="source.color">
-                {{ source.conversionRate }}%
-              </span>
-            </td>
-            <td class="revenue-cell">{{ formatCurrency(source.revenue) }}</td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr class="total-row">
-            <td><strong>TOTAL</strong></td>
-            <td><strong>{{ getTotalLeads() }}</strong></td>
-            <td><strong>{{ getTotalConversions() }}</strong></td>
-            <td>
-              <span class="conversion-badge total">
-                {{ getOverallConversionRate() }}%
-              </span>
-            </td>
-            <td class="revenue-cell"><strong>{{ formatCurrency(getTotalRevenue()) }}</strong></td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  </div>
-
-<!-- Time Period Comparison -->
-<div class="section-card">
-  <div class="section-header">
-    <h3>Time Period Comparison</h3>
-    <span class="section-subtitle">Revenue & Performance Analysis</span>
-  </div>
-  
-  <div class="comparison-grid">
-    <div *ngFor="let period of periodComparison; let i = index" 
-         class="comparison-card"
-         [class.current]="i === 0">
-      <div class="comparison-header">
-        <h4>{{ period.period }}</h4>
-        <div class="growth-badge" *ngIf="i > 0"
-             [style.color]="getGrowthColor(getGrowthPercentage(periodComparison[0].revenue, period.revenue))">
-          <i class="fas" 
-             [ngClass]="getGrowthPercentage(periodComparison[0].revenue, period.revenue) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'">
-          </i>
-          <!-- FIXED: No more Math.abs() in template -->
-          <span>{{ getAbsoluteGrowthPercentage(periodComparison[0].revenue, period.revenue) }}%</span>
-        </div>
-      </div>
-      
-      <div class="comparison-stats">
-        <div class="comparison-stat">
-          <span class="comp-label">Revenue</span>
-          <span class="comp-value">{{ formatCurrency(period.revenue) }}</span>
-        </div>
-        <div class="comparison-stat">
-          <span class="comp-label">Deals Won</span>
-          <span class="comp-value">{{ period.deals }}</span>
-        </div>
-        <div class="comparison-stat">
-          <span class="comp-label">Leads Generated</span>
-          <span class="comp-value">{{ period.leads }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-  <!-- Bottom Grid -->
-  <div class="bottom-grid">
-    
-    <!-- Monthly Sales Trend -->
-    <div class="section-card">
-      <div class="section-header">
-        <h3><i class="fas fa-chart-line"></i> Sales Trend</h3>
-        <span class="section-subtitle">Last 6 Months</span>
-      </div>
-      
-      <div class="trend-chart">
-        <div *ngFor="let month of monthlyTrend" class="trend-bar-wrapper">
-          <div class="trend-bar-container">
-            <div 
-              class="trend-bar"
-              [style.height.%]="getBarHeight(month.revenue)"
-            >
-              <span class="trend-bar-value">{{ formatCurrency(month.revenue) }}</span>
-            </div>
-          </div>
-          <div class="trend-bar-details">
-            <div class="trend-month">{{ month.month }}</div>
-            <div class="trend-deals">{{ month.deals }} deals</div>
-          </div>
+        <div class="stat-content">
+          <div class="stat-label">{{ stat.label }}</div>
+          <div class="stat-value" [style.color]="stat.color">{{ stat.value }}</div>
+          <div class="stat-subtitle">{{ stat.subtitle }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Regional Performance -->
-    <div class="section-card">
-      <div class="section-header">
-        <h3><i class="fas fa-map-marked-alt"></i> Regional Performance</h3>
-        <span class="section-subtitle">By Location</span>
-      </div>
+    <!-- Charts Section -->
+    <div class="charts-section">
       
-      <div class="regional-list">
-        <div *ngFor="let region of regionalPerformance; let i = index" class="regional-item">
-          <div class="regional-rank">{{ i + 1 }}</div>
-          <div class="regional-info">
-            <div class="regional-name">{{ region.region }}</div>
-            <div class="regional-deals">{{ region.deals }} deals</div>
-          </div>
-          <div class="regional-stats">
-            <div class="regional-revenue">{{ formatCurrency(region.revenue) }}</div>
-            <div class="regional-share">{{ region.share }}% share</div>
+      <!-- Revenue Trend -->
+      <div class="chart-card full-width">
+        <div class="card-header">
+          <div class="header-content">
+            <h3>💰 My Revenue Trend</h3>
+            <span class="card-subtitle">Monthly revenue performance over the last 6 months</span>
           </div>
         </div>
+        <div class="chart-body">
+          <canvas 
+            baseChart
+            #revenueChart
+            [data]="revenueChartData"
+            [options]="revenueChartOptions"
+            [type]="revenueChartType">
+          </canvas>
+        </div>
       </div>
+
     </div>
 
   </div>

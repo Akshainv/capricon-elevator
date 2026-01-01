@@ -1,3 +1,4 @@
+// src/app/account-settings/account-settings.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +11,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./account-settings.component.css']
 })
 export class AccountSettingsComponent {
-  // General Settings
+  // General Settings only
   settings = {
     companyName: 'Inspite Tech',
     companyEmail: 'info@inspitetech.com',
@@ -23,15 +24,7 @@ export class AccountSettingsComponent {
     language: 'English'
   };
 
-  // Security Settings
-  security = {
-    twoFactorAuth: false,
-    sessionTimeout: '30',
-    passwordExpiry: '90',
-    loginAttempts: '5'
-  };
-
-  // Active Section
+  // Active Section (only 'general' remains)
   activeSection = 'general';
 
   selectSection(section: string) {
@@ -41,10 +34,5 @@ export class AccountSettingsComponent {
   saveGeneralSettings() {
     console.log('General Settings Saved:', this.settings);
     alert('General settings saved successfully!');
-  }
-
-  saveSecurity() {
-    console.log('Security Saved:', this.security);
-    alert('Security settings saved successfully!');
   }
 }

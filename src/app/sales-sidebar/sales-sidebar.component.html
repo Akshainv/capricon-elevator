@@ -1,4 +1,3 @@
-<!-- src/app/shared/components/sales-sidebar/sales-sidebar.component.html -->
 <div class="sidebar">
   <div class="sidebar-header">
     <div class="logo-container">
@@ -11,8 +10,10 @@
     </div>
     <h3 class="brand-name">Capricorn CRM</h3>
     <p class="brand-subtitle">Sales Dashboard</p>
+    <button class="sidebar-toggle" (click)="toggleCollapse()" aria-label="Toggle sidebar">
+      <i class="fas fa-bars"></i>
+    </button>
   </div>
-  
   <nav class="sidebar-nav">
     <div *ngFor="let section of menuSections" class="nav-section">
       <h4 class="section-title">{{ section.title }}</h4>

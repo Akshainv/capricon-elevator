@@ -1,107 +1,78 @@
-/* src/styles.css - COMPLETE GLOBAL THEME FILE */
-
 /* ==========================================
-   IMPORT FONTS
+   COMPLETE LIGHT THEME FIX - ALL PAGES
    ========================================== */
+
+/* IMPORT FONTS */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap');
 
 /* ==========================================
-   GLOBAL THEME VARIABLES - DARK MODE
+   DARK MODE VARIABLES (DEFAULT)
    ========================================== */
 
 :root,
 html.dark-theme,
 html[data-theme="dark"] {
-  /* Backgrounds */
   --bg-primary: #0a0a0a;
   --bg-secondary: #1a1a1a;
   --bg-tertiary: rgba(26, 26, 26, 0.8);
   --bg-card: linear-gradient(135deg, rgba(26, 26, 26, 0.6), rgba(0, 0, 0, 0.8));
   --bg-sidebar: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
-  
-  /* Header */
   --header-bg: linear-gradient(135deg, rgba(26, 26, 26, 0.98), rgba(0, 0, 0, 0.95));
-  
-  /* Inputs */
   --input-bg: rgba(0, 0, 0, 0.5);
   --input-focus-bg: rgba(0, 0, 0, 0.7);
-  
-  /* Dropdowns */
   --dropdown-bg: linear-gradient(135deg, rgba(26, 26, 26, 0.98), rgba(0, 0, 0, 0.95));
-  
-  /* Text Colors */
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.6);
   --text-tertiary: rgba(255, 255, 255, 0.4);
   --text-placeholder: rgba(255, 255, 255, 0.4);
-  
-  /* Borders */
   --border-color: rgba(212, 179, 71, 0.2);
   --border-hover: rgba(212, 179, 71, 0.4);
-  
-  /* Gold Accent */
   --accent-gold: #d4b347;
   --accent-gold-light: #f0d482;
   --accent-gold-dark: #b8992f;
-  
-  /* Shadows */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 /* ==========================================
-   LIGHT THEME VARIABLES
+   LIGHT MODE VARIABLES - CLEAN & FLAT
    ========================================== */
 
 html.light-theme,
 html[data-theme="light"] {
-  /* Backgrounds */
-  --bg-primary: #f5f5f5;
+  --bg-primary: #ffffff;
   --bg-secondary: #ffffff;
-  --bg-tertiary: rgba(0, 0, 0, 0.03);
-  --bg-card: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9));
-  --bg-sidebar: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
-  
-  /* Header */
-  --header-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 249, 250, 0.95));
-  
-  /* Inputs */
-  --input-bg: rgba(255, 255, 255, 0.9);
-  --input-focus-bg: rgba(255, 255, 255, 1);
-  
-  /* Dropdowns */
-  --dropdown-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 249, 250, 0.95));
-  
-  /* Text Colors */
-  --text-primary: #1a1a1a;
-  --text-secondary: rgba(0, 0, 0, 0.7);
-  --text-tertiary: rgba(0, 0, 0, 0.5);
-  --text-placeholder: rgba(0, 0, 0, 0.4);
-  
-  /* Borders */
-  --border-color: rgba(212, 179, 71, 0.3);
-  --border-hover: rgba(212, 179, 71, 0.6);
-  
-  /* Gold Accent */
-  --accent-gold: #b8992f;
-  --accent-gold-light: #d4b347;
-  --accent-gold-dark: #9a7a1f;
-  
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+  --bg-tertiary: #f9fafb;
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  --header-bg: #ffffff;
+  --input-bg: #ffffff;
+  --input-focus-bg: #ffffff;
+  --dropdown-bg: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-placeholder: #9ca3af;
+  --border-color: #e5e7eb;
+  --border-hover: #d4b347;
+  --accent-gold: #d4b347;
+  --accent-gold-light: #f0d482;
+  --accent-gold-dark: #b8992f;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 /* ==========================================
-   RESET & BASE STYLES
+   RESET & BASE
    ========================================== */
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 html {
@@ -111,37 +82,13 @@ html {
 body {
   height: 100%;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
-/* ==========================================
-   APPLY TO ALL ANGULAR COMPONENTS
-   ========================================== */
-
-app-root,
-router-outlet,
-router-outlet ~ * {
-  background: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
-}
-
-
-
-/* ==========================================
-   CARDS & PANELS
-   ========================================== */
-
-.card,
-.stat-card,
-.chart-card,
-.info-card,
-.data-card,
-[class*="-card"] {
-  background: var(--bg-card) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-primary) !important;
+app-root {
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 /* ==========================================
@@ -149,18 +96,95 @@ router-outlet ~ * {
    ========================================== */
 
 h1, h2, h3, h4, h5, h6 {
-  color: var(--accent-gold) !important;
+  color: var(--accent-gold);
   font-family: 'Playfair Display', serif;
 }
 
-
-
-span {
-  color: inherit;
+p, span, label, div {
+  color: var(--text-primary);
 }
 
 label {
-  color: var(--text-secondary) !important;
+  color: var(--text-secondary);
+}
+
+/* ==========================================
+   CARDS
+   ========================================== */
+
+.card,
+.stat-card,
+.chart-card,
+.info-card,
+.data-card,
+.task-card,
+.lead-card,
+.deal-card,
+[class*="-card"] {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+html.light-theme .card,
+html.light-theme .stat-card,
+html.light-theme [class*="-card"],
+html[data-theme="light"] .card,
+html[data-theme="light"] .stat-card,
+html[data-theme="light"] [class*="-card"] {
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ==========================================
+   SALES LEADS STAT CARDS - LIGHT MODE FIX
+   ========================================== */
+
+html.light-theme .stat-card,
+html[data-theme="light"] .stat-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light-theme .stat-card:hover,
+html[data-theme="light"] .stat-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  border-color: #d4b347 !important;
+}
+
+html.light-theme .stat-icon,
+html[data-theme="light"] .stat-icon {
+  background: rgba(212, 179, 71, 0.1) !important;
+}
+
+html.light-theme .stat-created .stat-icon,
+html[data-theme="light"] .stat-created .stat-icon {
+  background: rgba(59, 130, 246, 0.1) !important;
+  color: #3b82f6 !important;
+}
+
+html.light-theme .stat-assigned .stat-icon,
+html[data-theme="light"] .stat-assigned .stat-icon {
+  background: rgba(34, 197, 94, 0.1) !important;
+  color: #22c55e !important;
+}
+
+html.light-theme .stat-total .stat-icon,
+html[data-theme="light"] .stat-total .stat-icon {
+  background: rgba(212, 179, 71, 0.1) !important;
+  color: #d4b347 !important;
+}
+
+html.light-theme .stat-content h3,
+html[data-theme="light"] .stat-content h3 {
+  color: #d4b347 !important;
+}
+
+html.light-theme .stat-content p,
+html[data-theme="light"] .stat-content p {
+  color: #6b7280 !important;
 }
 
 /* ==========================================
@@ -170,45 +194,100 @@ label {
 input,
 select,
 textarea,
-.form-control {
-  background: var(--input-bg) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-primary) !important;
+.form-control,
+.form-input,
+.form-select,
+.form-textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--accent-gold) !important;
-  background: var(--input-focus-bg) !important;
+  border-color: var(--accent-gold);
+  background: var(--input-focus-bg);
   outline: none;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--text-placeholder) !important;
+  color: var(--text-placeholder);
+}
+
+select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+html.light-theme input,
+html.light-theme select,
+html.light-theme textarea,
+html[data-theme="light"] input,
+html[data-theme="light"] select,
+html[data-theme="light"] textarea {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+html.light-theme select option,
+html[data-theme="light"] select option {
+  background: #ffffff !important;
+  color: #1f2937 !important;
 }
 
 /* ==========================================
    BUTTONS
    ========================================== */
 
-button,
-.btn {
-  transition: all 0.3s ease;
-}
-
 .btn-primary,
 button[class*="primary"] {
-  background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light)) !important;
-  color: #000 !important;
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+  color: #000000;
   border: none;
 }
 
 .btn-secondary {
-  background: var(--bg-tertiary) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-primary) !important;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+html.light-theme .btn-primary,
+html.light-theme .btn-register,
+html.light-theme .btn-login,
+html[data-theme="light"] .btn-primary,
+html[data-theme="light"] .btn-register,
+html[data-theme="light"] .btn-login {
+  background: linear-gradient(135deg, #d4b347, #f0d482) !important;
+  color: #000000 !important;
+  box-shadow: 0 2px 8px rgba(212, 179, 71, 0.3) !important;
+}
+
+html.light-theme .btn-secondary,
+html[data-theme="light"] .btn-secondary {
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+  color: #6b7280 !important;
+  box-shadow: none !important;
+}
+
+html.light-theme .btn-secondary:hover,
+html[data-theme="light"] .btn-secondary:hover {
+  background: #f3f4f6 !important;
+  border-color: #d4b347 !important;
+  color: #d4b347 !important;
+}
+
+html.light-theme .btn-primary:hover,
+html.light-theme .btn-register:hover,
+html.light-theme .btn-login:hover,
+html[data-theme="light"] .btn-primary:hover,
+html[data-theme="light"] .btn-register:hover,
+html[data-theme="light"] .btn-login:hover {
+  box-shadow: 0 4px 12px rgba(212, 179, 71, 0.4) !important;
 }
 
 /* ==========================================
@@ -216,64 +295,106 @@ button[class*="primary"] {
    ========================================== */
 
 table {
-  background: transparent !important;
+  background: transparent;
   width: 100%;
 }
 
 thead {
-  background: var(--bg-tertiary) !important;
+  background: var(--bg-tertiary);
 }
 
 th {
-  color: var(--text-primary) !important;
-  border-color: var(--border-color) !important;
+  color: var(--text-primary);
+  border-color: var(--border-color);
   font-weight: 600;
   padding: 12px 15px;
 }
 
 td {
-  
-  border-color: var(--border-color) !important;
+  border-color: var(--border-color);
   padding: 12px 15px;
+  color: var(--text-primary);
 }
 
 tbody tr {
-  background: transparent !important;
+  background: transparent;
   border-bottom: 1px solid var(--border-color);
 }
 
 tbody tr:hover {
-  background: var(--bg-tertiary) !important;
+  background: var(--bg-tertiary);
+}
+
+html.light-theme thead,
+html[data-theme="light"] thead {
+  background: #f9fafb !important;
+}
+
+html.light-theme tbody tr:hover,
+html[data-theme="light"] tbody tr:hover {
+  background: #f9fafb !important;
 }
 
 /* ==========================================
-   SIDEBAR (IMPORTANT!)
+   SIDEBAR
    ========================================== */
 
 .sidebar,
 aside {
-  background: var(--bg-sidebar) !important;
-  border-right: 1px solid var(--border-color) !important;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
 }
 
 .sidebar * {
-  color: var(--text-secondary) !important;
+  color: var(--text-secondary);
 }
 
 .sidebar .active,
 .sidebar .router-link-active {
-  background: var(--bg-tertiary) !important;
-  color: var(--accent-gold) !important;
+  background: var(--bg-tertiary);
+  color: var(--accent-gold);
+}
+
+html.light-theme .sidebar,
+html[data-theme="light"] .sidebar {
+  background: #ffffff !important;
+  border-right: 1px solid #e5e7eb !important;
+  box-shadow: none !important;
+}
+
+html.light-theme .sidebar *,
+html[data-theme="light"] .sidebar * {
+  color: #6b7280 !important;
+}
+
+html.light-theme .sidebar .active,
+html.light-theme .sidebar .router-link-active,
+html[data-theme="light"] .sidebar .active,
+html[data-theme="light"] .sidebar .router-link-active {
+  background: #fef9e7 !important;
+  color: #d4b347 !important;
 }
 
 /* ==========================================
-   HEADER (IMPORTANT!)
+   HEADER
    ========================================== */
 
 .header,
-header {
-  background: var(--header-bg) !important;
-  border-bottom: 1px solid var(--border-color) !important;
+header,
+.sales-header {
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+html.light-theme .header,
+html.light-theme header,
+html.light-theme .sales-header,
+html[data-theme="light"] .header,
+html[data-theme="light"] header,
+html[data-theme="light"] .sales-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  box-shadow: none !important;
 }
 
 /* ==========================================
@@ -281,21 +402,39 @@ header {
    ========================================== */
 
 .dropdown-menu {
-  background: var(--dropdown-bg) !important;
-  border: 1px solid var(--border-color) !important;
+  background: var(--dropdown-bg);
+  border: 1px solid var(--border-color);
 }
 
 .dropdown-item {
-  color: var(--text-secondary) !important;
+  color: var(--text-secondary);
 }
 
 .dropdown-item:hover {
-  background: var(--bg-tertiary) !important;
-  color: var(--accent-gold) !important;
+  background: var(--bg-tertiary);
+  color: var(--accent-gold);
+}
+
+html.light-theme .dropdown-menu,
+html[data-theme="light"] .dropdown-menu {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light-theme .dropdown-item,
+html[data-theme="light"] .dropdown-item {
+  color: #6b7280 !important;
+}
+
+html.light-theme .dropdown-item:hover,
+html[data-theme="light"] .dropdown-item:hover {
+  background: #f9fafb !important;
+  color: #d4b347 !important;
 }
 
 /* ==========================================
-   STATUS BADGES
+   BADGES
    ========================================== */
 
 .badge,
@@ -310,29 +449,29 @@ header {
 .badge.success,
 .status-won,
 .status-accepted {
-  background: rgba(34, 197, 94, 0.2) !important;
-  color: #22c55e !important;
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
 }
 
 .badge.warning,
 .status-pending,
 .status-sent {
-  background: rgba(251, 191, 36, 0.2) !important;
-  color: #fbbf24 !important;
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
 }
 
 .badge.danger,
 .status-lost,
 .status-rejected {
-  background: rgba(239, 68, 68, 0.2) !important;
-  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
 }
 
 .badge.info,
 .status-new,
 .status-draft {
-  background: rgba(59, 130, 246, 0.2) !important;
-  color: #3b82f6 !important;
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
 }
 
 /* ==========================================
@@ -357,506 +496,1110 @@ header {
   background: var(--accent-gold-light);
 }
 
+html.light-theme ::-webkit-scrollbar-track,
+html[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #f9fafb !important;
+}
+
 /* ==========================================
-   DARK GRADIENT & RGBA OVERRIDES FOR LIGHT THEME
+   MODALS & OVERLAYS
    ========================================== */
 
-/* Override dark gradient backgrounds in light mode */
-html.light-theme [style*="linear-gradient(135deg, rgba(26"],
-html[data-theme="light"] [style*="linear-gradient(135deg, rgba(26"] {
-  background: var(--bg-card) !important;
-}
-
-html.light-theme [style*="linear-gradient(135deg, rgba(26, 26, 26"],
-html[data-theme="light"] [style*="linear-gradient(135deg, rgba(26, 26, 26"] {
-  background: var(--bg-card) !important;
-}
-
-/* Card elements with dark backgrounds */
-.card,
-.stat-card,
-.chart-card,
-.table-card,
 .modal-content,
 .modal-overlay,
-.drawer,
-.popover {
-  background: var(--bg-card) !important;
-}
-
-/* Modal overlay backgrounds */
-.modal-overlay,
 .modal-backdrop,
-[role="dialog"]::backdrop,
 .overlay {
-  background: rgba(0, 0, 0, 0.3) !important;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
 }
 
-html.light-theme .modal-overlay,
-html[data-theme="light"] .modal-overlay,
+.modal-backdrop,
+.overlay {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+html.light-theme .modal-content,
+html[data-theme="light"] .modal-content {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
 html.light-theme .modal-backdrop,
-html[data-theme="light"] .modal-backdrop {
+html.light-theme .overlay,
+html[data-theme="light"] .modal-backdrop,
+html[data-theme="light"] .overlay {
   background: rgba(0, 0, 0, 0.1) !important;
 }
 
 /* ==========================================
-   COMPREHENSIVE LIGHT THEME RGBA OVERRIDES
+   LIGHT THEME - REMOVE ALL DARK ARTIFACTS
    ========================================== */
 
-/* Override all dark rgba values in light theme */
-html.light-theme [style*="rgba(0, 0, 0"],
-html[data-theme="light"] [style*="rgba(0, 0, 0"] {
-  background: var(--bg-tertiary) !important;
+html.light-theme *,
+html[data-theme="light"] * {
+  text-shadow: none !important;
 }
 
-html.light-theme [style*="rgba(26, 26, 26"],
-html[data-theme="light"] [style*="rgba(26, 26, 26"] {
-  background: var(--bg-tertiary) !important;
-}
-
-/* Light theme text color fixes */
-html.light-theme [style*="color: #000"],
-html[data-theme="light"] [style*="color: #000"] {
-  color: var(--text-primary) !important;
+html.light-theme [class*="glow"],
+html.light-theme [class*="shadow"],
+html[data-theme="light"] [class*="glow"],
+html[data-theme="light"] [class*="shadow"] {
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
 }
 
 /* ==========================================
-   COMPONENT-LEVEL LIGHT THEME FIXES
+   LIGHT THEME - FORCE WHITE BACKGROUNDS
    ========================================== */
 
-/* Sales Dashboard */
-html.light-theme .sales-dashboard,
-html[data-theme="light"] .sales-dashboard {
-  background: var(--bg-primary) !important;
-}
-
-/* Sales Calendar */
-html.light-theme .event-details-modal,
-html[data-theme="light"] .event-details-modal {
-  background: var(--bg-card) !important;
-  color: var(--text-primary) !important;
-}
-
-/* Upload Overlay */
-html.light-theme .upload-overlay,
-html[data-theme="light"] .upload-overlay {
-  background: rgba(255, 255, 255, 0.8) !important;
-  border: 2px dashed var(--border-color) !important;
-}
-
-/* Form Select Options */
-html.light-theme .form-select,
-html[data-theme="light"] .form-select {
-  background: var(--input-bg) !important;
-  color: var(--text-primary) !important;
-}
-
-html.light-theme .form-select option,
-html[data-theme="light"] .form-select option {
-  background: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-}
-
-/* Datepicker */
-html.light-theme .datepicker-popup,
-html[data-theme="light"] .datepicker-popup {
-  background: var(--bg-card) !important;
-}
-
-/* Tables in light mode */
-html.light-theme tbody,
-html[data-theme="light"] tbody {
-  background: var(--bg-secondary) !important;
-}
-
-html.light-theme thead,
-html[data-theme="light"] thead {
-  background: var(--bg-tertiary) !important;
-}
-
-/* Shadows in light mode */
-html.light-theme .card,
-html[data-theme="light"] .card,
-html.light-theme [class*="card"],
-html[data-theme="light"] [class*="card"] {
-  box-shadow: var(--shadow-sm) !important;
-}
-
-/* Form inputs light mode */
-html.light-theme input,
-html[data-theme="light"] input,
-html.light-theme textarea,
-html[data-theme="light"] textarea {
-  background: var(--input-bg) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-color) !important;
-}
-
-/* Dropdown menus */
-html.light-theme .dropdown-menu,
-html[data-theme="light"] .dropdown-menu {
-  background: var(--dropdown-bg) !important;
-  box-shadow: var(--shadow-md) !important;
-}
-
-/* Charts - override text color */
-html.light-theme [class*="chart"],
-html[data-theme="light"] [class*="chart"] {
-  color: var(--text-primary) !important;
-}
-
-html.light-theme .chart-title,
-html[data-theme="light"] .chart-title,
-html.light-theme .chart-label,
-html[data-theme="light"] .chart-label {
-  color: var(--text-secondary) !important;
-}
-
-/* Sidebar link hover states */
-html.light-theme .sidebar-item:hover,
-html[data-theme="light"] .sidebar-item:hover {
-  background: var(--bg-tertiary) !important;
-}
-
-/* Active navigation items */
-html.light-theme .nav-item.active,
-html[data-theme="light"] .nav-item.active,
-html.light-theme .sidebar-item.active,
-html[data-theme="light"] .sidebar-item.active {
-  background: var(--bg-tertiary) !important;
-  color: var(--accent-gold) !important;
-}
-
-/* ==========================================
-   SELECT & OPTION ELEMENTS (GLOBAL)
-   ========================================== */
-
-select,
-select option {
-  background: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-}
-
-option {
-  background: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-}
-
-/* ==========================================
-   AGGRESSIVE LIGHT THEME OVERRIDES
-   ========================================== */
-
-/* Override ALL elements with dark backgrounds in light theme */
-html.light-theme * {
-  --applied-bg-check: var(--bg-primary);
-}
-
-/* Target all elements with dark gradients */
-html.light-theme [style*="linear-gradient"],
-html[data-theme="light"] [style*="linear-gradient"] {
-  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9)) !important;
-  background-attachment: fixed;
-}
-
-/* Target ALL rgba(0, 0, 0) backgrounds - convert to light equivalents */
-html.light-theme [style*="background: rgba(0"],
-html[data-theme="light"] [style*="background: rgba(0"],
-html.light-theme [style*="background-color: rgba(0"],
-html[data-theme="light"] [style*="background-color: rgba(0"] {
-  background-color: var(--bg-tertiary) !important;
-  background-image: none !important;
-}
-
-/* Target ALL rgba(26, 26, 26) backgrounds */
-html.light-theme [style*="background: rgba(26"],
-html[data-theme="light"] [style*="background: rgba(26"],
-html.light-theme [style*="background-color: rgba(26"],
-html[data-theme="light"] [style*="background-color: rgba(26"] {
-  background-color: var(--bg-tertiary) !important;
-  background-image: none !important;
-}
-
-/* Override color: #000 to use light theme text color */
-html.light-theme [style*="color: #000"],
-html[data-theme="light"] [style*="color: #000"],
-html.light-theme [style*="color: #000000"],
-html[data-theme="light"] [style*="color: #000000"] {
-  color: var(--text-primary) !important;
-}
-
-/* CRITICAL: Convert ALL white text to black in light theme */
-html.light-theme [style*="color: #fff"],
-html[data-theme="light"] [style*="color: #fff"],
-html.light-theme [style*="color: #ffffff"],
-html[data-theme="light"] [style*="color: #ffffff"],
-html.light-theme [style*="color: white"],
-html[data-theme="light"] [style*="color: white"] {
-  color: var(--text-primary) !important;
-}
-
-/* Convert ALL rgba(255, 255, 255) text to dark in light theme */
-html.light-theme [style*="color: rgba(255, 255, 255"],
-html[data-theme="light"] [style*="color: rgba(255, 255, 255"] {
-  color: var(--text-secondary) !important;
-}
-
-/* Page containers and main content areas */
-html.light-theme [class*="container"],
-html[data-theme="light"] [class*="container"],
-html.light-theme [class*="page"],
-html[data-theme="light"] [class*="page"],
-html.light-theme [class*="content"],
-html[data-theme="light"] [class*="content"],
-html.light-theme [class*="wrapper"],
-html[data-theme="light"] [class*="wrapper"],
-html.light-theme [class*="settings"],
-html[data-theme="light"] [class*="settings"],
+html.light-theme body,
+html.light-theme app-root,
 html.light-theme main,
-html[data-theme="light"] main,
 html.light-theme section,
-html[data-theme="light"] section {
-  background: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
-}
-
-/* Card, modal, and panel backgrounds */
-html.light-theme [class*="card"],
-html[data-theme="light"] [class*="card"],
-html.light-theme [class*="modal"],
-html[data-theme="light"] [class*="modal"],
-html.light-theme [class*="panel"],
-html[data-theme="light"] [class*="panel"],
-html.light-theme [class*="dialog"],
-html[data-theme="light"] [class*="dialog"],
-html.light-theme [class*="drawer"],
-html[data-theme="light"] [class*="drawer"],
-html.light-theme [class*="popup"],
-html[data-theme="light"] [class*="popup"] {
-  background: var(--bg-card) !important;
-  color: var(--text-primary) !important;
-}
-
-/* Light theme specific - ensure no dark overlays */
-html.light-theme [class*="overlay"],
-html[data-theme="light"] [class*="overlay"] {
-  background: rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Light theme button and interactive elements */
-html.light-theme [class*="btn"],
-html[data-theme="light"] [class*="btn"],
-html.light-theme button,
-html[data-theme="light"] button {
-  color: var(--text-primary) !important;
-}
-
-/* FORCE: All text elements in light theme should be dark */
-html.light-theme h1,
-html[data-theme="light"] h1,
-html.light-theme h2,
-html[data-theme="light"] h2,
-html.light-theme h3,
-html[data-theme="light"] h3,
-html.light-theme h4,
-html[data-theme="light"] h4,
-html.light-theme h5,
-html[data-theme="light"] h5,
-html.light-theme h6,
-html[data-theme="light"] h6,
-html.light-theme p,
-html[data-theme="light"] p,
-html.light-theme span,
-html[data-theme="light"] span,
-html.light-theme label,
-html[data-theme="light"] label,
-html.light-theme div,
-html[data-theme="light"] div {
-  color: var(--text-primary) !important;
-}
-
-/* Input text in light theme */
-html.light-theme input,
-html[data-theme="light"] input,
-html.light-theme textarea,
-html[data-theme="light"] textarea,
-html.light-theme select,
-html[data-theme="light"] select {
-  color: var(--text-primary) !important;
-}
-
-/* Table text in light theme */
-html.light-theme table,
-html[data-theme="light"] table,
-html.light-theme th,
-html[data-theme="light"] th,
-html.light-theme td,
-html[data-theme="light"] td {
-  color: var(--text-primary) !important;
-}
-
-/* List items in light theme */
-html.light-theme li,
-html[data-theme="light"] li,
-html.light-theme ul,
-html[data-theme="light"] ul,
-html.light-theme ol,
-html[data-theme="light"] ol {
-  color: var(--text-primary) !important;
+html.light-theme article,
+html.light-theme [class*="container"],
+html.light-theme [class*="page"],
+html.light-theme [class*="content"],
+html.light-theme [class*="wrapper"],
+html.light-theme [class*="layout"],
+html[data-theme="light"] body,
+html[data-theme="light"] app-root,
+html[data-theme="light"] main,
+html[data-theme="light"] section,
+html[data-theme="light"] article,
+html[data-theme="light"] [class*="container"],
+html[data-theme="light"] [class*="page"],
+html[data-theme="light"] [class*="content"],
+html[data-theme="light"] [class*="wrapper"],
+html[data-theme="light"] [class*="layout"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #1f2937 !important;
 }
 
 /* ==========================================
-   LIGHT THEME SPECIFIC OVERRIDES
+   LOGIN & REGISTER PAGE FIXES
    ========================================== */
+
+html.light-theme .login-container,
+html.light-theme .register-container,
+html.light-theme .auth-container,
+html.light-theme .login-page,
+html.light-theme .register-page,
+html.light-theme .auth-page,
+html.light-theme .login-card,
+html.light-theme .register-card,
+html.light-theme .auth-card,
+html.light-theme .login-form,
+html.light-theme .register-form,
+html.light-theme .auth-form,
+html[data-theme="light"] .login-container,
+html[data-theme="light"] .register-container,
+html[data-theme="light"] .auth-container,
+html[data-theme="light"] .login-page,
+html[data-theme="light"] .register-page,
+html[data-theme="light"] .auth-page,
+html[data-theme="light"] .login-card,
+html[data-theme="light"] .register-card,
+html[data-theme="light"] .auth-card,
+html[data-theme="light"] .login-form,
+html[data-theme="light"] .register-form,
+html[data-theme="light"] .auth-form {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Register/Login Page Background */
+html.light-theme .register-page,
+html.light-theme .login-page,
+html[data-theme="light"] .register-page,
+html[data-theme="light"] .login-page {
+  background: #f9fafb !important;
+  background-color: #f9fafb !important;
+  background-image: none !important;
+}
+
+/* Register/Login Left Side Branding */
+html.light-theme .register-left,
+html.light-theme .login-left,
+html[data-theme="light"] .register-left,
+html[data-theme="light"] .login-left {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-right: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .register-left::before,
+html.light-theme .register-left::after,
+html.light-theme .login-left::before,
+html.light-theme .login-left::after,
+html[data-theme="light"] .register-left::before,
+html[data-theme="light"] .register-left::after,
+html[data-theme="light"] .login-left::before,
+html[data-theme="light"] .login-left::after {
+  display: none !important;
+}
+
+/* Register/Login Right Side Form */
+html.light-theme .register-right,
+html.light-theme .login-right,
+html[data-theme="light"] .register-right,
+html[data-theme="light"] .login-right {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+/* Register/Login Box */
+html.light-theme .register-box,
+html.light-theme .login-box,
+html[data-theme="light"] .register-box,
+html[data-theme="light"] .login-box {
+  background: transparent !important;
+}
+
+/* Hide animated shapes and particles in light mode */
+html.light-theme .bg-shapes,
+html.light-theme .particles,
+html.light-theme .shape,
+html.light-theme .particle,
+html[data-theme="light"] .bg-shapes,
+html[data-theme="light"] .particles,
+html[data-theme="light"] .shape,
+html[data-theme="light"] .particle {
+  display: none !important;
+}
+
+/* Logo Container */
+html.light-theme .logo-icon,
+html[data-theme="light"] .logo-icon {
+  background: rgba(212, 179, 71, 0.1) !important;
+  border: 2px solid rgba(212, 179, 71, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(212, 179, 71, 0.2) !important;
+}
+
+html.light-theme .title-logo,
+html[data-theme="light"] .title-logo {
+  filter: none !important;
+}
+
+/* Photo Upload */
+html.light-theme .photo-placeholder,
+html[data-theme="light"] .photo-placeholder {
+  background: #f9fafb !important;
+  border: 2px dashed #d4b347 !important;
+}
+
+html.light-theme .photo-preview,
+html[data-theme="light"] .photo-preview {
+  border: 2px solid #d4b347 !important;
+  box-shadow: 0 2px 8px rgba(212, 179, 71, 0.2) !important;
+}
+
+/* ==========================================
+   QUOTATIONS PAGE FIXES
+   ========================================== */
+
+html.light-theme .quotations-container,
+html.light-theme .quotations-page,
+html.light-theme .quotation-card,
+html.light-theme .quotation-form,
+html.light-theme .quotation-list,
+html.light-theme .quotation-details,
+html[data-theme="light"] .quotations-container,
+html[data-theme="light"] .quotations-page,
+html[data-theme="light"] .quotation-card,
+html[data-theme="light"] .quotation-form,
+html[data-theme="light"] .quotation-list,
+html[data-theme="light"] .quotation-details {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ==========================================
+   SETTINGS PAGE FIXES
+   ========================================== */
+
+html.light-theme .settings-container,
+html.light-theme .settings-page,
+html.light-theme .settings-card,
+html.light-theme .settings-form,
+html.light-theme .settings-section,
+html.light-theme .settings-panel,
+html[data-theme="light"] .settings-container,
+html[data-theme="light"] .settings-page,
+html[data-theme="light"] .settings-card,
+html[data-theme="light"] .settings-form,
+html[data-theme="light"] .settings-section,
+html[data-theme="light"] .settings-panel {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ==========================================
+   PROFILE PAGE FIXES
+   ========================================== */
+
+html.light-theme .profile-container,
+html.light-theme .profile-page,
+html.light-theme .profile-card,
+html.light-theme .profile-header,
+html.light-theme .profile-section,
+html.light-theme .profile-details,
+html.light-theme .profile-form,
+html[data-theme="light"] .profile-container,
+html[data-theme="light"] .profile-page,
+html[data-theme="light"] .profile-card,
+html[data-theme="light"] .profile-header,
+html[data-theme="light"] .profile-section,
+html[data-theme="light"] .profile-details,
+html[data-theme="light"] .profile-form {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ==========================================
+   REMOVE ALL INLINE DARK STYLES IN LIGHT MODE
+   ========================================== */
+
+html.light-theme [style*="background"],
+html[data-theme="light"] [style*="background"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+html.light-theme [style*="linear-gradient"],
+html.light-theme [style*="rgba(0, 0, 0"],
+html.light-theme [style*="rgba(26, 26, 26"],
+html.light-theme [style*="#0a0a0a"],
+html.light-theme [style*="#1a1a1a"],
+html[data-theme="light"] [style*="linear-gradient"],
+html[data-theme="light"] [style*="rgba(0, 0, 0"],
+html[data-theme="light"] [style*="rgba(26, 26, 26"],
+html[data-theme="light"] [style*="#0a0a0a"],
+html[data-theme="light"] [style*="#1a1a1a"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+html.light-theme [style*="box-shadow"],
+html.light-theme [style*="text-shadow"],
+html[data-theme="light"] [style*="box-shadow"],
+html[data-theme="light"] [style*="text-shadow"] {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+  text-shadow: none !important;
+}
+
+/* ==========================================
+   SPECIFIC COMPONENT FIXES
+   ========================================== */
+
+html.light-theme .add-form-card,
+html.light-theme .tasks-section,
+html.light-theme .stats-grid,
+html.light-theme .category-filters,
+html[data-theme="light"] .add-form-card,
+html[data-theme="light"] .tasks-section,
+html[data-theme="light"] .stats-grid,
+html[data-theme="light"] .category-filters {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .stat-card,
+html.light-theme .task-card,
+html[data-theme="light"] .stat-card,
+html[data-theme="light"] .task-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: none !important;
+}
+
+html.light-theme .stat-card:hover,
+html.light-theme .task-card:hover,
+html[data-theme="light"] .stat-card:hover,
+html[data-theme="light"] .task-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  border-color: #d4b347 !important;
+}
+
+html.light-theme .stat-card.active,
+html[data-theme="light"] .stat-card.active {
+  background: #fef9e7 !important;
+  border-color: #d4b347 !important;
+}
+
+html.light-theme .category-btn,
+html[data-theme="light"] .category-btn {
+  background: transparent !important;
+  border: 1px solid #e5e7eb !important;
+  color: #6b7280 !important;
+}
+
+html.light-theme .category-btn:hover,
+html[data-theme="light"] .category-btn:hover {
+  background: #f9fafb !important;
+  border-color: #d4b347 !important;
+  color: #d4b347 !important;
+}
+
+html.light-theme .category-btn.active,
+html[data-theme="light"] .category-btn.active {
+  background: #fef9e7 !important;
+  border-color: #d4b347 !important;
+  color: #d4b347 !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================
+   REMOVE ALL SHADOWS & GLOWS IN LIGHT MODE
+   ========================================== */
+
+html.light-theme .sidebar-logo,
+html.light-theme .brand-name,
+html.light-theme .user-avatar,
+html.light-theme .nav-badge,
+html.light-theme .logout-btn,
+html.light-theme .header-btn,
+html.light-theme .theme-toggle,
+html[data-theme="light"] .sidebar-logo,
+html[data-theme="light"] .brand-name,
+html[data-theme="light"] .user-avatar,
+html[data-theme="light"] .nav-badge,
+html[data-theme="light"] .logout-btn,
+html[data-theme="light"] .header-btn,
+html[data-theme="light"] .theme-toggle {
+  filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+}
 
 html.light-theme .btn-primary,
 html[data-theme="light"] .btn-primary {
-  color: #ffffff !important;
+  box-shadow: none !important;
 }
 
-html.light-theme .sidebar,
-html[data-theme="light"] .sidebar {
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+html.light-theme .btn-primary:hover,
+html[data-theme="light"] .btn-primary:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* ==========================================
-   ULTRA-AGGRESSIVE LIGHT THEME FIXES
+   TEXT COLORS IN LIGHT MODE
    ========================================== */
 
-/* Override ANY element with background property in light theme */
-html.light-theme *,
-html[data-theme="light"] * {
-  --bg-override: var(--bg-primary);
+html.light-theme h1,
+html.light-theme h2,
+html.light-theme h3,
+html.light-theme h4,
+html.light-theme h5,
+html.light-theme h6,
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] h3,
+html[data-theme="light"] h4,
+html[data-theme="light"] h5,
+html[data-theme="light"] h6 {
+  color: #d4b347 !important;
 }
 
-/* Target all elements - ensure proper text color */
-html.light-theme {
-  color: var(--text-primary) !important;
-  background: var(--bg-primary) !important;
-}
-
-html[data-theme="light"] {
-  color: var(--text-primary) !important;
-  background: var(--bg-primary) !important;
-}
-
-/* Override ANY inline styles with dark colors */
-html.light-theme [style],
-html[data-theme="light"] [style] {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
-}
-
-/* Specific targeting for common problem selectors */
-html.light-theme .dark,
-html[data-theme="light"] .dark,
-html.light-theme [class*="dark"],
-html[data-theme="light"] [class*="dark"] {
-  background: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
-}
-
-/* Forms in light theme */
-html.light-theme input:not([type="radio"]):not([type="checkbox"]),
-html[data-theme="light"] input:not([type="radio"]):not([type="checkbox"]) {
-  background: var(--input-bg) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-color) !important;
-}
-
-html.light-theme textarea,
-html[data-theme="light"] textarea {
-  background: var(--input-bg) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-color) !important;
-}
-
-html.light-theme select,
-html[data-theme="light"] select {
-  background: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-}
-
-html.light-theme option,
-html[data-theme="light"] option {
-  background: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-}
-
-/* Ensure text in specific elements is dark */
-html.light-theme .page-header,
-html[data-theme="light"] .page-header,
-html.light-theme .card-header,
-html[data-theme="light"] .card-header,
-html.light-theme .section-header,
-html[data-theme="light"] .section-header {
-  background: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-}
-
-/* Content sections */
-html.light-theme .content,
-html[data-theme="light"] .content,
-html.light-theme .main-content,
-html[data-theme="light"] .main-content {
-  background: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
-}
-
-/* Task items, list items, etc */
-html.light-theme .item,
-html[data-theme="light"] .item,
-html.light-theme [class*="item"],
-html[data-theme="light"] [class*="item"],
-html.light-theme .list-item,
-html[data-theme="light"] .list-item {
-  background: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-}
-
-/* All grid items and flex children */
-html.light-theme [class*="grid"] > *,
-html[data-theme="light"] [class*="grid"] > *,
-html.light-theme [class*="flex"] > *,
-html[data-theme="light"] [class*="flex"] > * {
-  color: var(--text-primary) !important;
-}
-
-/* Text color enforcement for all common tags */
-html.light-theme strong,
-html[data-theme="light"] strong,
-html.light-theme em,
-html[data-theme="light"] em,
-html.light-theme small,
-html[data-theme="light"] small,
+html.light-theme p,
+html.light-theme span,
+html.light-theme div,
+html.light-theme label,
 html.light-theme a,
+html[data-theme="light"] p,
+html[data-theme="light"] span,
+html[data-theme="light"] div,
+html[data-theme="light"] label,
 html[data-theme="light"] a {
-  color: var(--text-primary) !important;
+  color: #1f2937 !important;
 }
 
-/* Enforce light backgrounds on containers */
-html.light-theme main,
-html[data-theme="light"] main,
-html.light-theme .main,
-html[data-theme="light"] .main,
-html.light-theme article,
-html[data-theme="light"] article,
-html.light-theme aside,
-html[data-theme="light"] aside {
-  background: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
+html.light-theme .text-secondary,
+html[data-theme="light"] .text-secondary {
+  color: #6b7280 !important;
+}
+
+html.light-theme .text-tertiary,
+html[data-theme="light"] .text-tertiary {
+  color: #9ca3af !important;
+}
+
+/* Override white text in auth pages */
+html.light-theme .register-left *,
+html.light-theme .login-left *,
+html.light-theme .tagline,
+html.light-theme .feature-item,
+html.light-theme .company-info p,
+html.light-theme .location,
+html.light-theme .register-header p,
+html.light-theme .login-header p,
+html.light-theme .register-footer p,
+html.light-theme .login-footer p,
+html.light-theme .checkbox-text,
+html[data-theme="light"] .register-left *,
+html[data-theme="light"] .login-left *,
+html[data-theme="light"] .tagline,
+html[data-theme="light"] .feature-item,
+html[data-theme="light"] .company-info p,
+html[data-theme="light"] .location,
+html[data-theme="light"] .register-header p,
+html[data-theme="light"] .login-header p,
+html[data-theme="light"] .register-footer p,
+html[data-theme="light"] .login-footer p,
+html[data-theme="light"] .checkbox-text {
+  color: #6b7280 !important;
+}
+
+html.light-theme .company-info strong,
+html[data-theme="light"] .company-info strong {
+  color: #d4b347 !important;
 }
 
 /* ==========================================
-   SMOOTH TRANSITIONS
+   NAVIGATION IN LIGHT MODE
    ========================================== */
 
-* {
-  transition: background-color 0.3s ease, 
-              color 0.3s ease, 
-              border-color 0.3s ease;
+html.light-theme .nav-item,
+html[data-theme="light"] .nav-item {
+  background: transparent !important;
+  color: #6b7280 !important;
 }
 
-/* Disable transitions during theme switch */
+html.light-theme .nav-item::before,
+html[data-theme="light"] .nav-item::before {
+  display: none !important;
+}
+
+html.light-theme .nav-item:hover,
+html[data-theme="light"] .nav-item:hover {
+  background: #f9fafb !important;
+  color: #d4b347 !important;
+}
+
+html.light-theme .nav-item.active,
+html[data-theme="light"] .nav-item.active {
+  background: #fef9e7 !important;
+  color: #d4b347 !important;
+  border-left-color: #d4b347 !important;
+}
+
+/* ==========================================
+   ADDITIONAL FIXES FOR ALL PAGES
+   ========================================== */
+
+html.light-theme *[class*="dark"],
+html.light-theme *[class*="black"],
+html[data-theme="light"] *[class*="dark"],
+html[data-theme="light"] *[class*="black"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+html.light-theme .form-group,
+html.light-theme .input-group,
+html[data-theme="light"] .form-group,
+html[data-theme="light"] .input-group {
+  background: transparent !important;
+}
+
+html.light-theme .panel,
+html.light-theme .section,
+html[data-theme="light"] .panel,
+html[data-theme="light"] .section {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* ==========================================
+   DISABLE TRANSITIONS DURING THEME SWITCH
+   ========================================== */
+
 html.transitioning * {
   transition: none !important;
+}
+
+/* ==========================================
+   TOASTR FIX (IMPORTANT)
+   ========================================== */
+
+.toast-container {
+  z-index: 999999 !important;
+}
+
+.toast {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.toast-success {
+  background-color: #22c55e !important;
+}
+
+.toast-error {
+  background-color: #ef4444 !important;
+}
+
+.toast-warning {
+  background-color: #f59e0b !important;
+}
+
+.toast-info {
+  background-color: #3b82f6 !important;
+}
+
+/* Light theme override */
+html.light-theme .toast,
+html[data-theme="light"] .toast {
+  color: #ffffff !important;
+}
+/* ==========================================
+   SALES LEADS FILTERS SECTION - LIGHT MODE FIX
+   ========================================== */
+
+html.light-theme .filters-section,
+html[data-theme="light"] .filters-section {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+/* ==========================================
+   ADD LEAD - BACK BUTTON - LIGHT MODE FIX
+   ========================================== */
+
+html.light-theme .btn-back,
+html[data-theme="light"] .btn-back {
+  background: #ffffff !important;
+  color: #d4b347 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .btn-back:hover,
+html[data-theme="light"] .btn-back:hover {
+  background: #f9fafb !important;
+  border-color: #d4b347 !important;
+}
+/* ==========================================
+   SALES CREATE QUOTATION PAGE - LIGHT MODE FIX
+   ========================================== */
+
+/* Back Button */
+html.light-theme .btn-back-nav,
+html[data-theme="light"] .btn-back-nav {
+  background: #ffffff !important;
+  color: #d4b347 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .btn-back-nav:hover,
+html[data-theme="light"] .btn-back-nav:hover {
+  background: #f9fafb !important;
+  border-color: #d4b347 !important;
+}
+
+/* Form Cards */
+html.light-theme .form-card,
+html[data-theme="light"] .form-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Lead Selection Card */
+html.light-theme .lead-selection-card,
+html[data-theme="light"] .lead-selection-card {
+  background: #fef9e7 !important;
+  background-image: none !important;
+  border: 1px solid #d4b347 !important;
+}
+
+html.light-theme .lead-selection-card .card-header,
+html[data-theme="light"] .lead-selection-card .card-header {
+  background: rgba(212, 179, 71, 0.1) !important;
+  background-image: none !important;
+  border-bottom: 1px solid #d4b347 !important;
+}
+
+/* Card Headers */
+html.light-theme .card-header,
+html[data-theme="light"] .card-header {
+  background: #f9fafb !important;
+  background-image: none !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+/* Form Inputs */
+html.light-theme .form-input,
+html.light-theme .form-select,
+html.light-theme .form-textarea,
+html.light-theme .lead-search-input,
+html[data-theme="light"] .form-input,
+html[data-theme="light"] .form-select,
+html[data-theme="light"] .form-textarea,
+html[data-theme="light"] .lead-search-input {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+html.light-theme .form-input:focus,
+html.light-theme .form-select:focus,
+html.light-theme .form-textarea:focus,
+html.light-theme .lead-search-input:focus,
+html[data-theme="light"] .form-input:focus,
+html[data-theme="light"] .form-select:focus,
+html[data-theme="light"] .form-textarea:focus,
+html[data-theme="light"] .lead-search-input:focus {
+  border-color: #d4b347 !important;
+  box-shadow: 0 0 0 3px rgba(212, 179, 71, 0.1) !important;
+}
+
+html.light-theme .form-input.readonly,
+html[data-theme="light"] .form-input.readonly {
+  background: #f9fafb !important;
+  color: #6b7280 !important;
+}
+
+/* Lead Dropdown */
+html.light-theme .lead-dropdown,
+html[data-theme="light"] .lead-dropdown {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 2px solid #d4b347 !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light-theme .dropdown-header,
+html[data-theme="light"] .dropdown-header {
+  background: #fef9e7 !important;
+  background-image: none !important;
+  border-bottom: 1px solid #d4b347 !important;
+}
+
+html.light-theme .lead-item,
+html[data-theme="light"] .lead-item {
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .lead-item:hover,
+html[data-theme="light"] .lead-item:hover {
+  background: #fef9e7 !important;
+  background-image: none !important;
+}
+
+html.light-theme .lead-item-name,
+html[data-theme="light"] .lead-item-name {
+  color: #1f2937 !important;
+}
+
+html.light-theme .contact-detail,
+html[data-theme="light"] .contact-detail {
+  color: #6b7280 !important;
+}
+
+/* Quotation Items */
+html.light-theme .quotation-item,
+html[data-theme="light"] .quotation-item {
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .item-total,
+html[data-theme="light"] .item-total {
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* Summary Card */
+html.light-theme .summary-card,
+html[data-theme="light"] .summary-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light-theme .summary-divider,
+html[data-theme="light"] .summary-divider {
+  background: linear-gradient(90deg, transparent, #e5e7eb, transparent) !important;
+}
+
+html.light-theme .summary-actions,
+html[data-theme="light"] .summary-actions {
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* Select Options */
+html.light-theme .form-select option,
+html[data-theme="light"] .form-select option {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* Text Colors in Light Mode */
+html.light-theme .info-label,
+html.light-theme .summary-label,
+html[data-theme="light"] .info-label,
+html[data-theme="light"] .summary-label {
+  color: #6b7280 !important;
+}
+
+html.light-theme .info-value,
+html.light-theme .summary-value,
+html[data-theme="light"] .info-value,
+html[data-theme="light"] .summary-value {
+  color: #1f2937 !important;
+}
+
+html.light-theme .summary-row.grand-total .summary-value,
+html[data-theme="light"] .summary-row.grand-total .summary-value {
+  color: #d4b347 !important;
+}
+
+/* Autofill Fix for Light Mode */
+html.light-theme .form-input:-webkit-autofill,
+html.light-theme .form-input:-webkit-autofill:hover,
+html.light-theme .form-input:-webkit-autofill:focus,
+html[data-theme="light"] .form-input:-webkit-autofill,
+html[data-theme="light"] .form-input:-webkit-autofill:hover,
+html[data-theme="light"] .form-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+}
+/* ==========================================
+   QUICK ACTIONS SECTION - LIGHT MODE FIX
+   Complete Override for Light Theme
+   ========================================== */
+
+/* Main Quick Actions Container */
+html.light-theme .quick-actions,
+html[data-theme="light"] .quick-actions {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+  margin-top: 2rem;
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+/* Remove any pseudo-elements or overlays */
+html.light-theme .quick-actions::before,
+html.light-theme .quick-actions::after,
+html[data-theme="light"] .quick-actions::before,
+html[data-theme="light"] .quick-actions::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Quick Actions Heading */
+html.light-theme .quick-actions h3,
+html[data-theme="light"] .quick-actions h3 {
+  color: #d4b347 !important;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+html.light-theme .quick-actions h3 i,
+html[data-theme="light"] .quick-actions h3 i {
+  color: #d4b347 !important;
+}
+
+/* Actions Grid Container */
+html.light-theme .actions-grid,
+html[data-theme="light"] .actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  background: transparent !important;
+}
+
+/* Individual Action Buttons */
+html.light-theme .action-btn,
+html[data-theme="light"] .action-btn {
+  background: #f9fafb !important;
+  background-color: #f9fafb !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #1f2937 !important;
+  box-shadow: none !important;
+}
+
+/* Remove any pseudo-elements from buttons */
+html.light-theme .action-btn::before,
+html.light-theme .action-btn::after,
+html[data-theme="light"] .action-btn::before,
+html[data-theme="light"] .action-btn::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Action Button Hover State */
+html.light-theme .action-btn:hover,
+html[data-theme="light"] .action-btn:hover {
+  background: #fef9e7 !important;
+  background-color: #fef9e7 !important;
+  background-image: none !important;
+  border-color: #d4b347 !important;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(212, 179, 71, 0.2) !important;
+}
+
+/* Action Button Icons */
+html.light-theme .action-btn i,
+html[data-theme="light"] .action-btn i {
+  font-size: 1.5rem;
+  color: #d4b347 !important;
+}
+
+/* Action Button Text */
+html.light-theme .action-btn span,
+html[data-theme="light"] .action-btn span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  color: #1f2937 !important;
+}
+
+/* Responsive adjustments for light mode */
+@media (max-width: 1200px) {
+  html.light-theme .actions-grid,
+  html[data-theme="light"] .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  html.light-theme .actions-grid,
+  html[data-theme="light"] .actions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  html.light-theme .quick-actions,
+  html[data-theme="light"] .quick-actions {
+    padding: 1.5rem;
+  }
+}
+
+/* Force override any inline styles */
+html.light-theme .quick-actions[style],
+html[data-theme="light"] .quick-actions[style] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+html.light-theme .action-btn[style],
+html[data-theme="light"] .action-btn[style] {
+  background: #f9fafb !important;
+  background-color: #f9fafb !important;
+  background-image: none !important;
+}
+/* ==========================================
+   BACK TO LEADS LIST BUTTON - LIGHT MODE FIX
+   ========================================== */
+
+/* Top-left Back Button - Light Mode Override */
+html.light-theme .btn-back-top,
+html[data-theme="light"] .btn-back-top {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #d4b347 !important;
+  border: 1px solid #e5e7eb !important;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Remove any pseudo-elements */
+html.light-theme .btn-back-top::before,
+html.light-theme .btn-back-top::after,
+html[data-theme="light"] .btn-back-top::before,
+html[data-theme="light"] .btn-back-top::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Hover State */
+html.light-theme .btn-back-top:hover,
+html[data-theme="light"] .btn-back-top:hover {
+  background: #fef9e7 !important;
+  background-color: #fef9e7 !important;
+  background-image: none !important;
+  border-color: #d4b347 !important;
+  color: #d4b347 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Icon color */
+html.light-theme .btn-back-top i,
+html[data-theme="light"] .btn-back-top i {
+  color: #d4b347 !important;
+}
+
+/* Text color */
+html.light-theme .btn-back-top span,
+html[data-theme="light"] .btn-back-top span {
+  color: #1f2937 !important;
+  font-weight: 600;
+}
+
+/* Hover state text */
+html.light-theme .btn-back-top:hover span,
+html[data-theme="light"] .btn-back-top:hover span {
+  color: #d4b347 !important;
+}
+
+/* Force override any inline styles */
+html.light-theme .btn-back-top[style],
+html[data-theme="light"] .btn-back-top[style] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+/* ==========================================
+   LOGIN PAGE INPUT FIELDS - LIGHT MODE FIX
+   ULTRA-SPECIFIC OVERRIDE TO BEAT COMPONENT CSS
+   ========================================== */
+
+/* Target the exact structure from the HTML */
+html.light-theme .login-page .login-container .login-right .login-box form .form-group input,
+html.light-theme .login-page .login-container .login-right .login-box form .password-input input,
+html.light-theme .login-page .login-right .login-box .form-group input,
+html.light-theme .login-page .login-right .form-group input,
+html.light-theme .login-page .form-group input,
+html.light-theme .login-right input[type="email"],
+html.light-theme .login-right input[type="password"],
+html.light-theme .login-right input[type="text"],
+html[data-theme="light"] .login-page .login-container .login-right .login-box form .form-group input,
+html[data-theme="light"] .login-page .login-container .login-right .login-box form .password-input input,
+html[data-theme="light"] .login-page .login-right .login-box .form-group input,
+html[data-theme="light"] .login-page .login-right .form-group input,
+html[data-theme="light"] .login-page .form-group input,
+html[data-theme="light"] .login-right input[type="email"],
+html[data-theme="light"] .login-right input[type="password"],
+html[data-theme="light"] .login-right input[type="text"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #1f2937 !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+}
+
+/* Fix autofill with ultra-specific selectors */
+html.light-theme .login-page .login-container .login-right form input:-webkit-autofill,
+html.light-theme .login-page .login-container .login-right form input:-webkit-autofill:hover,
+html.light-theme .login-page .login-container .login-right form input:-webkit-autofill:focus,
+html.light-theme .login-page .login-container .login-right form input:-webkit-autofill:active,
+html.light-theme .login-right .form-group input:-webkit-autofill,
+html.light-theme .login-right .form-group input:-webkit-autofill:hover,
+html.light-theme .login-right .form-group input:-webkit-autofill:focus,
+html.light-theme .login-right .form-group input:-webkit-autofill:active,
+html[data-theme="light"] .login-page .login-container .login-right form input:-webkit-autofill,
+html[data-theme="light"] .login-page .login-container .login-right form input:-webkit-autofill:hover,
+html[data-theme="light"] .login-page .login-container .login-right form input:-webkit-autofill:focus,
+html[data-theme="light"] .login-page .login-container .login-right form input:-webkit-autofill:active,
+html[data-theme="light"] .login-right .form-group input:-webkit-autofill,
+html[data-theme="light"] .login-right .form-group input:-webkit-autofill:hover,
+html[data-theme="light"] .login-right .form-group input:-webkit-autofill:focus,
+html[data-theme="light"] .login-right .form-group input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  box-shadow: none !important;
+  border: 1px solid #e5e7eb !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Fix focus state with ultra-specific selectors */
+html.light-theme .login-page .login-container .login-right .login-box form .form-group input:focus,
+html.light-theme .login-page .login-container .login-right .login-box form .password-input input:focus,
+html.light-theme .login-page .login-right .form-group input:focus,
+html.light-theme .login-right input[type="email"]:focus,
+html.light-theme .login-right input[type="password"]:focus,
+html.light-theme .login-right input[type="text"]:focus,
+html[data-theme="light"] .login-page .login-container .login-right .login-box form .form-group input:focus,
+html[data-theme="light"] .login-page .login-container .login-right .login-box form .password-input input:focus,
+html[data-theme="light"] .login-page .login-right .form-group input:focus,
+html[data-theme="light"] .login-right input[type="email"]:focus,
+html[data-theme="light"] .login-right input[type="password"]:focus,
+html[data-theme="light"] .login-right input[type="text"]:focus {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border: 2px solid #d4b347 !important;
+  box-shadow: 0 0 0 3px rgba(212, 179, 71, 0.1) !important;
+  -webkit-box-shadow: 0 0 0 3px rgba(212, 179, 71, 0.1) !important;
+  -moz-box-shadow: 0 0 0 3px rgba(212, 179, 71, 0.1) !important;
+  outline: none !important;
+  color: #1f2937 !important;
+}
+
+/* Fix placeholder text */
+html.light-theme .login-right input::placeholder,
+html.light-theme .login-page input::placeholder,
+html[data-theme="light"] .login-right input::placeholder,
+html[data-theme="light"] .login-page input::placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
+/* Remove any box-shadow from parent containers */
+html.light-theme .login-page .form-group,
+html.light-theme .login-page .password-input,
+html[data-theme="light"] .login-page .form-group,
+html[data-theme="light"] .login-page .password-input {
+  background: transparent !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
 }

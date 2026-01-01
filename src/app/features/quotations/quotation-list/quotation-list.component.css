@@ -1,5 +1,4 @@
-/* src/app/features/quotations/quotation-list/quotation-list.component.css */
-
+/* src/app/features/quotations/quotation-list/quotation-list.component.css (Updated with pagination styles) */
 .quotations-container {
   padding: 15px 20px;
   width: 100%;
@@ -24,7 +23,6 @@
 }
 
 .header-left p {
-  
   font-size: 0.85rem;
   margin: 0;
 }
@@ -73,10 +71,10 @@
   transform: translateY(-2px);
 }
 
-/* Stats Grid */
+/* Stats Grid - UPDATED TO 3 CARDS */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -126,10 +124,7 @@
   flex-shrink: 0;
 }
 
-.stat-icon.draft {
-  background: rgba(156, 163, 175, 0.2);
-  color: #9ca3af;
-}
+/* REMOVED: .stat-icon.draft styles - not needed anymore */
 
 .stat-icon.sent {
   background: rgba(59, 130, 246, 0.2);
@@ -153,7 +148,6 @@
 
 .stat-label {
   font-size: 0.7rem;
- 
   margin-bottom: 3px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -279,15 +273,15 @@
   text-overflow: ellipsis;
 }
 
-/* Fixed Column Widths - Optimized for viewport */
+/* Fixed Column Widths - UPDATED FOR ADMIN VIEW */
 .quotations-table th:nth-child(1) { width: 9%; }   /* Quote # */
-.quotations-table th:nth-child(2) { width: 16%; }  /* Customer */
-.quotations-table th:nth-child(3) { width: 9%; }   /* Date */
-.quotations-table th:nth-child(4) { width: 15%; }  /* Elevator Type */
-.quotations-table th:nth-child(5) { width: 11%; }  /* Amount */
-.quotations-table th:nth-child(6) { width: 10%; }  /* Status */
-.quotations-table th:nth-child(7) { width: 10%; }  /* Valid Until */
-.quotations-table th:nth-child(8) { width: 20%; }  /* Actions - increased for approval button */
+.quotations-table th:nth-child(2) { width: 18%; }  /* Customer - increased */
+.quotations-table th:nth-child(3) { width: 10%; }  /* Date */
+.quotations-table th:nth-child(4) { width: 16%; }  /* Elevator Type - increased */
+.quotations-table th:nth-child(5) { width: 12%; }  /* Amount - increased */
+.quotations-table th:nth-child(6) { width: 11%; }  /* Status */
+.quotations-table th:nth-child(7) { width: 11%; }  /* Valid Until */
+.quotations-table th:nth-child(8) { width: 13%; }  /* Actions - reduced for 2 buttons only */
 
 .quotations-table tbody tr {
   border-bottom: 1px solid rgba(212, 179, 71, 0.1);
@@ -300,7 +294,6 @@
 
 .quotations-table td {
   padding: 12px 10px;
- 
   font-size: 0.82rem;
   white-space: nowrap;
   vertical-align: middle;
@@ -325,7 +318,6 @@
 
 .customer-name {
   font-weight: 600;
-  
   font-size: 0.85rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -333,7 +325,6 @@
 
 .customer-contact {
   font-size: 0.75rem;
- 
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -347,7 +338,6 @@
 
 .elevator-type {
   font-weight: 500;
- 
   font-size: 0.82rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -401,10 +391,10 @@
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* Action Buttons */
+/* Action Buttons - SIMPLIFIED FOR ADMIN */
 .action-buttons {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   flex-wrap: nowrap;
   justify-content: flex-start;
 }
@@ -434,39 +424,6 @@
   box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
 }
 
-.btn-pdf {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-}
-
-.btn-pdf:hover {
-  background: rgba(239, 68, 68, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
-}
-
-.btn-email {
-  background: rgba(168, 85, 247, 0.2);
-  color: #c084fc;
-}
-
-.btn-email:hover {
-  background: rgba(168, 85, 247, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(168, 85, 247, 0.3);
-}
-
-.btn-edit {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-}
-
-.btn-edit:hover {
-  background: rgba(245, 158, 11, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
-}
-
 .btn-delete {
   background: rgba(239, 68, 68, 0.2);
   color: #f87171;
@@ -478,16 +435,7 @@
   box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
 }
 
-.btn-approve {
-  background: rgba(34, 197, 94, 0.2);
-  color: #4ade80;
-}
-
-.btn-approve:hover {
-  background: rgba(34, 197, 94, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(34, 197, 94, 0.3);
-}
+/* REMOVED: .btn-pdf, .btn-email, .btn-edit, .btn-approve styles - not needed for admin */
 
 /* Empty State */
 .empty-state {
@@ -511,19 +459,63 @@
 .empty-state p {
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.9rem;
-  margin: 0 0 20px 0;
+  margin: 0;
+}
+
+/* Pagination */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 18px;
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.6), rgba(0, 0, 0, 0.8));
+  border-top: 1px solid rgba(212, 179, 71, 0.2);
+}
+
+.pagination-btn {
+  width: 38px;
+  height: 38px;
+  background: rgba(212, 179, 71, 0.1);
+  color: #d4b347;
+  border: 1px solid rgba(212, 179, 71, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: rgba(212, 179, 71, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(212, 179, 71, 0.2);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.page-info {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 /* Responsive */
 @media (max-width: 1400px) {
   .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 1024px) {
   .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 

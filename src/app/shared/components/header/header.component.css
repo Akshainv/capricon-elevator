@@ -211,7 +211,7 @@
   background: var(--dropdown-bg);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -445,3 +445,21 @@
     width: 280px;
   }
 }
+/* Existing styles remain unchanged... */
+
+/* Static Profile Button (non-clickable) */
+.static-profile {
+  width: auto;
+  padding: 0 15px;
+  gap: 10px;
+  cursor: default; /* Not clickable */
+  pointer-events: none; /* Disable interaction */
+}
+
+.static-profile:hover {
+  background: rgba(212, 179, 71, 0.1); /* Keep consistent look but no hover effect */
+  transform: none;
+  border-color: var(--border-color);
+}
+
+/* Remove chevron and dropdown completely - no need for related styles */

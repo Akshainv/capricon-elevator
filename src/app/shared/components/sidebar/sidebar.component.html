@@ -1,4 +1,3 @@
-<!-- src/app/shared/components/sidebar/sidebar.component.html -->
 <div class="sidebar">
   <!-- Sidebar Header -->
   <div class="sidebar-header">
@@ -11,6 +10,9 @@
       >
     </div>
     <h3 class="brand-name">Capricorn CRM</h3>
+    <button class="sidebar-toggle" (click)="toggleCollapse()" aria-label="Toggle sidebar">
+      <i class="fas fa-bars"></i>
+    </button>
   </div>
   
   <!-- Sidebar Navigation -->
@@ -38,7 +40,7 @@
         <i class="fas fa-user"></i>
       </div>
       <div class="user-details">
-        <p class="user-name">Asin Iqbal</p>
+        <p class="user-name">Admin</p>
         <p class="user-role">Admin</p>
       </div>
     </div>

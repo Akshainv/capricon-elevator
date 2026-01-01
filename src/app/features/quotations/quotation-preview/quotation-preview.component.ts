@@ -1,13 +1,20 @@
 // src/app/features/quotations/quotation-preview/quotation-preview.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface QuotationItem {
-  description: string;
+  product: {
+    name: string;
+    category: string;
+  };
   quantity: number;
-  rate: number;
-  amount: number;
+  price: number;
+  discount: number;
+  tax: number;
+  total: number;
 }
 
 interface Customer {
@@ -20,14 +27,16 @@ interface Customer {
 
 interface QuotationData {
   quoteNumber: string;
-  date: string;
+  quoteDate: string;
   validUntil: string;
   customer: Customer;
   items: QuotationItem[];
   subtotal: number;
-  cgst: number;
-  sgst: number;
-  total: number;
+  totalDiscount: number;
+  totalTax: number;
+  grandTotal: number;
+  termsAndConditions: string;
+  notes: string;
 }
 
 @Component({
@@ -38,78 +47,50 @@ interface QuotationData {
   styleUrls: ['./quotation-preview.component.css']
 })
 export class QuotationPreviewComponent implements OnInit {
-  quotationData: QuotationData = {
-    quoteNumber: 'QT-2024-001',
-    date: 'Oct 2, 2024',
-    validUntil: 'Nov 2, 2024',
-    customer: {
-      name: 'John Smith',
-      company: 'ABC Corporation',
-      email: 'john@example.com',
-      phone: '+91 9876543210',
-      address: 'Infopark, Kochi, Kerala - 682042'
-    },
-    items: [
-      {
-        description: '8-Floor Passenger Elevator',
-        quantity: 1,
-        rate: 1200000,
-        amount: 1200000
-      },
-      {
-        description: 'VFD Control System',
-        quantity: 1,
-        rate: 150000,
-        amount: 150000
-      },
-      {
-        description: 'Installation & Commissioning',
-        quantity: 1,
-        rate: 200000,
-        amount: 200000
-      },
-      {
-        description: '1 Year AMC',
-        quantity: 1,
-        rate: 50000,
-        amount: 50000
-      }
-    ],
-    subtotal: 1550000,
-    cgst: 139500,
-    sgst: 139500,
-    total: 1829000
-  };
+  quotationData: QuotationData | null = null;
 
   companyInfo = {
-    name: 'Capricorn Elavators',
+    name: 'Capricorn Elevators',
     address: '11th floor, Jomer Symphony, Unit 03, Ponnurunni East, Vyttila, Ernakulam, Kerala 682019',
-    phone: ' 075930 00222',
+    phone: '075930 00222',
     website: 'capricornelevators.com',
     gst: 'GST123456789'
   };
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
-    // Load quotation data from service or route params
     this.loadQuotationData();
   }
 
   loadQuotationData(): void {
-    // Check if data passed via navigation state
+    // First try to get data from navigation state
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state) {
-      const quotationData = navigation.extras.state['quotationData'];
-      if (quotationData) {
-        this.quotationData = quotationData;
+      const data = navigation.extras.state['quotationData'];
+      if (data) {
+        this.quotationData = data;
+        return;
+      }
+    }
+
+    // If no navigation state, try localStorage
+    const savedData = localStorage.getItem('quotationPreview');
+    if (savedData) {
+      try {
+        this.quotationData = JSON.parse(savedData);
+      } catch (error) {
+        console.error('Error loading quotation data:', error);
+        alert('Error loading quotation data');
+        this.router.navigate(['/quotations']);
       }
     } else {
-      // Load from localStorage as fallback
-      const savedData = localStorage.getItem('quotationPreview');
-      if (savedData) {
-        this.quotationData = JSON.parse(savedData);
-      }
+      // No data found, redirect back
+      alert('No quotation data found');
+      this.router.navigate(['/quotations']);
     }
   }
 
@@ -117,75 +98,82 @@ export class QuotationPreviewComponent implements OnInit {
     return `₹${amount.toLocaleString('en-IN')}`;
   }
 
-  downloadPDF(): void {
-    console.log('Downloading PDF...');
-    // TODO: Implement PDF generation using jsPDF library
-    // Example implementation:
-    // import jsPDF from 'jspdf';
-    // const doc = new jsPDF();
-    // Add content to PDF
-    // doc.save('quotation-' + this.quotationData.quoteNumber + '.pdf');
-    
-    alert('PDF download functionality will be implemented with jsPDF library');
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { 
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
   }
 
-  sendEmail(): void {
-    console.log('Sending email to:', this.quotationData.customer.email);
-    
-    // TODO: Implement email sending via backend API
-    // Example API call:
-    // this.quotationService.sendQuotationEmail(this.quotationData)
-    //   .subscribe(response => {
-    //     console.log('Email sent successfully');
-    //     this.showSuccessMessage('Quotation email sent successfully!');
-    //   });
-    
-    alert(`Email will be sent to ${this.quotationData.customer.email}`);
-  }
-
-  editQuotation(): void {
-    // Navigate back to quotation builder with current data
-    localStorage.setItem('quotationEdit', JSON.stringify(this.quotationData));
-    this.router.navigate(['/quotations/create']);
-  }
-
-  saveAsDraft(): void {
-    console.log('Saving as draft...');
-    
-    // TODO: Save to backend as draft
-    // this.quotationService.saveAsDraft(this.quotationData)
-    //   .subscribe(response => {
-    //     console.log('Saved as draft');
-    //     this.router.navigate(['/quotations']);
-    //   });
-    
-    alert('Quotation saved as draft');
-    this.router.navigate(['/quotations']);
-  }
-
-  sendQuotation(): void {
-    console.log('Sending quotation...');
-    
-    // TODO: Update status to 'sent' and save to backend
-    // const quotationToSend = {
-    //   ...this.quotationData,
-    //   status: 'sent',
-    //   sentDate: new Date()
-    // };
-    // 
-    // this.quotationService.sendQuotation(quotationToSend)
-    //   .subscribe(response => {
-    //     console.log('Quotation sent');
-    //     this.showSuccessMessage('Quotation sent successfully!');
-    //     this.router.navigate(['/quotations']);
-    //   });
-    
-    alert('Quotation sent successfully!');
-    this.router.navigate(['/quotations']);
+  printQuotation(): void {
+    window.print();
   }
 
   close(): void {
-    // Navigate back to quotations list
     this.router.navigate(['/quotations']);
+  }
+
+  calculateItemSubtotal(item: QuotationItem): number {
+    return item.quantity * item.price;
+  }
+
+  calculateItemDiscount(item: QuotationItem): number {
+    const subtotal = item.quantity * item.price;
+    return subtotal * (item.discount / 100);
+  }
+
+  calculateItemTaxableAmount(item: QuotationItem): number {
+    const subtotal = item.quantity * item.price;
+    const discount = subtotal * (item.discount / 100);
+    return subtotal - discount;
+  }
+
+  calculateItemTax(item: QuotationItem): number {
+    const taxableAmount = this.calculateItemTaxableAmount(item);
+    return taxableAmount * (item.tax / 100);
+  }
+
+  // NEW METHOD: Generate PDF from the preview page
+  async generatePDF(): Promise<Blob> {
+    const element = document.querySelector('.quotation-document') as HTMLElement;
+    
+    if (!element) {
+      throw new Error('Quotation document element not found');
+    }
+
+    // Capture the element as canvas
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    });
+
+    // Calculate PDF dimensions
+    const imgWidth = 210; // A4 width in mm
+    const pageHeight = 297; // A4 height in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    // Create PDF
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    // Add image to PDF (handle multiple pages if needed)
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    // Return PDF as Blob
+    return pdf.output('blob');
   }
 }

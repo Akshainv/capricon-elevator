@@ -19,7 +19,7 @@ import { SalesSettingsComponent } from './sales-settings/sales-settings.componen
 
 // Lead Management Imports
 import { LeadsListComponent } from './features/leads/leads-list/leads-list.component';
-import { SalesLeadsListComponent } from './sales-leads/sales-leads.component';
+import { SalesLeadsComponent } from './sales-leads/sales-leads.component';
 import { LeadFormComponent } from './features/leads/lead-form/lead-form.component';
 import { LeadDetailComponent } from './features/leads/lead-detail/lead-detail.component';
 import { LeadAssignmentComponent } from './features/leads/lead-assignment/lead-assignment.component';
@@ -28,10 +28,13 @@ import { SalesImportLeadsComponent } from './sales-import-leads/sales-import-lea
 import { SalesAddLeadComponent } from './sales-add-leads/sales-add-leads.component';
 
 // Communication Imports
-import { SalesActivityLogComponent } from './sales-activity-log/sales-activity-log.component';
+import { SalesActivityLogComponent } from './sales-notifications/sales-activity-log.component';
 import { TaskDashboardComponent } from './features/communication/task-dashboard/task-dashboard.component';
 import { SalesMyTasksComponent } from './sales-my-tasks/sales-my-tasks.component';
 import { SalesCalendarComponent } from './sales-calender/sales-calender.component';
+
+// Notification Imports
+import { AdminNotificationsComponent } from './admin-notifications/admin-notifications.component';
 
 // Quotation Imports
 import { QuotationListComponent } from './features/quotations/quotation-list/quotation-list.component';
@@ -81,8 +84,11 @@ export const routes: Routes = [
       { path: 'profile', component: SalesProfileComponent },
       { path: 'settings', component: SalesSettingsComponent },
       
+      // Notifications (Sales Executive)
+      { path: 'notifications', component: AdminNotificationsComponent },
+      
       // Lead Management (Sales Executive View)
-      { path: 'leads', component: SalesLeadsListComponent },
+      { path: 'leads', component: SalesLeadsComponent },
       { path: 'leads/add', component: SalesAddLeadComponent },
       { path: 'leads/import', component: SalesImportLeadsComponent },
       { path: 'leads/edit/:id', component: SalesAddLeadComponent },
@@ -124,6 +130,9 @@ export const routes: Routes = [
       // Admin Dashboard
       { path: 'admin-dashboard', component: DashboardHomeComponent },
       { path: 'admin/dashboard', component: DashboardHomeComponent },
+
+      // Admin Notifications
+      { path: 'admin/notifications', component: AdminNotificationsComponent },
 
       // Admin Employee Management
       { path: 'admin/employee-approvals', component: EmployeeApprovalsComponent },

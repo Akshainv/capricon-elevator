@@ -1,166 +1,208 @@
 <!-- src/app/features/deals/deal-pipeline/deal-pipeline.component.html -->
 <div class="pipeline-container">
   
-  <!-- Page Header -->
   <div class="page-header">
     <div class="header-left">
-      <h1>Won Deals</h1>
-      <p>View all successfully closed deals</p>
-    </div>
-    <div class="header-actions">
-      <button class="btn-primary" (click)="router.navigate(['/deals/create'])">
-        <i class="fas fa-plus"></i>
-        <span>New Deal</span>
-      </button>
+      <h1>All Pending Deals</h1>
+      <p>View and manage all your deals</p>
     </div>
   </div>
 
-  <!-- Stats Summary -->
-  <div class="stats-grid">
-    <div class="stat-card won-card">
-      <div class="stat-icon won">
-        <i class="fas fa-trophy"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-label">Total Won Deals</div>
-        <div class="stat-value">{{ getWonDeals().length }}</div>
-        <div class="stat-amount">{{ formatCurrency(getTotalWonValue()) }}</div>
-      </div>
-    </div>
-
-    <div class="stat-card active-card">
-      <div class="stat-icon active">
-        <i class="fas fa-chart-line"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-label">Active Pipeline</div>
-        <div class="stat-value">{{ getActiveDealsCount() }}</div>
-        <div class="stat-amount">{{ formatCurrency(getTotalPipelineValue()) }}</div>
-      </div>
-    </div>
-
-    <div class="stat-card average-card">
-      <div class="stat-icon average">
-        <i class="fas fa-calculator"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-label">Average Deal Value</div>
-        <div class="stat-value">{{ getWonDeals().length > 0 ? '₹' + (getTotalWonValue() / getWonDeals().length / 100000).toFixed(1) + 'L' : '₹0' }}</div>
-        <div class="stat-amount">Per Won Deal</div>
-      </div>
-    </div>
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading deals...</p>
   </div>
 
-  <!-- Won Deals List -->
-  <div class="deals-section">
-    <div class="section-header">
-      <h2>
-        <i class="fas fa-trophy"></i>
-        Successfully Closed Deals
-        <span class="deals-count">{{ getWonDeals().length }}</span>
-      </h2>
-    </div>
-
-    <div *ngIf="getWonDeals().length === 0" class="empty-state">
-      <i class="fas fa-trophy"></i>
-      <h3>No won deals yet</h3>
-      <p>Start closing deals to see them here</p>
-    </div>
-
-    <div class="won-deals-list">
-      <div *ngFor="let deal of getWonDeals()" class="won-deal-card" (click)="viewDealDetails(deal)">
-        <div class="deal-status-indicator">
-          <i class="fas fa-trophy"></i>
+  <div *ngIf="!loading">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon total">
+          <i class="fas fa-handshake"></i>
         </div>
-        
-        <div class="deal-content">
-          <div class="deal-main-info">
-            <div class="deal-left">
-              <div class="deal-header-row">
-                <h3 class="deal-title">{{ deal.title }}</h3>
-                <span class="status-badge status-won">
-                  <i class="fas fa-check-circle"></i>
-                  Won
-                </span>
+        <div class="stat-content">
+          <div class="stat-label">Total Deals</div>
+          <div class="stat-value">{{ allDeals.length }}</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon pending">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Pending Deals</div>
+          <div class="stat-value">{{ getPendingDealsCount() }}</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon converted">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Converted Deals</div>
+          <div class="stat-value">{{ getConvertedDealsCount() }}</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon average">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-amount">{{ formatCurrency(getTotalValue()) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="deals-section">
+      <div class="section-header">
+        <h2>
+          <i class="fas fa-list"></i>
+          All Deals
+          <span class="deals-count">{{ allDeals.length }}</span>
+        </h2>
+      </div>
+
+      <div *ngIf="allDeals.length === 0" class="empty-state">
+        <i class="fas fa-handshake"></i>
+        <h3>No deals found</h3>
+        <p>Convert quotations to deals to see them here</p>
+      </div>
+
+      <div class="won-deals-list">
+        <div *ngFor="let deal of allDeals" class="won-deal-card" (click)="viewDealDetails(deal)">
+          <div class="deal-status-indicator" [ngClass]="getStatusBadgeClass(deal)">
+            <i class="fas" [ngClass]="{
+              'fa-handshake': !deal.converted && deal.DealStatus !== 'won',
+              'fa-trophy': deal.DealStatus === 'won' && !deal.converted,
+              'fa-check-circle': deal.converted
+            }"></i>
+          </div>
+          
+          <div class="deal-content">
+            <div class="deal-main-info">
+              <div class="deal-left">
+                <div class="deal-header-row">
+                  <h3 class="deal-title">{{ getDealTitle(deal) }}</h3>
+                  <div class="status-badges">
+                    <span class="status-badge" [ngClass]="getStatusBadgeClass(deal)">
+                      <i class="fas" [ngClass]="{
+                        'fa-clock': !deal.converted && deal.DealStatus === 'pending',
+                        'fa-check-circle': deal.DealStatus === 'won' || deal.converted,
+                        'fa-times-circle': deal.DealStatus === 'lost'
+                      }"></i>
+                      {{ getStatusText(deal) }}
+                    </span>
+                    <span *ngIf="deal.createdFrom === 'quotation'" class="status-badge status-quotation">
+                      <i class="fas fa-file-invoice"></i>
+                      From Quotation
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="deal-details-grid">
+                  <div class="detail-item">
+                    <i class="fas fa-building"></i>
+                    <span class="detail-label">Company:</span>
+                    <span class="detail-value">{{ getDealCompany(deal) }}</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <i class="fas fa-elevator"></i>
+                    <span class="detail-label">Type:</span>
+                    <span class="detail-value">{{ getDealElevatorType(deal) }}</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <i class="fas fa-user"></i>
+                    <span class="detail-label">Contact:</span>
+                    <span class="detail-value">{{ deal.contactPerson }}</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <i class="fas fa-phone"></i>
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value">{{ deal.phone }}</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <i class="fas fa-envelope"></i>
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">{{ deal.email }}</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <i class="fas fa-user-tie"></i>
+                    <span class="detail-label">Assigned To:</span>
+                    <!-- ✅ Use getAssignedToName for proper display -->
+                    <span class="detail-value">{{ getAssignedToName(deal) }}</span>
+                  </div>
+                  
+                  <div class="detail-item" *ngIf="deal.quoteNumber">
+                    <i class="fas fa-hashtag"></i>
+                    <span class="detail-label">Quote #:</span>
+                    <span class="detail-value">{{ deal.quoteNumber }}</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <span class="detail-label">Close Date:</span>
+                    <span class="detail-value">{{ formatDate(getDealExpectedCloseDate(deal)) }}</span>
+                  </div>
+                  
+                  <div class="detail-item">
+                    <i class="fas fa-percentage"></i>
+                    <span class="detail-label">Success Rate:</span>
+                    <span class="detail-value">{{ deal.Probability }}%</span>
+                  </div>
+                </div>
               </div>
               
-              <div class="deal-details-grid">
-                <div class="detail-item">
-                  <i class="fas fa-building"></i>
-                  <span class="detail-label">Company:</span>
-                  <span class="detail-value">{{ deal.company }}</span>
+              <div class="deal-right">
+                <div class="deal-amount-section">
+                  <div class="amount-label">Deal Value</div>
+                  <div class="amount-value">{{ formatCurrency(deal.dealAmount) }}</div>
+                  <div class="amount-status" [ngClass]="getStatusBadgeClass(deal)">
+                    <i class="fas" [ngClass]="{
+                      'fa-clock': !deal.converted,
+                      'fa-check-circle': deal.converted
+                    }"></i>
+                    {{ deal.converted ? 'Converted to Project' : 'Ready to Convert' }}
+                  </div>
                 </div>
                 
-                <div class="detail-item">
-                  <i class="fas fa-elevator"></i>
-                  <span class="detail-label">Type:</span>
-                  <span class="detail-value">{{ deal.elevatorType }}</span>
+                <div class="deal-actions">
+                  <button 
+                    class="btn-convert" 
+                    [class.btn-converted]="deal.converted"
+                    [disabled]="deal.converted || loading"
+                    (click)="convertToProject(deal); $event.stopPropagation()"
+                  >
+                    <i [class.fa-arrow-right]="!deal.converted" [class.fa-check]="deal.converted" class="fas"></i>
+                    <span>{{ deal.converted ? 'Already Converted' : 'Convert to Project' }}</span>
+                  </button>
+                  
+                  <button 
+                    class="btn-view-details" 
+                    (click)="viewDealDetails(deal); $event.stopPropagation()"
+                  >
+                    <i class="fas fa-eye"></i>
+                    <span>View Details</span>
+                  </button>
+
+                  <button 
+                    class="btn-delete"
+                    [disabled]="deal.converted || loading"
+                    (click)="deleteDeal(deal, $event)"
+                    title="{{ deal.converted ? 'Cannot delete converted deals' : 'Delete deal' }}"
+                  >
+                    <i class="fas fa-trash"></i>
+                    <span>Delete</span>
+                  </button>
                 </div>
-                
-                <div class="detail-item">
-                  <i class="fas fa-user"></i>
-                  <span class="detail-label">Contact:</span>
-                  <span class="detail-value">{{ deal.contactPerson }}</span>
-                </div>
-                
-                <div class="detail-item">
-                  <i class="fas fa-phone"></i>
-                  <span class="detail-label">Phone:</span>
-                  <span class="detail-value">{{ deal.phone }}</span>
-                </div>
-                
-                <div class="detail-item">
-                  <i class="fas fa-envelope"></i>
-                  <span class="detail-label">Email:</span>
-                  <span class="detail-value">{{ deal.email }}</span>
-                </div>
-                
-                <div class="detail-item">
-                  <i class="fas fa-user-tie"></i>
-                  <span class="detail-label">Assigned To:</span>
-                  <span class="detail-value">{{ deal.assignedTo }}</span>
-                </div>
-                
-                <div class="detail-item">
-                  <i class="fas fa-calendar-check"></i>
-                  <span class="detail-label">Close Date:</span>
-                  <span class="detail-value">{{ formatDate(deal.closeDate) }}</span>
-                </div>
-                
-                <div class="detail-item">
-                  <i class="fas fa-percentage"></i>
-                  <span class="detail-label">Success Rate:</span>
-                  <span class="detail-value">{{ deal.probability }}%</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="deal-right">
-              <div class="deal-amount-section">
-                <div class="amount-label">Deal Value</div>
-                <div class="amount-value">{{ formatCurrency(deal.amount) }}</div>
-                <div class="amount-status">
-                  <i class="fas fa-check-circle"></i>
-                  Closed Successfully
-                </div>
-              </div>
-              
-              <div class="deal-actions">
-                <button 
-                  class="btn-convert" 
-                  (click)="convertToProject(deal); $event.stopPropagation()"
-                >
-                  <i class="fas fa-arrow-right"></i>
-                  <span>Convert to Project</span>
-                </button>
-                
-                <button 
-                  class="btn-view-details" 
-                  (click)="viewDealDetails(deal); $event.stopPropagation()"
-                >
-                  <i class="fas fa-eye"></i>
-                  <span>View Details</span>
-                </button>
               </div>
             </div>
           </div>
@@ -168,5 +210,4 @@
       </div>
     </div>
   </div>
-
 </div>

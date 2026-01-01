@@ -1,7 +1,35 @@
-// src/app/features/dashboard/sales-dashboard/sales-dashboard.component.ts
-import { Component, OnInit } from '@angular/core';
+// src/app/features/dashboard/sales-dashboard/sales-dashboard.component.ts - FULLY FIXED
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { DashboardService } from '../services/dashboard.service';
+import { AuthService } from '../services/auth.service';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import {
+  Chart,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  LineController,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+
+Chart.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  LineController,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 interface StatCard {
   icon: string;
@@ -12,389 +40,111 @@ interface StatCard {
   route?: string;
 }
 
-interface RecentLead {
-  id: string;
-  name: string;
-  company: string;
-  status: string;
-  value: string;
-  date: string;
-  assignedDate: string;
-}
-
-interface Task {
-  id: string;
-  title: string;
-  time: string;
-  priority: 'high' | 'medium' | 'low';
-  type: 'call' | 'email' | 'meeting' | 'task';
-  completed: boolean;
-}
-
-interface Quotation {
-  id: string;
-  customer: string;
-  amount: string;
-  status: 'draft' | 'sent' | 'approved' | 'rejected' | 'pending';
-  date: string;
-  validUntil: string;
-}
-
-interface PipelineStage {
-  name: string;
-  count: number;
-  value: string;
-  color: string;
-  percentage: number;
-}
-
-interface Activity {
-  id: string;
-  type: 'call' | 'email' | 'meeting' | 'note';
-  title: string;
-  leadName: string;
-  time: string;
-  status: 'completed' | 'scheduled';
-}
-
-interface ActivityDistribution {
-  label: string;
-  count: number;
-  icon: string;
-  color: string;
-}
-
-interface LeadSource {
-  name: string;
-  percentage: number;
-  count: number;
-  color: string;
-}
-
-interface TopProduct {
-  name: string;
-  sales: number;
-  revenue: string;
-  trend: 'up' | 'down' | 'neutral';
-}
-
 @Component({
   selector: 'app-sales-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BaseChartDirective],
   templateUrl: './sales-dashboard.component.html',
   styleUrls: ['./sales-dashboard.component.css']
 })
 export class SalesDashboardComponent implements OnInit {
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   userName: string = 'Sales Executive';
   userEmail: string = '';
   currentDate: Date = new Date();
   greetingMessage: string = '';
+  isLoading: boolean = true;
 
-  // 8 Key metric cards - Sales Executive's personal metrics
-  stats: StatCard[] = [
-    { 
-      icon: 'fa-chart-line', 
-      label: 'My Monthly Revenue', 
-      value: '₹12.5L', 
-      change: '+15.2%', 
-      trend: 'up',
-      route: '/reports/performance'
+  stats: StatCard[] = [];
+
+  // Chart configuration
+  public lineChartData: ChartData<'line'> = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Won Deals',
+        fill: true,
+        tension: 0.4,
+        borderColor: '#d4b347',
+        backgroundColor: 'rgba(212, 179, 71, 0.1)',
+        pointBackgroundColor: '#d4b347',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: '#d4b347',
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      },
+      {
+        data: [],
+        label: 'Total Leads',
+        fill: true,
+        tension: 0.4,
+        borderColor: '#22c55e',
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        pointBackgroundColor: '#22c55e',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: '#22c55e',
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }
+    ]
+  };
+
+  public lineChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+        labels: {
+          color: 'rgba(255, 255, 255, 0.7)',
+          font: { size: 12, family: "'Inter', sans-serif" },
+          padding: 15,
+          usePointStyle: true,
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#d4b347',
+        bodyColor: '#fff',
+        borderColor: '#d4b347',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
+      }
     },
-    { 
-      icon: 'fa-users', 
-      label: 'My Assigned Leads', 
-      value: '84', 
-      change: '+12 new', 
-      trend: 'up',
-      route: '/leads'
-    },
-    { 
-      icon: 'fa-file-invoice', 
-      label: 'My Quotations', 
-      value: '23', 
-      change: '8 pending', 
-      trend: 'neutral',
-      route: '/quotations'
-    },
-    { 
-      icon: 'fa-handshake', 
-      label: 'My Active Deals', 
-      value: '31', 
-      change: '5 in negotiation', 
-      trend: 'up',
-      route: '/deals'
-    },
-    { 
-      icon: 'fa-trophy', 
-      label: 'My Conversion Rate', 
-      value: '28%', 
-      change: '+5% this month', 
-      trend: 'up',
-      route: '/reports/performance'
-    },
-    { 
-      icon: 'fa-tasks', 
-      label: 'Pending Tasks', 
-      value: '17', 
-      change: '5 due today', 
-      trend: 'neutral',
-      route: '/tasks'
-    },
-    { 
-      icon: 'fa-bullseye', 
-      label: 'Target Achievement', 
-      value: '75%', 
-      change: '₹9.4L of ₹12.5L', 
-      trend: 'up',
-      route: '/reports/performance'
-    },
-    { 
-      icon: 'fa-calendar-check', 
-      label: 'Follow-ups Due', 
-      value: '12', 
-      change: '8 overdue', 
-      trend: 'down',
-      route: '/activities'
+    scales: {
+      x: {
+        grid: { color: 'rgba(212, 179, 71, 0.1)' },
+        border: { display: false },
+        ticks: { color: 'rgba(255, 255, 255, 0.6)', font: { size: 11 } }
+      },
+      y: {
+        grid: { color: 'rgba(212, 179, 71, 0.1)' },
+        border: { display: false },
+        ticks: { color: 'rgba(255, 255, 255, 0.6)', font: { size: 11 } },
+        beginAtZero: true
+      }
     }
-  ];
+  };
 
-  // Pipeline Overview with 5 stages - My deals only
-  pipelineStages: PipelineStage[] = [
-    { name: 'New Leads', count: 18, value: '₹25.2L', color: '#3b82f6', percentage: 20 },
-    { name: 'Qualified', count: 15, value: '₹38.5L', color: '#f59e0b', percentage: 35 },
-    { name: 'Quoted', count: 12, value: '₹42.3L', color: '#8b5cf6', percentage: 50 },
-    { name: 'Negotiation', count: 8, value: '₹28.7L', color: '#ec4899', percentage: 70 },
-    { name: 'Won', count: 6, value: '₹18.8L', color: '#22c55e', percentage: 100 }
-  ];
+  public lineChartType: ChartType = 'line';
 
-  // Lead Sources distribution - Where my leads come from
-  leadSources: LeadSource[] = [
-    { name: 'Website Inquiry', percentage: 40, count: 34, color: '#3b82f6' },
-    { name: 'Walk-in Customer', percentage: 30, count: 25, color: '#f59e0b' },
-    { name: 'Reference/Referral', percentage: 20, count: 17, color: '#8b5cf6' },
-    { name: 'Others', percentage: 10, count: 8, color: '#ec4899' }
-  ];
-
-  // Top Products - What I'm selling most
-  topProducts: TopProduct[] = [
-    { name: 'Passenger Elevator (8-Floor)', sales: 12, revenue: '₹45L', trend: 'up' },
-    { name: 'Home Lift (5-Floor)', sales: 8, revenue: '₹28L', trend: 'up' },
-    { name: 'Goods Elevator (10-Floor)', sales: 6, revenue: '₹35L', trend: 'neutral' },
-    { name: 'Hospital Elevator', sales: 4, revenue: '₹22L', trend: 'down' }
-  ];
-
-  // Recent Leads - My latest assigned leads (6 items)
-  recentLeads: RecentLead[] = [
-    { 
-      id: 'LD-2024-145', 
-      name: 'ABC Corporation', 
-      company: 'Tech Industry', 
-      status: 'New', 
-      value: '₹18L', 
-      date: '2 hours ago',
-      assignedDate: 'Dec 02, 2024'
-    },
-    { 
-      id: 'LD-2024-144', 
-      name: 'XYZ Industries', 
-      company: 'Manufacturing', 
-      status: 'Qualified', 
-      value: '₹25L', 
-      date: '5 hours ago',
-      assignedDate: 'Dec 02, 2024'
-    },
-    { 
-      id: 'LD-2024-143', 
-      name: 'Green Apartments', 
-      company: 'Real Estate', 
-      status: 'Quoted', 
-      value: '₹12L', 
-      date: '1 day ago',
-      assignedDate: 'Dec 01, 2024'
-    },
-    { 
-      id: 'LD-2024-142', 
-      name: 'Metro Hospital', 
-      company: 'Healthcare', 
-      status: 'Negotiation', 
-      value: '₹35L', 
-      date: '2 days ago',
-      assignedDate: 'Nov 30, 2024'
-    },
-    { 
-      id: 'LD-2024-141', 
-      name: 'Tech Park Builders', 
-      company: 'Real Estate', 
-      status: 'Qualified', 
-      value: '₹42L', 
-      date: '3 days ago',
-      assignedDate: 'Nov 29, 2024'
-    },
-    { 
-      id: 'LD-2024-140', 
-      name: 'City Mall Complex', 
-      company: 'Commercial', 
-      status: 'New', 
-      value: '₹28L', 
-      date: '4 days ago',
-      assignedDate: 'Nov 28, 2024'
-    }
-  ];
-
-  // My Tasks Today (6 items with priority and completion status)
-  todayTasks: Task[] = [
-    { 
-      id: 'TSK-001', 
-      title: 'Follow-up call with ABC Corporation - Discuss pricing', 
-      time: '10:00 AM', 
-      priority: 'high', 
-      type: 'call',
-      completed: false 
-    },
-    { 
-      id: 'TSK-002', 
-      title: 'Send quotation to XYZ Industries - 8 Floor Elevator', 
-      time: '11:30 AM', 
-      priority: 'high', 
-      type: 'email',
-      completed: false 
-    },
-    { 
-      id: 'TSK-003', 
-      title: 'Site visit at Green Apartments - Technical survey', 
-      time: '2:00 PM', 
-      priority: 'medium', 
-      type: 'meeting',
-      completed: false 
-    },
-    { 
-      id: 'TSK-004', 
-      title: 'Update deal status for Metro Hospital in CRM', 
-      time: '4:00 PM', 
-      priority: 'low', 
-      type: 'task',
-      completed: false 
-    },
-    { 
-      id: 'TSK-005', 
-      title: 'Prepare presentation for Tech Park Builders meeting', 
-      time: '5:00 PM', 
-      priority: 'medium', 
-      type: 'task',
-      completed: false 
-    },
-    { 
-      id: 'TSK-006', 
-      title: 'Send follow-up email to City Mall Complex', 
-      time: '6:00 PM', 
-      priority: 'low', 
-      type: 'email',
-      completed: false 
-    }
-  ];
-
-  // Recent Quotations (6 items with detailed status)
-  recentQuotations: Quotation[] = [
-    { 
-      id: 'QT-2024-089', 
-      customer: 'ABC Corporation', 
-      amount: '₹18.5L', 
-      status: 'sent', 
-      date: 'Today',
-      validUntil: 'Dec 12, 2024'
-    },
-    { 
-      id: 'QT-2024-088', 
-      customer: 'XYZ Industries', 
-      amount: '₹25.2L', 
-      status: 'approved', 
-      date: 'Yesterday',
-      validUntil: 'Dec 15, 2024'
-    },
-    { 
-      id: 'QT-2024-087', 
-      customer: 'Green Apartments', 
-      amount: '₹12.8L', 
-      status: 'pending', 
-      date: '2 days ago',
-      validUntil: 'Dec 10, 2024'
-    },
-    { 
-      id: 'QT-2024-086', 
-      customer: 'Metro Hospital', 
-      amount: '₹35.0L', 
-      status: 'sent', 
-      date: '3 days ago',
-      validUntil: 'Dec 18, 2024'
-    },
-    { 
-      id: 'QT-2024-085', 
-      customer: 'Tech Park Builders', 
-      amount: '₹42.5L', 
-      status: 'draft', 
-      date: '4 days ago',
-      validUntil: 'Dec 20, 2024'
-    },
-    { 
-      id: 'QT-2024-084', 
-      customer: 'City Mall Complex', 
-      amount: '₹28.0L', 
-      status: 'rejected', 
-      date: '5 days ago',
-      validUntil: 'Expired'
-    }
-  ];
-
-  // Recent Activities - Communication history
-  recentActivities: Activity[] = [
-    { 
-      id: 'ACT-001', 
-      type: 'call', 
-      title: 'Discussed project timeline and delivery', 
-      leadName: 'ABC Corporation',
-      time: '1 hour ago',
-      status: 'completed'
-    },
-    { 
-      id: 'ACT-002', 
-      type: 'email', 
-      title: 'Sent product brochure and pricing details', 
-      leadName: 'XYZ Industries',
-      time: '3 hours ago',
-      status: 'completed'
-    },
-    { 
-      id: 'ACT-003', 
-      type: 'meeting', 
-      title: 'Client meeting scheduled for site inspection', 
-      leadName: 'Green Apartments',
-      time: 'Tomorrow 2:00 PM',
-      status: 'scheduled'
-    },
-    { 
-      id: 'ACT-004', 
-      type: 'call', 
-      title: 'Follow-up call regarding quotation approval', 
-      leadName: 'Metro Hospital',
-      time: 'Tomorrow 4:00 PM',
-      status: 'scheduled'
-    }
-  ];
-
-  // Activity Distribution
-  activityDistribution: ActivityDistribution[] = [
-    { label: 'Calls', count: 45, icon: 'fa-phone', color: '#3b82f6' },
-    { label: 'Emails', count: 67, icon: 'fa-envelope', color: '#f59e0b' },
-    { label: 'Meetings', count: 23, icon: 'fa-users', color: '#8b5cf6' },
-    { label: 'Tasks', count: 89, icon: 'fa-tasks', color: '#22c55e' }
-  ];
-
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private dashboardService: DashboardService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    console.log('🚀 Sales Dashboard Component Initialized');
     this.loadUserInfo();
     this.setGreeting();
+    this.loadDashboardData();
   }
 
   loadUserInfo(): void {
@@ -402,8 +152,9 @@ export class SalesDashboardComponent implements OnInit {
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
-        this.userName = user.name || 'Sales Executive';
+        this.userName = user.name || user.fullName || user.username || 'Sales Executive';
         this.userEmail = user.email || '';
+        console.log('✅ Sales User:', this.userName, '|', this.userEmail);
       } catch (e) {
         console.error('Error parsing user data:', e);
       }
@@ -421,61 +172,247 @@ export class SalesDashboardComponent implements OnInit {
     }
   }
 
+  loadDashboardData(): void {
+    this.isLoading = true;
+    
+    console.log('🔵 ========== LOADING SALES DASHBOARD ==========');
+    console.log('🔵 Calling dashboardService.getSalesDashboard()');
+    console.log('='.repeat(60));
+    
+    this.dashboardService.getSalesDashboard({ period: 'thisMonth' }).subscribe({
+      next: (response) => {
+        console.log('📦 Raw API Response:', response);
+        
+        if (!response.success || !response.data) {
+          console.error('❌ Invalid response structure');
+          this.loadFallbackData();
+          this.isLoading = false;
+          return;
+        }
+
+        const data = response.data;
+        
+        console.log('📊 SALES DASHBOARD DATA:');
+        console.log('  - Stats:', data.stats);
+        console.log('='.repeat(60));
+
+        this.mapBackendDataToFrontend(data);
+        
+        this.isLoading = false;
+        console.log('✅ SALES DASHBOARD LOADED SUCCESSFULLY');
+      },
+      error: (error) => {
+        console.error('❌ Error loading sales dashboard:', error);
+        this.loadFallbackData();
+        this.isLoading = false;
+      }
+    });
+  }
+
+  mapBackendDataToFrontend(data: any): void {
+    console.log('🔄 Mapping backend data to frontend...');
+    console.log('📊 Raw stats from backend:', data.stats);
+
+    // ✅ FIXED: Correctly extract the numeric value from totalQuotations
+    const quotationsValue = data.stats.totalQuotations?.value;
+    const quotationsCount = typeof quotationsValue === 'number' 
+      ? quotationsValue.toString() 
+      : (quotationsValue || '0').toString();
+
+    const leadsValue = data.stats.myLeads?.value;
+    const leadsCount = typeof leadsValue === 'number' 
+      ? leadsValue.toString() 
+      : (leadsValue || '0').toString();
+
+    const projectsValue = data.stats.myProjects?.value;
+    const projectsCount = typeof projectsValue === 'number' 
+      ? projectsValue.toString() 
+      : (projectsValue || '0').toString();
+
+    console.log('🔍 Extracted values:');
+    console.log('  - Quotations:', quotationsCount);
+    console.log('  - Leads:', leadsCount);
+    console.log('  - Projects:', projectsCount);
+
+    // ✅ Map 3 key stats for sales executive
+    this.stats = [
+      { 
+        icon: 'fa-file-invoice', 
+        label: 'Total Quotations', 
+        value: quotationsCount,
+        change: data.stats.totalQuotations?.change || 'No data', 
+        trend: data.stats.totalQuotations?.trend || 'neutral',
+        route: '/sales-my-quotations'
+      },
+      { 
+        icon: 'fa-users', 
+        label: 'My Leads', 
+        value: leadsCount,
+        change: data.stats.myLeads?.change || 'No data', 
+        trend: data.stats.myLeads?.trend || 'neutral',
+        route: '/sales-leads'
+      },
+      { 
+        icon: 'fa-project-diagram', 
+        label: 'My Projects', 
+        value: projectsCount,
+        change: data.stats.myProjects?.change || 'No data', 
+        trend: data.stats.myProjects?.trend || 'neutral',
+        route: '/sales-my-projects'
+      }
+    ];
+
+    console.log('✅ Stats mapped:', this.stats.length, 'cards');
+    console.log('📊 Card values:');
+    this.stats.forEach((stat, i) => {
+      console.log(`  Card ${i+1}: ${stat.label} = ${stat.value} (${stat.change})`);
+    });
+
+    // ✅ Build chart from backend data
+    if (data.chartData && data.chartData.labels && data.chartData.labels.length > 0) {
+      console.log('📈 Building chart from backend data');
+      console.log('  - Labels:', data.chartData.labels);
+      console.log('  - Revenue (Won Deals):', data.chartData.revenue);
+      console.log('  - Deals (Total Leads):', data.chartData.deals);
+
+      this.lineChartData = {
+        labels: data.chartData.labels,
+        datasets: [
+          {
+            data: data.chartData.revenue || [], // Won deals
+            label: 'Won Deals',
+            fill: true,
+            tension: 0.4,
+            borderColor: '#d4b347',
+            backgroundColor: 'rgba(212, 179, 71, 0.1)',
+            pointBackgroundColor: '#d4b347',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#d4b347',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+          },
+          {
+            data: data.chartData.deals || [], // Total leads
+            label: 'Total Leads',
+            fill: true,
+            tension: 0.4,
+            borderColor: '#22c55e',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            pointBackgroundColor: '#22c55e',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#22c55e',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+          }
+        ]
+      };
+
+      // Trigger chart update
+      setTimeout(() => {
+        if (this.chart) {
+          this.chart.update();
+        }
+      }, 100);
+
+      console.log('✅ Chart built successfully');
+    } else {
+      console.warn('⚠️ No chart data in response or empty labels');
+      this.buildEmptyChart();
+    }
+  }
+
+  loadFallbackData(): void {
+    console.log('⚠️ Loading fallback data');
+    
+    this.stats = [
+      { 
+        icon: 'fa-file-invoice', 
+        label: 'Total Quotations', 
+        value: '0', 
+        change: 'Unable to load', 
+        trend: 'neutral',
+        route: '/sales-my-quotations'
+      },
+      { 
+        icon: 'fa-users', 
+        label: 'My Leads', 
+        value: '0', 
+        change: 'Unable to load', 
+        trend: 'neutral',
+        route: '/sales-leads'
+      },
+      { 
+        icon: 'fa-project-diagram', 
+        label: 'My Projects', 
+        value: '0', 
+        change: 'Unable to load', 
+        trend: 'neutral',
+        route: '/sales-my-projects'
+      }
+    ];
+
+    this.buildEmptyChart();
+  }
+
+  buildEmptyChart(): void {
+    const months = this.getLast6Months();
+    this.lineChartData = {
+      labels: months.map(m => m.label),
+      datasets: [
+        {
+          data: [0, 0, 0, 0, 0, 0],
+          label: 'Won Deals',
+          fill: true,
+          tension: 0.4,
+          borderColor: '#d4b347',
+          backgroundColor: 'rgba(212, 179, 71, 0.1)',
+          pointBackgroundColor: '#d4b347',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: '#d4b347',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+        },
+        {
+          data: [0, 0, 0, 0, 0, 0],
+          label: 'Total Leads',
+          fill: true,
+          tension: 0.4,
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34, 197, 94, 0.1)',
+          pointBackgroundColor: '#22c55e',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: '#22c55e',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+        }
+      ]
+    };
+  }
+
+  getLast6Months(): { label: string; index: number; year: number }[] {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({
+        label: date.toLocaleString('en-US', { month: 'short' }),
+        index: date.getMonth(),
+        year: date.getFullYear()
+      });
+    }
+    
+    return months;
+  }
+
   navigateTo(route: string): void {
     if (route) {
       this.router.navigate([route]);
     }
-  }
-
-  viewLeadDetail(leadId: string): void {
-    this.router.navigate(['/leads', leadId]);
-  }
-
-  viewQuotationDetail(quoteId: string): void {
-    this.router.navigate(['/quotations', quoteId]);
-  }
-
-  toggleTaskComplete(task: Task): void {
-    task.completed = !task.completed;
-    // In real app, update backend
-  }
-
-  getStatusClass(status: string): string {
-    const statusMap: { [key: string]: string } = {
-      'New': 'status-new',
-      'Qualified': 'status-qualified',
-      'Quoted': 'status-quoted',
-      'Negotiation': 'status-negotiation',
-      'Won': 'status-won',
-      'Lost': 'status-lost',
-      'draft': 'status-draft',
-      'sent': 'status-sent',
-      'approved': 'status-approved',
-      'rejected': 'status-rejected',
-      'pending': 'status-pending',
-      'completed': 'status-completed',
-      'scheduled': 'status-scheduled'
-    };
-    return statusMap[status] || '';
-  }
-
-  getPriorityClass(priority: string): string {
-    return `priority-${priority}`;
-  }
-
-  getTaskIcon(type: string): string {
-    const iconMap: { [key: string]: string } = {
-      'call': 'fa-phone',
-      'email': 'fa-envelope',
-      'meeting': 'fa-users',
-      'task': 'fa-tasks',
-      'note': 'fa-sticky-note'
-    };
-    return iconMap[type] || 'fa-check';
-  }
-
-  getActivityIcon(type: string): string {
-    return this.getTaskIcon(type);
   }
 
   getTrendIcon(trend: string): string {

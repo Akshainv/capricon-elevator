@@ -1,21 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+// src/app/sales-profile/sales-profile.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface PerformanceStats {
-  label: string;
-  value: string;
-  icon: string;
-  color: string;
-}
-
-interface RecentActivity {
-  type: string;
-  description: string;
-  time: string;
-  icon: string;
-  color: string;
-}
+import { ProfileService, User, UpdateProfileDto } from '../services/profile.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sales-profile',
@@ -24,137 +12,217 @@ interface RecentActivity {
   templateUrl: './sales-profile.component.html',
   styleUrls: ['./sales-profile.component.css']
 })
-export class SalesProfileComponent implements OnInit {
+export class SalesProfileComponent implements OnInit, OnDestroy {
   // User Data
-  user = {
-    fullName: 'John Doe',
-    email: 'john@inspitetech.com',
-    phone: '+91 8714158735',
-    role: 'Sales Executive',
+  user: User = {
+    fullName: '',
+    email: '',
+    phone: '',
+    role: 'sales',
     department: 'Sales',
-    location: 'Kochi, Kerala',
-    employeeId: 'EMP-2024-001',
-    joinDate: 'January 15, 2024',
-    reportingTo: 'Sarah Manager',
-    bio: 'Dedicated sales professional focused on building strong customer relationships and achieving sales targets.',
+    location: '',
+    bio: '',
     profileImage: 'assets/images/logo1.png'
   };
 
-  // Performance Stats (Sales Executive specific)
-  performanceStats: PerformanceStats[] = [
-    { label: 'Active Leads', value: '24', icon: 'fa-users', color: '#3b82f6' },
-    { label: 'Deals Won', value: '18', icon: 'fa-handshake', color: '#22c55e' },
-    { label: 'Quotes Sent', value: '32', icon: 'fa-file-invoice', color: '#f59e0b' },
-    { label: 'Target Achievement', value: '92%', icon: 'fa-bullseye', color: '#a855f7' }
-  ];
-
-  // Recent Activities
-  recentActivities: RecentActivity[] = [
-    { type: 'lead', description: 'Added new lead: Metro Hospital', time: '2 hours ago', icon: 'fa-user-plus', color: '#3b82f6' },
-    { type: 'quote', description: 'Sent quotation to Sunrise Mall', time: '5 hours ago', icon: 'fa-file-invoice', color: '#f59e0b' },
-    { type: 'deal', description: 'Closed deal with Tech Solutions Ltd', time: '1 day ago', icon: 'fa-handshake', color: '#22c55e' },
-    { type: 'call', description: 'Follow-up call with Green Apartments', time: '2 days ago', icon: 'fa-phone', color: '#a855f7' },
-    { type: 'meeting', description: 'Client meeting at Royal Plaza', time: '3 days ago', icon: 'fa-calendar', color: '#ef4444' }
-  ];
-
-  // Password Change
-  passwordData = {
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  };
-
-  // Notification Settings
-  notifications = {
-    emailNotifications: true,
-    pushNotifications: true,
-    smsNotifications: false,
-    leadAssignments: true,
-    dealUpdates: true,
-    quotationApprovals: true,
-    taskReminders: true,
-    followUpAlerts: true
-  };
-
-  // Active Tab
+  // Active Tab - Only profile tab remains
   activeTab = 'profile';
 
-  constructor() {}
+  // Loading & Error States
+  loading = false;
+  errorMessage = '';
+  successMessage = '';
+
+  // Subscriptions
+  private subscriptions: Subscription[] = [];
+
+  constructor(private profileService: ProfileService) {}
 
   ngOnInit(): void {
     this.loadProfileData();
+    
+    // Subscribe to loading state
+    this.subscriptions.push(
+      this.profileService.loading$.subscribe(loading => {
+        this.loading = loading;
+      })
+    );
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  // ============================================
+  // LOAD PROFILE DATA FROM BACKEND
+  // ============================================
   loadProfileData(): void {
-    console.log('Loading sales profile data for:', this.user.fullName);
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.subscriptions.push(
+      this.profileService.getProfile().subscribe({
+        next: (userData: User) => {
+          // ✅ FIX: Properly map all fields including profileImage
+          this.user = {
+            ...userData,
+            phone: userData.phoneNumber || userData.phone || '',
+            role: 'sales',
+            department: 'Sales',
+            // ✅ Use profileImage from backend, fallback to default if not present
+            profileImage: userData.profileImage || 'assets/images/logo1.png'
+          };
+          this.loading = false;
+          console.log('✅ Sales profile loaded:', this.user);
+          console.log('✅ Profile image URL:', this.user.profileImage);
+        },
+        error: (error: Error) => {
+          this.errorMessage = error.message;
+          this.loading = false;
+          console.error('❌ Failed to load profile:', error);
+        }
+      })
+    );
   }
 
-  // Tab Selection
-  selectTab(tab: string): void {
-    this.activeTab = tab;
-  }
-
-  // Profile Image Upload
+  // ============================================
+  // PROFILE IMAGE UPLOAD
+  // ============================================
   onFileSelected(event: any): void {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.user.profileImage = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.errorMessage = 'Please select a valid image file';
+      setTimeout(() => this.errorMessage = '', 3000);
+      return;
     }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.errorMessage = 'Image size should not exceed 5MB';
+      setTimeout(() => this.errorMessage = '', 3000);
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    // Upload to backend
+    this.subscriptions.push(
+      this.profileService.uploadAvatar(file).subscribe({
+        next: (response) => {
+          console.log('✅ Avatar upload response:', response);
+          
+          // ✅ FIX: Update profile image immediately with backend URL
+          if (response.profileImage) {
+            this.user.profileImage = response.profileImage;
+            console.log('✅ Profile image updated to:', this.user.profileImage);
+          }
+          
+          this.successMessage = 'Profile picture updated successfully!';
+          this.loading = false;
+          
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 3000);
+        },
+        error: (error: Error) => {
+          console.error('❌ Avatar upload failed:', error);
+          
+          // Fallback: Display image locally if backend upload fails
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            this.user.profileImage = e.target.result;
+          };
+          reader.readAsDataURL(file);
+          
+          this.errorMessage = error.message || 'Failed to upload image';
+          this.loading = false;
+          
+          setTimeout(() => {
+            this.errorMessage = '';
+          }, 3000);
+        }
+      })
+    );
   }
 
-  // Update Profile
+  // ============================================
+  // UPDATE PROFILE
+  // ============================================
   updateProfile(): void {
-    console.log('Profile Updated:', this.user);
-    alert('Profile updated successfully!');
-  }
-
-  // Change Password
-  changePassword(): void {
-    if (!this.passwordData.currentPassword || !this.passwordData.newPassword) {
-      alert('Please fill in all password fields!');
+    // Validation
+    if (!this.user.fullName || !this.user.email || !this.user.phone) {
+      this.errorMessage = 'Please fill in all required fields!';
+      setTimeout(() => this.errorMessage = '', 3000);
       return;
     }
 
-    if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
-      alert('New passwords do not match!');
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.user.email)) {
+      this.errorMessage = 'Please enter a valid email address';
+      setTimeout(() => this.errorMessage = '', 3000);
       return;
     }
 
-    if (this.passwordData.newPassword.length < 8) {
-      alert('Password must be at least 8 characters long!');
-      return;
-    }
+    this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
 
-    console.log('Password Changed');
-    alert('Password changed successfully!');
-    this.passwordData = {
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
+    const profileData: UpdateProfileDto = {
+      fullName: this.user.fullName,
+      email: this.user.email,
+      phone: this.user.phone,
+      location: this.user.location,
+      bio: this.user.bio,
+      department: 'Sales'
     };
+
+    this.subscriptions.push(
+      this.profileService.updateProfile(profileData).subscribe({
+        next: (response) => {
+          this.successMessage = response.message || 'Profile updated successfully!';
+          this.loading = false;
+          
+          // ✅ FIX: Update local user data including profileImage
+          if (response.user) {
+            this.user = {
+              ...this.user,
+              ...response.user,
+              role: 'sales',
+              department: 'Sales',
+              phone: response.user.phoneNumber || response.user.phone || this.user.phone,
+              // ✅ Keep profileImage updated
+              profileImage: response.user.profileImage || this.user.profileImage
+            };
+            console.log('✅ Profile updated with image:', this.user.profileImage);
+          }
+
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 3000);
+        },
+        error: (error: Error) => {
+          this.errorMessage = error.message;
+          this.loading = false;
+          
+          setTimeout(() => {
+            this.errorMessage = '';
+          }, 3000);
+        }
+      })
+    );
   }
 
-  // Update Notifications
-  updateNotifications(): void {
-    console.log('Notifications Updated:', this.notifications);
-    alert('Notification settings updated successfully!');
-  }
-
-  // Export User Data
-  exportData(): void {
-    const dataStr = JSON.stringify(this.user, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    const exportFileDefaultName = `${this.user.fullName.replace(/\s+/g, '_')}_profile.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-    
-    alert('Profile data exported successfully!');
+  // ============================================
+  // UTILITY: Clear Messages
+  // ============================================
+  clearMessages(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 }

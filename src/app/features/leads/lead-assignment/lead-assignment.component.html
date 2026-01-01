@@ -1,13 +1,32 @@
-
-<!-- src/app/features/leads/lead-assignment/lead-assignment.component.html -->
+<!-- src/app/features/leads/lead-assignment/lead-assignment.component.html (Updated - Added back button in top left) -->
 <div class="assignment-container">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Processing assignment...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div class="error-banner" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ errorMessage }}</span>
+    <button (click)="errorMessage = ''" class="close-btn">×</button>
+  </div>
+
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-left">
-      <h1> Assign Leads to Sales Team</h1>
-      <p>Select leads and assign them to sales team members</p>
+      <button class="btn-back-top" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Leads List</span>
+      </button>
+      <div class="header-title">
+        <h1>👥 Assign Leads to Sales Team</h1>
+        <p>Select leads and assign them to sales team members</p>
+      </div>
     </div>
     <button class="btn-back" (click)="onCancel()">
+      <i class="fas fa-times"></i>
       <span>Cancel</span>
     </button>
   </div>
@@ -17,18 +36,18 @@
     <div class="leads-selection-section">
       <div class="section-card">
         <div class="section-header">
-          <h3> Select Leads to Assign</h3>
-          <label class="select-all-checkbox">
+          <h3>📋 Select Leads to Assign</h3>
+          <label class="select-all-checkbox" *ngIf="leads.length > 0">
             <input 
               type="checkbox" 
               [checked]="selectAll"
               (change)="toggleSelectAll()"
             />
-            <span>Select All</span>
+            <span>Select All ({{ leads.length }})</span>
           </label>
         </div>
 
-        <div class="leads-list">
+        <div class="leads-list" *ngIf="!isLoading">
           <div 
             class="lead-item" 
             *ngFor="let lead of leads"
@@ -44,16 +63,16 @@
             <div class="lead-info">
               <div class="lead-name">{{ lead.name }}</div>
               <div class="lead-details">
-                <span class="lead-id">{{ lead.id }}</span>
-                <span class="separator">•</span>
                 <span class="lead-source">{{ lead.source }}</span>
               </div>
             </div>
             <div class="lead-contact">
               <div class="contact-item">
+                <i class="fas fa-envelope"></i>
                 <span>{{ lead.email }}</span>
               </div>
               <div class="contact-item">
+                <i class="fas fa-phone"></i>
                 <span>{{ lead.phone }}</span>
               </div>
             </div>
@@ -61,8 +80,16 @@
 
           <!-- Empty State -->
           <div class="empty-state" *ngIf="leads.length === 0">
+            <i class="fas fa-inbox"></i>
             <p>No unassigned leads available</p>
+            <small>All leads have been assigned to sales team members</small>
           </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-state" *ngIf="isLoading">
+          <div class="spinner-small"></div>
+          <p>Loading leads...</p>
         </div>
       </div>
     </div>
@@ -72,7 +99,7 @@
       <!-- Selected Leads Summary -->
       <div class="section-card selected-summary">
         <div class="summary-header">
-          <h3> Selected Leads</h3>
+          <h3>✓ Selected Leads</h3>
           <span class="count-badge">{{ selectedCount }}</span>
         </div>
 
@@ -90,13 +117,14 @@
         </div>
 
         <div class="no-selection" *ngIf="selectedCount === 0">
+          <i class="fas fa-hand-pointer"></i>
           <p>Select leads from the list to assign them</p>
         </div>
       </div>
 
       <!-- Assignment Form -->
       <div class="section-card assignment-form">
-        <h3 class="form-title"> Assignment Details</h3>
+        <h3 class="form-title">📝 Assignment Details</h3>
 
         <form [formGroup]="assignmentForm" (ngSubmit)="onSubmit()">
           <!-- Sales Person Selection -->
@@ -118,45 +146,18 @@
               type="button" 
               class="btn-auto-assign"
               (click)="autoAssign()"
-              [disabled]="selectedCount === 0"
+              [disabled]="selectedCount === 0 || salesPersons.length === 0"
             >
+              <i class="fas fa-magic"></i>
               <span>Auto-assign to least busy</span>
             </button>
           </div>
 
-          <!-- Sales Team Cards -->
-          <div class="sales-team-grid">
-            <div 
-              class="sales-person-card"
-              *ngFor="let person of salesPersons"
-              [class.active]="assignmentForm.get('salesPerson')?.value === person.id"
-              (click)="assignmentForm.patchValue({salesPerson: person.id})"
-            >
-              <div class="person-avatar">
-                {{ person.name.charAt(0) }}
-              </div>
-              <div class="person-info">
-                <div class="person-name">{{ person.name }}</div>
-                <div class="person-email">{{ person.email }}</div>
-              </div>
-              <div class="person-stats">
-                <span>{{ person.activeLeads }} leads</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Assignment Notes -->
-          <div class="form-group">
-            <label for="notes">
-              Assignment Notes (Optional)
-            </label>
-            <textarea
-              id="notes"
-              formControlName="notes"
-              rows="4"
-              placeholder="Add notes for the assigned sales person..."
-              class="form-textarea"
-            ></textarea>
+          <!-- No Sales Team Available -->
+          <div class="no-sales-team" *ngIf="salesPersons.length === 0 && !isLoading">
+            <i class="fas fa-users-slash"></i>
+            <p>No approved sales team members available</p>
+            <small>Please approve employees first</small>
           </div>
 
           <!-- Form Actions -->
@@ -164,15 +165,18 @@
             <button 
               type="submit" 
               class="btn-primary"
-              [disabled]="selectedCount === 0"
+              [disabled]="selectedCount === 0 || assignmentForm.invalid || isLoading"
             >
+              <i class="fas fa-paper-plane"></i>
               <span>Assign {{ selectedCount > 0 ? selectedCount : '' }} Lead{{ selectedCount !== 1 ? 's' : '' }}</span>
             </button>
             <button 
               type="button" 
               class="btn-secondary" 
               (click)="onCancel()"
+              [disabled]="isLoading"
             >
+              <i class="fas fa-times"></i>
               <span>Cancel</span>
             </button>
           </div>

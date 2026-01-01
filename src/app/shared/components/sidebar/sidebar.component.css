@@ -273,3 +273,105 @@
     justify-content: center;
   }
 }
+
+/* Light theme overrides to ensure sidebar logo has no dark effect */
+html.light-theme .sidebar .sidebar-logo,
+html[data-theme="light"] .sidebar .sidebar-logo {
+  filter: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  mix-blend-mode: normal !important;
+}
+
+html.light-theme .sidebar .logo-container,
+html[data-theme="light"] .sidebar .logo-container {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Additional comprehensive light-mode neutralizations */
+html.light-theme .sidebar,
+html[data-theme="light"] .sidebar {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+html.light-theme .brand-name,
+html[data-theme="light"] .brand-name {
+  text-shadow: none !important;
+}
+
+html.light-theme .nav-item::before,
+html[data-theme="light"] .nav-item::before {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html.light-theme .nav-item,
+html[data-theme="light"] .nav-item {
+  box-shadow: none !important;
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+}
+
+html.light-theme .nav-item:hover,
+html[data-theme="light"] .nav-item:hover {
+  background: var(--bg-tertiary) !important;
+  box-shadow: none !important;
+}
+
+html.light-theme .nav-item.active,
+html[data-theme="light"] .nav-item.active {
+  box-shadow: none !important;
+  background: rgba(212, 179, 71, 0.08) !important;
+  border-left-color: var(--accent-gold) !important;
+}
+
+html.light-theme .nav-badge,
+html[data-theme="light"] .nav-badge {
+  box-shadow: none !important;
+}
+
+html.light-theme .user-avatar,
+html[data-theme="light"] .user-avatar {
+  box-shadow: none !important;
+}
+
+/* Toggle button */
+.sidebar-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(212, 179, 71, 0.08);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--accent-gold);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.sidebar-toggle:hover { transform: rotate(90deg); background: rgba(212, 179, 71, 0.12); }
+
+/* Collapsed state (small screens or toggled) */
+.sidebar.collapsed {
+  width: 80px !important;
+}
+
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .section-title,
+.sidebar.collapsed .user-details,
+.sidebar.collapsed .brand-name {
+  display: none !important;
+}
+
+.sidebar.collapsed .nav-item { justify-content: center; padding: 12px 8px; }
+.sidebar.collapsed .sidebar-logo { width: 48px; height: 40px; }
+.sidebar.collapsed .sidebar-footer { justify-content: center; gap: 6px; }
+
+/* Smooth width transition */
+.sidebar { transition: width 0.2s ease; }

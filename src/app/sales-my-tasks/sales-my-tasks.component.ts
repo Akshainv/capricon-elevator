@@ -1,7 +1,5 @@
-// src/app/features/communication/sales-my-tasks/sales-my-tasks.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 interface Task {
@@ -22,20 +20,16 @@ interface Task {
 @Component({
   selector: 'app-sales-my-tasks',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule],
   templateUrl: './sales-my-tasks.component.html',
   styleUrls: ['./sales-my-tasks.component.css']
 })
 export class SalesMyTasksComponent implements OnInit {
-  taskForm!: FormGroup;
-  showAddForm: boolean = false;
-  isEditMode: boolean = false;
-  editingTaskId: string | null = null;
   filterStatus: 'all' | 'today' | 'upcoming' | 'overdue' | 'completed' = 'all';
   selectedCategory: string = 'all';
 
   // Mock data - Replace with actual service
-  currentUser = 'Rajesh Kumar'; // Get from AuthService
+  currentUser = 'Rajesh Kumar'; 
 
   tasks: Task[] = [
     {
@@ -135,25 +129,11 @@ export class SalesMyTasksComponent implements OnInit {
   ];
 
   constructor(
-    private fb: FormBuilder,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.initForm();
     this.filterTasks();
-  }
-
-  initForm(): void {
-    this.taskForm = this.fb.group({
-      title: ['', Validators.required],
-      description: [''],
-      dueDate: ['', Validators.required],
-      dueTime: [''],
-      priority: ['medium', Validators.required],
-      category: ['follow-up', Validators.required],
-      leadId: ['']
-    });
   }
 
   filterTasks(): void {
@@ -199,95 +179,6 @@ export class SalesMyTasksComponent implements OnInit {
     this.filterTasks();
   }
 
-  toggleAddForm(): void {
-    this.showAddForm = !this.showAddForm;
-    this.isEditMode = false;
-    this.editingTaskId = null;
-    if (!this.showAddForm) {
-      this.taskForm.reset({ priority: 'medium', category: 'follow-up' });
-    }
-  }
-
-  onSubmit(): void {
-    if (this.taskForm.valid) {
-      const formData = this.taskForm.value;
-      
-      // Combine date and time
-      let dueDateTime = new Date(formData.dueDate);
-      if (formData.dueTime) {
-        const [hours, minutes] = formData.dueTime.split(':');
-        dueDateTime.setHours(parseInt(hours), parseInt(minutes));
-      }
-
-      if (this.isEditMode && this.editingTaskId) {
-        // Update existing task
-        const taskIndex = this.tasks.findIndex(t => t.id === this.editingTaskId);
-        if (taskIndex !== -1) {
-          this.tasks[taskIndex] = {
-            ...this.tasks[taskIndex],
-            title: formData.title,
-            description: formData.description,
-            dueDate: dueDateTime,
-            priority: formData.priority,
-            category: formData.category,
-            leadId: formData.leadId
-          };
-          alert('Task updated successfully!');
-        }
-      } else {
-        // Create new task
-        const newTask: Task = {
-          id: Date.now().toString(),
-          title: formData.title,
-          description: formData.description,
-          dueDate: dueDateTime,
-          priority: formData.priority,
-          category: formData.category,
-          status: 'pending',
-          leadId: formData.leadId,
-          createdAt: new Date()
-        };
-        this.tasks.unshift(newTask);
-        alert('Task created successfully!');
-      }
-
-      this.filterTasks();
-      this.toggleAddForm();
-    }
-  }
-
-  editTask(taskId: string): void {
-    const task = this.tasks.find(t => t.id === taskId);
-    if (task) {
-      this.isEditMode = true;
-      this.editingTaskId = taskId;
-      this.showAddForm = true;
-
-      // Format date for input
-      const dateStr = task.dueDate.toISOString().split('T')[0];
-      const timeStr = task.dueDate.toTimeString().slice(0, 5);
-
-      // Populate form with task data
-      this.taskForm.patchValue({
-        title: task.title,
-        description: task.description,
-        dueDate: dateStr,
-        dueTime: timeStr,
-        priority: task.priority,
-        category: task.category,
-        leadId: task.leadId || ''
-      });
-
-      // Scroll to form
-      setTimeout(() => {
-        const formElement = document.querySelector('.add-form-card');
-        if (formElement) {
-          formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
-    }
-  }
-
   toggleTaskStatus(taskId: string): void {
     const task = this.tasks.find(t => t.id === taskId);
     if (task) {
@@ -297,9 +188,11 @@ export class SalesMyTasksComponent implements OnInit {
   }
 
   deleteTask(taskId: string): void {
-    if (confirm('Are you sure you want to delete this task?')) {
+    const task = this.tasks.find(t => t.id === taskId);
+    if (task && confirm(`Are you sure you want to delete the task "${task.title}"?`)) {
       this.tasks = this.tasks.filter(t => t.id !== taskId);
       this.filterTasks();
+      console.log(`Task ${taskId} deleted successfully`);
     }
   }
 

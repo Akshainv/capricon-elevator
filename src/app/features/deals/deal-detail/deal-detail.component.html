@@ -20,7 +20,7 @@
     <div class="detail-header">
       <div class="header-left">
         <h1>{{ deal.title }}</h1>
-        <p class="deal-id">Deal ID: #{{ deal.id }}</p>
+        <!-- ✅ REMOVED: Deal ID line -->
       </div>
       <div class="header-actions">
         <button class="btn-edit" (click)="editDeal()">
@@ -32,7 +32,7 @@
           <span>Delete</span>
         </button>
         <button 
-          *ngIf="deal.status === 'won'" 
+          *ngIf="getDealStatus() === 'won'" 
           class="btn-convert"
           (click)="convertToProject()"
         >
@@ -44,11 +44,11 @@
 
     <!-- Status Badge & Amount -->
     <div class="status-amount-row">
-      <div class="status-badge" [style.background-color]="getStatusColor(deal.status) + '20'" [style.color]="getStatusColor(deal.status)">
+      <div class="status-badge" [style.background-color]="getStatusColor(getDealStatus()) + '20'" [style.color]="getStatusColor(getDealStatus())">
         <i class="fas fa-circle"></i>
-        <span>{{ getStatusLabel(deal.status) }}</span>
+        <span>{{ getStatusLabel(getDealStatus()) }}</span>
       </div>
-      <div class="deal-amount">{{ formatCurrency(deal.amount) }}</div>
+      <div class="deal-amount">{{ formatCurrency(getDealAmount()) }}</div>
     </div>
 
     <!-- Main Content Grid -->
@@ -100,15 +100,15 @@
             </div>
             <div class="info-item">
               <label>Number of Floors</label>
-              <div class="info-value">{{ deal.floors }} Floors</div>
+              <div class="info-value">{{ deal.floors || 'N/A' }} Floors</div>
             </div>
             <div class="info-item">
               <label>Quantity</label>
-              <div class="info-value">{{ deal.quantity }} Unit(s)</div>
+              <div class="info-value">{{ deal.quantity || 1 }} Unit(s)</div>
             </div>
             <div class="info-item">
               <label>Deal Amount</label>
-              <div class="info-value highlight">{{ formatCurrency(deal.amount) }}</div>
+              <div class="info-value highlight">{{ formatCurrency(getDealAmount()) }}</div>
             </div>
           </div>
         </div>
@@ -124,22 +124,22 @@
               <label>Probability</label>
               <div class="info-value">
                 <div class="probability-container">
-                  <span>{{ deal.probability }}%</span>
+                  <span>{{ getDealProbability() }}%</span>
                   <div class="probability-bar">
-                    <div class="probability-fill" [style.width.%]="deal.probability"></div>
+                    <div class="probability-fill" [style.width.%]="getDealProbability()"></div>
                   </div>
                 </div>
               </div>
             </div>
             <div class="info-item">
               <label>Expected Close Date</label>
-              <div class="info-value">{{ formatDate(deal.expectedCloseDate) }}</div>
+              <div class="info-value">{{ formatDate(getDealCloseDate()) }}</div>
             </div>
             <div class="info-item">
               <label>Assigned To</label>
               <div class="info-value">
                 <i class="fas fa-user"></i>
-                <span>{{ deal.assignedTo }}</span>
+                <span>{{ deal.assignedTo || 'Not Assigned' }}</span>
               </div>
             </div>
             <div class="info-item">
@@ -150,7 +150,7 @@
         </div>
 
         <!-- Address & Requirements -->
-        <div class="info-card">
+        <div class="info-card" *ngIf="deal.address">
           <h3 class="card-title">
             <i class="fas fa-map-marker-alt"></i>
             <span>Installation Address</span>
@@ -158,7 +158,7 @@
           <p class="text-content">{{ deal.address }}</p>
         </div>
 
-        <div class="info-card">
+        <div class="info-card" *ngIf="deal.requirements">
           <h3 class="card-title">
             <i class="fas fa-clipboard-list"></i>
             <span>Requirements</span>
@@ -166,7 +166,7 @@
           <p class="text-content">{{ deal.requirements }}</p>
         </div>
 
-        <div class="info-card">
+        <div class="info-card" *ngIf="deal.notes">
           <h3 class="card-title">
             <i class="fas fa-sticky-note"></i>
             <span>Internal Notes</span>
@@ -195,9 +195,9 @@
                   <span class="activity-time">{{ formatDateTime(activity.timestamp) }}</span>
                 </div>
                 <p class="activity-description">{{ activity.description }}</p>
-                <div class="activity-footer">
+                <div class="activity-footer" *ngIf="activity.userName">
                   <i class="fas fa-user"></i>
-                  <span>{{ activity.user }}</span>
+                  <span>{{ activity.userName }}</span>
                 </div>
               </div>
             </div>

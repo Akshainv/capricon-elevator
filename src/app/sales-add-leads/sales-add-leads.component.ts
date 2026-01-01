@@ -1,8 +1,11 @@
-// src/app/features/leads/sales-add-lead/sales-add-lead.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { LeadsService, CreateLead } from '../lead.service';
+import { AuthService } from '../services/auth.service';
+
+declare var Toastify: any;  // Added for Toastify
 
 interface LeadDraft {
   basicInfo: {
@@ -26,12 +29,6 @@ interface LeadDraft {
     budget: string;
     timeline: string;
     quantity: string;
-    specifications: string;
-  };
-  notes: {
-    description: string;
-    tags: string[];
-    attachments: File[];
   };
 }
 
@@ -39,13 +36,12 @@ interface LeadDraft {
   selector: 'app-sales-add-leads',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './sales-add-leads.component.html',  // ✅ CORRECT (with 's')
-  styleUrls: ['./sales-add-leads.component.css']    // ✅ CORRECT (with 's')
+  templateUrl: './sales-add-leads.component.html',
+  styleUrls: ['./sales-add-leads.component.css']
 })
-
 export class SalesAddLeadComponent implements OnInit {
   currentStep: number = 1;
-  totalSteps: number = 4;
+  totalSteps: number = 3;
   isEditMode: boolean = false;
   leadId: string | null = null;
   isSaving: boolean = false;
@@ -72,26 +68,17 @@ export class SalesAddLeadComponent implements OnInit {
       productInterest: '',
       budget: '',
       timeline: '',
-      quantity: '',
-      specifications: ''
-    },
-    notes: {
-      description: '',
-      tags: [],
-      attachments: []
+      quantity: ''
     }
   };
 
-  // Validation errors
   errors: any = {
     basicInfo: {},
     contactDetails: {},
-    requirements: {},
-    notes: {}
+    requirements: {}
   };
 
-  // Dropdown options
-  sourceOptions = ['Website', 'Walk-in', 'Reference', 'Phone Call', 'Email', 'Social Media', 'Exhibition'];
+  sourceOptions = ['Website', 'Walk-in', 'Reference', 'Phone Call', 'Email', 'Social Media', 'Other'];
   priorityOptions = [
     { value: 'low', label: 'Low Priority' },
     { value: 'medium', label: 'Medium Priority' },
@@ -99,16 +86,15 @@ export class SalesAddLeadComponent implements OnInit {
   ];
   stateOptions = ['Kerala', 'Tamil Nadu', 'Karnataka', 'Maharashtra', 'Delhi', 'Gujarat', 'Other'];
   timelineOptions = ['Immediate', 'Within 1 Month', '1-3 Months', '3-6 Months', '6+ Months'];
-  
-  currentTag: string = '';
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private leadsService: LeadsService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    // Check if edit mode
     this.leadId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.leadId;
 
@@ -118,55 +104,61 @@ export class SalesAddLeadComponent implements OnInit {
       this.loadDraft();
     }
 
-    // Auto-save every 30 seconds
     setInterval(() => {
       this.autoSaveDraft();
     }, 30000);
   }
 
   loadLeadData(id: string): void {
-    // TODO: Replace with actual API call
     console.log('Loading lead data for ID:', id);
-    // Mock data for edit mode
-    this.leadDraft = {
-      basicInfo: {
-        name: 'John Smith',
-        company: 'ABC Corporation',
-        designation: 'Purchase Manager',
-        source: 'Website',
-        priority: 'high'
+    this.leadsService.getLeadById(id).subscribe({
+      next: (lead) => {
+        this.leadDraft = {
+          basicInfo: {
+            name: lead.fullName,
+            company: lead.companyName || '',
+            designation: '',
+            source: lead.leadSource,
+            priority: 'medium'
+          },
+          contactDetails: {
+            email: lead.email,
+            phone: lead.phoneNumber,
+            alternatePhone: '',
+            address: '',
+            city: '',
+            state: '',
+            pincode: ''
+          },
+          requirements: {
+            productInterest: '',
+            budget: '',
+            timeline: '',
+            quantity: ''
+          }
+        };
       },
-      contactDetails: {
-        email: 'john@example.com',
-        phone: '+91 9876543210',
-        alternatePhone: '+91 9876543211',
-        address: '123 Business Street',
-        city: 'Kochi',
-        state: 'Kerala',
-        pincode: '682001'
-      },
-      requirements: {
-        productInterest: 'Industrial Equipment',
-        budget: '500000',
-        timeline: 'Within 1 Month',
-        quantity: '10',
-        specifications: 'Heavy duty equipment required'
-      },
-      notes: {
-        description: 'Very interested customer, follow up weekly',
-        tags: ['hot-lead', 'industrial'],
-        attachments: []
+      error: (error) => {
+        console.error('Error loading lead:', error);
+        this.showToast('Failed to load lead data', 'error');
+        this.router.navigate(['/leads']);
       }
-    };
+    });
   }
 
   loadDraft(): void {
     const draft = localStorage.getItem('lead_draft');
     if (draft) {
-      this.leadDraft = JSON.parse(draft);
-      const savedTime = localStorage.getItem('lead_draft_time');
-      if (savedTime) {
-        this.lastSaved = new Date(savedTime);
+      try {
+        this.leadDraft = JSON.parse(draft);
+        const savedTime = localStorage.getItem('lead_draft_time');
+        if (savedTime) {
+          this.lastSaved = new Date(savedTime);
+        }
+      } catch (error) {
+        console.error('Error loading draft:', error);
+        localStorage.removeItem('lead_draft');
+        localStorage.removeItem('lead_draft_time');
       }
     }
   }
@@ -209,7 +201,7 @@ export class SalesAddLeadComponent implements OnInit {
   }
 
   validateCurrentStep(): boolean {
-    this.errors = { basicInfo: {}, contactDetails: {}, requirements: {}, notes: {} };
+    this.errors = { basicInfo: {}, contactDetails: {}, requirements: {} };
     
     switch (this.currentStep) {
       case 1:
@@ -218,8 +210,6 @@ export class SalesAddLeadComponent implements OnInit {
         return this.validateContactDetails();
       case 3:
         return this.validateRequirements();
-      case 4:
-        return true; // Notes are optional
       default:
         return true;
     }
@@ -227,10 +217,13 @@ export class SalesAddLeadComponent implements OnInit {
 
   validateSteps(upToStep: number): boolean {
     for (let i = 1; i <= upToStep; i++) {
+      const currentStepBackup = this.currentStep;
       this.currentStep = i;
       if (!this.validateCurrentStep()) {
+        this.currentStep = currentStepBackup;
         return false;
       }
+      this.currentStep = currentStepBackup;
     }
     return true;
   }
@@ -296,51 +289,102 @@ export class SalesAddLeadComponent implements OnInit {
     return isValid;
   }
 
-  addTag(): void {
-    if (this.currentTag.trim() && !this.leadDraft.notes.tags.includes(this.currentTag.trim())) {
-      this.leadDraft.notes.tags.push(this.currentTag.trim());
-      this.currentTag = '';
-    }
-  }
-
-  removeTag(tag: string): void {
-    this.leadDraft.notes.tags = this.leadDraft.notes.tags.filter(t => t !== tag);
-  }
-
-  onFileSelect(event: any): void {
-    const files = event.target.files;
-    if (files) {
-      for (let i = 0; i < files.length; i++) {
-        this.leadDraft.notes.attachments.push(files[i]);
-      }
-    }
-  }
-
-  removeAttachment(index: number): void {
-    this.leadDraft.notes.attachments.splice(index, 1);
-  }
-
   saveLead(): void {
-    if (this.validateCurrentStep()) {
-      this.isSaving = true;
-      
-      // TODO: Replace with actual API call
-      setTimeout(() => {
-        console.log('Saving lead:', this.leadDraft);
+    if (!this.validateCurrentStep()) {
+      this.showToast('Please fill in all required fields', 'error');
+      return;
+    }
+
+    this.isSaving = true;
+    
+    const currentUser = this.authService.currentUserValue;
+    console.log('Current User:', currentUser);
+    
+    const userId = currentUser?.userId || '';
+    
+    if (!userId) {
+      console.error('No userId found in currentUser');
+      this.showToast('User identification failed. Please log in again.', 'error');
+      this.isSaving = false;
+      return;
+    }
+    
+    console.log('Creating lead with userId:', userId);
+    
+    const rawSource = (this.leadDraft.basicInfo.source || 'Website').toString();
+    const allowedSources: Array<'Walk-in' | 'Website' | 'Reference' | 'Phone Call' | 'Email' | 'Social Media' | 'Other'> = 
+      ['Walk-in', 'Website', 'Reference', 'Phone Call', 'Email', 'Social Media', 'Other'];
+    const normalizedSource = allowedSources.includes(rawSource as any) ? rawSource : 'Other';
+
+    const notesArray = [];
+    if (this.leadDraft.basicInfo.designation) {
+      notesArray.push(`Designation: ${this.leadDraft.basicInfo.designation}`);
+    }
+    if (this.leadDraft.basicInfo.priority) {
+      notesArray.push(`Priority: ${this.leadDraft.basicInfo.priority}`);
+    }
+    if (this.leadDraft.contactDetails.alternatePhone) {
+      notesArray.push(`Alt Phone: ${this.leadDraft.contactDetails.alternatePhone}`);
+    }
+    if (this.leadDraft.contactDetails.address) {
+      notesArray.push(`Address: ${this.leadDraft.contactDetails.address}`);
+    }
+    if (this.leadDraft.contactDetails.city) {
+      notesArray.push(`City: ${this.leadDraft.contactDetails.city}`);
+    }
+    if (this.leadDraft.contactDetails.state) {
+      notesArray.push(`State: ${this.leadDraft.contactDetails.state}`);
+    }
+    if (this.leadDraft.contactDetails.pincode) {
+      notesArray.push(`Pincode: ${this.leadDraft.contactDetails.pincode}`);
+    }
+    if (this.leadDraft.requirements.productInterest) {
+      notesArray.push(`Product Interest: ${this.leadDraft.requirements.productInterest}`);
+    }
+    if (this.leadDraft.requirements.budget) {
+      notesArray.push(`Budget: ₹${this.leadDraft.requirements.budget}`);
+    }
+    if (this.leadDraft.requirements.timeline) {
+      notesArray.push(`Timeline: ${this.leadDraft.requirements.timeline}`);
+    }
+    if (this.leadDraft.requirements.quantity) {
+      notesArray.push(`Quantity: ${this.leadDraft.requirements.quantity}`);
+    }
+
+    const payload: CreateLead = {
+      fullName: this.leadDraft.basicInfo.name.trim(),
+      email: this.leadDraft.contactDetails.email.trim().toLowerCase(),
+      phoneNumber: this.leadDraft.contactDetails.phone.trim(),
+      companyName: this.leadDraft.basicInfo.company.trim(),
+      leadSource: normalizedSource as CreateLead['leadSource'],
+      assignedTo: '',
+      createdBy: userId,
+      notes: notesArray.join(' | ')
+    };
+
+    console.log('Creating lead with payload:', payload);
+
+    this.leadsService.createLead(payload).subscribe({
+      next: (created) => {
+        console.log('Lead created successfully:', created);
         
-        // Clear draft from localStorage
         localStorage.removeItem('lead_draft');
         localStorage.removeItem('lead_draft_time');
-        
+
         this.isSaving = false;
         
-        // Show success message
-        alert(this.isEditMode ? 'Lead updated successfully!' : 'Lead created successfully!');
+        this.leadsService.leadsUpdated.next();
         
-        // Navigate back to leads list
+        this.showToast('Lead created successfully!', 'success');
+        
         this.router.navigate(['/leads']);
-      }, 1000);
-    }
+      },
+      error: (err) => {
+        console.error('Error creating lead:', err);
+        this.isSaving = false;
+        this.showToast(err?.message || 'Failed to create lead', 'error');
+      }
+    });
   }
 
   cancel(): void {
@@ -357,21 +401,49 @@ export class SalesAddLeadComponent implements OnInit {
       localStorage.removeItem('lead_draft_time');
       this.lastSaved = null;
       
-      // Reset form
       this.leadDraft = {
         basicInfo: { name: '', company: '', designation: '', source: '', priority: 'medium' },
         contactDetails: { email: '', phone: '', alternatePhone: '', address: '', city: '', state: '', pincode: '' },
-        requirements: { productInterest: '', budget: '', timeline: '', quantity: '', specifications: '' },
-        notes: { description: '', tags: [], attachments: [] }
+        requirements: { productInterest: '', budget: '', timeline: '', quantity: '' }
       };
       
       this.currentStep = 1;
+      this.showToast('Draft cleared', 'info');
     }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/leads']);
   }
 
   getStepClass(step: number): string {
     if (step === this.currentStep) return 'active';
     if (step < this.currentStep) return 'completed';
     return '';
+  }
+
+  // Toastify notification method (same as login page)
+  showToast(message: string, type: 'success' | 'error' | 'info' = 'info') {
+    if (typeof Toastify !== 'undefined') {
+      const backgroundColor = 
+        type === 'success' ? 'linear-gradient(to right, #00b09b, #96c93d)' :
+        type === 'error' ? 'linear-gradient(to right, #ff5f6d, #ffc371)' :
+        'linear-gradient(to right, #667eea, #764ba2)';
+
+      Toastify({
+        text: message,
+        duration: 3000,
+        close: true,
+        gravity: "top",
+        position: "right",
+        stopOnFocus: true,
+        style: {
+          background: backgroundColor,
+          borderRadius: "10px",
+          fontSize: "14px",
+          fontWeight: "500"
+        }
+      }).showToast();
+    }
   }
 }

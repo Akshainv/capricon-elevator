@@ -15,135 +15,112 @@
   <!-- Stats Summary -->
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-icon draft">
-        <i class="fas fa-file-alt"></i>
+      <div class="stat-icon total-quotes">
+        <i class="fas fa-file-invoice"></i>
       </div>
       <div class="stat-content">
-        <div class="stat-label">Draft</div>
-        <div class="stat-value">{{ draftCount }}</div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon sent">
-        <i class="fas fa-paper-plane"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-label">Sent</div>
-        <div class="stat-value">{{ sentCount }}</div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon approved">
-        <i class="fas fa-check-circle"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-label">Approved</div>
-        <div class="stat-value">{{ approvedCount }}</div>
+        <div class="stat-label">Total Quotations</div>
+        <div class="stat-value">{{ totalQuotations }}</div>
       </div>
     </div>
 
     <div class="stat-card">
       <div class="stat-icon total">
-        <i class="fas fa-file-invoice-dollar"></i>
+        <i class="fas fa-coins"></i>
       </div>
       <div class="stat-content">
         <div class="stat-label">Total Value</div>
         <div class="stat-value">{{ formatCurrency(totalValue) }}</div>
       </div>
     </div>
+
+    <div class="stat-card">
+      <div class="stat-icon average">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Average Value</div>
+        <div class="stat-value">{{ formatCurrency(averageValue) }}</div>
+      </div>
+    </div>
   </div>
 
-  <!-- Filters & Search -->
+  <!-- Search Section -->
   <div class="filters-section">
     <div class="search-box">
       <i class="fas fa-search"></i>
       <input 
         type="text" 
-        placeholder="Search by customer, quote number, email..." 
+        placeholder="Search by customer, quote number, email, company..." 
         [(ngModel)]="searchTerm"
         (input)="applyFiltersAndSort()"
       />
     </div>
+  </div>
 
-    <div class="filter-controls">
-      <select [(ngModel)]="statusFilter" (change)="applyFiltersAndSort()" class="filter-select">
-        <option value="">All Status</option>
-        <option value="draft">Draft</option>
-        <option value="sent">Sent</option>
-        <option value="approved">Approved</option>
-        <option value="rejected">Rejected</option>
-      </select>
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading quotations...</p>
+  </div>
 
-      <select [(ngModel)]="sortBy" (change)="applyFiltersAndSort()" class="filter-select">
-        <option value="date-desc">Latest First</option>
-        <option value="date-asc">Oldest First</option>
-        <option value="amount-desc">Highest Amount</option>
-        <option value="amount-asc">Lowest Amount</option>
-      </select>
-    </div>
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <p>{{ error }}</p>
   </div>
 
   <!-- Quotations Table -->
-  <div class="table-card">
+  <div class="table-card" *ngIf="!loading">
     <div class="table-container">
       <table class="quotations-table">
         <thead>
           <tr>
             <th>Quote #</th>
             <th>Customer</th>
-            <th>Date</th>
+            <th>Company</th>
+            <th>Quote Date</th>
+            <th>Valid Until</th>
             <th>Elevator Type</th>
             <th>Amount</th>
-            <th>Status</th>
-            <th>Valid Until</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let quote of filteredQuotations" class="table-row">
+          <tr *ngFor="let quote of paginatedQuotations" class="table-row">
             <td class="quote-number">{{ quote.quoteNumber }}</td>
             <td>
               <div class="customer-info">
-                <div class="customer-name">{{ quote.customerName }}</div>
-                <div class="customer-contact">{{ quote.email }}</div>
+                <div class="customer-name">{{ quote.customerName || 'N/A' }}</div>
+                <div class="customer-contact">{{ quote.customerPhone || 'N/A' }}</div>
               </div>
             </td>
-            <td>{{ formatDate(quote.createdDate) }}</td>
+            <td>
+              <div class="company-info">{{ quote.customerCompany || quote.companyName || 'N/A' }}</div>
+            </td>
+            <td>
+              <div class="date-info">{{ formatDate(quote.quoteDate) }}</div>
+            </td>
+            <td>
+              <div class="date-info">{{ formatDate(quote.validUntil) }}</div>
+            </td>
             <td>
               <div class="elevator-info">
-                <div class="elevator-type">{{ quote.elevatorType }}</div>
-                <div class="elevator-floors">{{ quote.floors }} Floors</div>
+                <span class="elevator-icon">{{ getElevatorTypeIcon(quote.elevationType) }}</span>
+                {{ quote.elevationType || 'N/A' }}
               </div>
             </td>
-            <td class="amount">{{ formatCurrency(quote.amount) }}</td>
             <td>
-              <span class="status-badge" [ngClass]="getStatusClass(quote.status)">
-                {{ getStatusLabel(quote.status) }}
-              </span>
+              <div class="amount-total">{{ formatCurrency(quote.totalAmount || quote.totalCost) }}</div>
             </td>
-            <td>{{ formatDate(quote.validUntil) }}</td>
             <td>
               <div class="action-buttons">
-                <button class="action-btn btn-view" (click)="viewQuotation(quote.id)" title="View">
+                <button class="action-btn btn-view" (click)="viewQuotation(getQuotationId(quote))" title="View Details">
                   <i class="fas fa-eye"></i>
                 </button>
-                <button class="action-btn btn-pdf" (click)="downloadPDF(quote)" title="Download PDF">
-                  <i class="fas fa-file-pdf"></i>
+                <button class="action-btn btn-deal" (click)="convertToDeal(getQuotationId(quote))" title="Convert to Deal">
+                  <i class="fas fa-handshake"></i>
                 </button>
-                <button class="action-btn btn-email" (click)="sendEmail(quote)" title="Send Email">
-                  <i class="fas fa-envelope"></i>
-                </button>
-                <button 
-                  class="action-btn btn-edit" 
-                  (click)="editQuotation(quote.id)" 
-                  title="Edit"
-                  [disabled]="quote.status !== 'draft'">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-btn btn-duplicate" (click)="duplicateQuotation(quote.id)" title="Duplicate">
-                  <i class="fas fa-copy"></i>
+                <button class="action-btn btn-delete" (click)="deleteQuotation(getQuotationId(quote))" title="Delete">
+                  <i class="fas fa-trash"></i>
                 </button>
               </div>
             </td>
@@ -152,15 +129,22 @@
       </table>
 
       <!-- Empty State -->
-      <div *ngIf="filteredQuotations.length === 0" class="empty-state">
+      <div *ngIf="filteredQuotations.length === 0 && !loading" class="empty-state">
         <i class="fas fa-file-invoice"></i>
         <h3>No quotations found</h3>
-        <p>Try adjusting your search or filters, or create a new quotation</p>
-        <button class="btn-primary" (click)="createQuotation()">
-          <i class="fas fa-plus"></i>
-          <span>Create First Quotation</span>
-        </button>
+    
       </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-controls" *ngIf="filteredQuotations.length > 0">
+      <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages">
+        <i class="fas fa-chevron-right"></i>
+      </button>
     </div>
   </div>
 </div>

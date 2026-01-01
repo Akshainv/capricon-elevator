@@ -1,5 +1,4 @@
-/* src/app/features/leads/lead-assignment/lead-assignment.component.css */
-
+/* src/app/features/leads/lead-assignment/lead-assignment.component.css (Updated - Added top-left back button style) */
 .assignment-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -9,11 +8,17 @@
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 30px;
 }
 
-.header-left h1 {
+.header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.header-title h1 {
   font-family: 'Playfair Display', serif;
   font-size: 1.5rem;
   color: #d4b347;
@@ -21,12 +26,36 @@
   font-weight: 700;
 }
 
-.header-left p {
+.header-title p {
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.9rem;
   margin: 0;
 }
 
+/* Top-left Back Button */
+.btn-back-top {
+  background: rgba(26, 26, 26, 0.6);
+  color: #d4b347;
+  border: 1px solid rgba(212, 179, 71, 0.3);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-back-top:hover {
+  background: rgba(212, 179, 71, 0.1);
+  border-color: #d4b347;
+  transform: translateY(-2px);
+}
+
+/* Existing Cancel Button (right side) */
 .btn-back {
   background: transparent;
   color: rgba(255, 255, 255, 0.7);
@@ -135,7 +164,6 @@
 
 /* Lead Item */
 .lead-item {
- 
   border: 1px solid rgba(212, 179, 71, 0.1);
   border-radius: 10px;
   padding: 15px;
@@ -172,7 +200,6 @@
 }
 
 .lead-name {
-  
   font-weight: 600;
   font-size: 1rem;
   margin-bottom: 5px;
@@ -183,16 +210,6 @@
   align-items: center;
   gap: 8px;
   font-size: 0.85rem;
-  
-}
-
-.lead-id {
-  font-family: 'Courier New', monospace;
-  color: #d4b347;
-}
-
-.separator {
-  color: rgba(255, 255, 255, 0.3);
 }
 
 .lead-source {
@@ -213,7 +230,6 @@
   display: flex;
   align-items: center;
   gap: 6px;
- 
   font-size: 0.85rem;
 }
 
@@ -276,7 +292,6 @@
 }
 
 .selected-lead-tag .lead-name {
-  
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -339,8 +354,7 @@
   font-weight: 700;
 }
 
-.form-select,
-.form-textarea {
+.form-select {
   width: 100%;
   padding: 12px 16px;
   background: rgba(0, 0, 0, 0.4);
@@ -350,16 +364,6 @@
   font-size: 0.95rem;
   transition: all 0.3s ease;
   font-family: inherit;
-}
-
-.form-select:focus,
-.form-textarea:focus {
-  outline: none;
-  border-color: #d4b347;
-  box-shadow: 0 0 0 3px rgba(212, 179, 71, 0.1);
-}
-
-.form-select {
   cursor: pointer;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23d4b347' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
@@ -368,14 +372,15 @@
   padding-right: 45px;
 }
 
+.form-select:focus {
+  outline: none;
+  border-color: #d4b347;
+  box-shadow: 0 0 0 3px rgba(212, 179, 71, 0.1);
+}
+
 .form-select option {
   background: var(--bg-secondary);
   color: var(--text-primary);
-}
-
-.form-textarea {
-  resize: vertical;
-  line-height: 1.6;
 }
 
 .btn-auto-assign {
@@ -402,75 +407,6 @@
 .btn-auto-assign:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-/* Sales Team Grid */
-.sales-team-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 25px;
-}
-
-.sales-person-card {
-  background: rgba(0, 0, 0, 0.3);
-  border: 2px solid rgba(212, 179, 71, 0.1);
-  border-radius: 10px;
-  padding: 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.sales-person-card:hover {
-  border-color: rgba(212, 179, 71, 0.4);
-  background: rgba(212, 179, 71, 0.05);
-  transform: translateY(-3px);
-}
-
-.sales-person-card.active {
-  border-color: #d4b347;
-  background: rgba(212, 179, 71, 0.1);
-  box-shadow: 0 4px 15px rgba(212, 179, 71, 0.2);
-}
-
-.person-avatar {
-  width: 45px;
-  height: 45px;
-  background: linear-gradient(135deg, rgba(212, 179, 71, 0.2), rgba(240, 212, 130, 0.1));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #d4b347;
-  font-size: 1.2rem;
-}
-
-.person-info {
-  flex: 1;
-}
-
-.person-name {
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 4px;
-}
-
-.person-email {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.8rem;
-}
-
-.person-stats {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #d4b347;
-  font-size: 0.85rem;
-  font-weight: 500;
 }
 
 /* Form Actions */
@@ -545,14 +481,26 @@
   margin-bottom: 15px;
 }
 
+/* No Sales Team */
+.no-sales-team {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 10px;
+  margin-bottom: 25px;
+}
+
+.no-sales-team i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  color: rgba(239, 68, 68, 0.4);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .assignment-layout {
     grid-template-columns: 1fr;
-  }
-
-  .sales-team-grid {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -563,8 +511,14 @@
     gap: 15px;
   }
 
-  .sales-team-grid {
-    grid-template-columns: 1fr;
+  .header-left {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-back-top {
+    width: 100%;
+    justify-content: center;
   }
 
   .form-actions {

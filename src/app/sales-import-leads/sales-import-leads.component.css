@@ -1,5 +1,3 @@
-/* src/app/features/leads/sales-import-leads/sales-import-leads.component.css */
-
 .import-leads-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -202,6 +200,35 @@
   font-size: 1.5rem;
 }
 
+/* Validation Errors */
+.validation-errors {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+}
+
+.validation-errors h3 {
+  color: #f87171;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.validation-errors ul {
+  margin: 0;
+  padding-left: 20px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.validation-errors li {
+  margin-bottom: 5px;
+}
+
 /* Preview Section */
 .preview-section {
   margin-top: 30px;
@@ -218,15 +245,23 @@
 
 .preview-info {
   display: flex;
-  gap: 30px;
+  justify-content: space-between;
+  gap: 20px;
   margin-bottom: 15px;
   padding: 15px;
   background: rgba(212, 179, 71, 0.1);
   border-radius: 10px;
+  flex-wrap: wrap;
 }
 
-.preview-info p {
-  margin: 0;
+.preview-info .info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 200px;
+}
+
+.preview-info span {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
 }
@@ -274,11 +309,28 @@
   color: #d4b347;
 }
 
+.cell-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  display: block;
+}
+
+.preview-note {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+}
+
 /* Import Action */
 .import-action {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   margin: 30px 0 20px 0;
+  gap: 10px;
 }
 
 .btn-import {
@@ -295,6 +347,7 @@
   gap: 10px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  width: auto;
 }
 
 .btn-import:hover:not(:disabled) {
@@ -307,6 +360,13 @@
   cursor: not-allowed;
 }
 
+.import-warning {
+  font-size: 0.85rem;
+  color: #d4b347;
+  text-align: center;
+  margin: 0;
+}
+
 /* Upload Instructions */
 .upload-instructions {
   background: rgba(59, 130, 246, 0.1);
@@ -314,6 +374,7 @@
   border-radius: 12px;
   padding: 25px;
   margin-top: 30px;
+  text-align: left;
 }
 
 .upload-instructions h3 {
@@ -325,15 +386,48 @@
   gap: 10px;
 }
 
-.upload-instructions ul {
-  margin: 0;
-  padding-left: 20px;
-  color: rgba(255, 255, 255, 0.7);
+.instructions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 15px;
 }
 
-.upload-instructions li {
-  margin: 8px 0;
+.instruction-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.instruction-item i {
+  font-size: 1.2rem;
+  color: #60a5fa;
+  margin-top: 3px;
+}
+
+.instruction-item div {
+  flex: 1;
+}
+
+.instruction-item strong {
+  display: block;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.instruction-item p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.template-tip {
+  margin-top: 15px;
   font-size: 0.9rem;
+  color: #d4b347;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Result Section */
@@ -345,8 +439,10 @@
   background: linear-gradient(135deg, rgba(26, 26, 26, 0.6), rgba(0, 0, 0, 0.8));
   border: 1px solid rgba(212, 179, 71, 0.2);
   border-radius: 15px;
-  padding: 50px;
+  padding: 50px 40px;
   text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .success-icon {
@@ -355,14 +451,26 @@
 
 .success-icon i {
   font-size: 6rem;
+}
+
+.success-icon.success i {
   color: #4ade80;
+}
+
+.success-icon.warning i {
+  color: #fbbf24;
+}
+
+.success-icon.error i {
+  color: #f87171;
 }
 
 .result-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
-  margin: 40px 0;
+  margin: 40px auto;
+  max-width: 600px;
 }
 
 .stat-box {
@@ -429,13 +537,37 @@
   text-align: left;
 }
 
-.error-section h3 {
+.error-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.error-header h3 {
   color: #f87171;
   font-size: 1.1rem;
-  margin-bottom: 15px;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.btn-export-errors {
+  padding: 8px 15px;
+  background: rgba(212, 179, 71, 0.1);
+  color: #d4b347;
+  border: 1px solid rgba(212, 179, 71, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.btn-export-errors:hover {
+  background: rgba(212, 179, 71, 0.2);
 }
 
 .error-list {
@@ -448,12 +580,19 @@
 }
 
 .error-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   padding: 10px;
   margin-bottom: 8px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 6px;
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.9rem;
+}
+
+.error-item i {
+  margin-top: 2px;
 }
 
 .more-errors {
@@ -463,6 +602,45 @@
   text-align: center;
 }
 
+/* Warning Section */
+.warning-section {
+  margin: 30px 0;
+  text-align: left;
+}
+
+.warning-section h3 {
+  color: #fbbf24;
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.warning-list {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.warning-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.warning-item i {
+  margin-top: 2px;
+}
+
+/* Result Actions */
 .result-actions {
   display: flex;
   gap: 15px;
@@ -543,15 +721,32 @@
     padding: 40px 20px;
   }
 
+  .preview-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+
   .result-stats {
     grid-template-columns: 1fr;
   }
 
+  .instructions-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
   .result-actions {
     flex-direction: column;
+    gap: 10px;
   }
 
   .preview-table-container {
     max-height: 300px;
+  }
+
+  .error-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 }

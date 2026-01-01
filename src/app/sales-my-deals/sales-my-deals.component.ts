@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { LeadsService, Lead } from '../lead.service';
+import { AuthService } from '../services/auth.service';
 
 interface Deal {
   id: string;
@@ -40,8 +42,17 @@ export class SalesMyDealsComponent implements OnInit {
   // Filters
   filterValue: string = '';
   filterDate: string = '';
+  selectedStatus: string = 'all';
+  
+  // Loading state
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-  constructor(public router: Router) {}
+  constructor(
+    public router: Router, 
+    private leadsService: LeadsService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.initializeColumns();
@@ -60,76 +71,149 @@ export class SalesMyDealsComponent implements OnInit {
   }
 
   loadMyDeals(): void {
-    // Sample data - only deals assigned to current sales executive
-    this.allDeals = [
-      {
-        id: '1',
-        title: 'Luxury Apartment Complex',
-        company: 'Prestige Group',
-        amount: 2500000,
-        elevatorType: 'Passenger Elevator',
-        probability: 75,
-        closeDate: '2024-12-15',
-        contactPerson: 'Raj Kumar',
-        phone: '+91 9876543210',
-        email: 'raj@prestige.com',
-        status: 'proposal'
-      },
-      {
-        id: '2',
-        title: 'Corporate Office Building',
-        company: 'Tech Park Ltd',
-        amount: 3200000,
-        elevatorType: 'High-Speed Elevator',
-        probability: 90,
-        closeDate: '2024-11-30',
-        contactPerson: 'Suresh Reddy',
-        phone: '+91 9876543211',
-        email: 'suresh@techpark.com',
-        status: 'negotiation'
-      },
-      {
-        id: '3',
-        title: 'Shopping Mall Expansion',
-        company: 'Phoenix Mills',
-        amount: 1800000,
-        elevatorType: 'Freight Elevator',
-        probability: 50,
-        closeDate: '2025-01-20',
-        contactPerson: 'Amit Shah',
-        phone: '+91 9876543212',
-        email: 'amit@phoenixmalls.com',
-        status: 'qualified'
-      },
-      {
-        id: '4',
-        title: 'Sunrise Mall',
-        company: 'Sunrise Mall Pvt Ltd',
-        amount: 4500000,
-        elevatorType: '15-Floor Passenger Elevator',
-        probability: 100,
-        closeDate: '2024-10-18',
-        contactPerson: 'John Smith',
-        phone: '+91 9876543215',
-        email: 'john@sunrisemall.com',
-        status: 'won'
-      },
-      {
-        id: '5',
-        title: 'Residential Tower Project',
-        company: 'Skyline Developers',
-        amount: 3500000,
-        elevatorType: 'Passenger Elevator',
-        probability: 25,
-        closeDate: '2025-02-10',
-        contactPerson: 'Vijay Singh',
-        phone: '+91 9876543214',
-        email: 'vijay@skyline.com',
-        status: 'lead'
-      }
-    ];
+    this.isLoading = true;
+    this.errorMessage = '';
 
-    this.organizeDeals();
+    // Get current logged in user
+    const currentUser = this.authService.currentUserValue;
+    
+    if (!currentUser || !currentUser.userId) {
+      this.errorMessage = 'User not logged in';
+      this.isLoading = false;
+      return;
+    }
+
+    // Fetch leads assigned to current sales executive
+    this.leadsService.getMyLeads().subscribe({
+      next: (leads: Lead[]) => {
+        console.log('Loaded my leads:', leads);
+        
+        // Convert Lead objects to Deal objects
+        this.allDeals = leads.map(lead => this.convertLeadToDeal(lead));
+        
+        // Organize deals into columns
+        this.organizeDeals();
+        this.isLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading deals:', error);
+        this.errorMessage = 'Failed to load your deals. Please try again.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // Convert Lead to Deal format
+  private convertLeadToDeal(lead: Lead): Deal {
+    return {
+      id: lead._id,
+      title: this.generateDealTitle(lead),
+      company: lead.companyName || 'Not Specified',
+      amount: this.estimateDealAmount(lead.status),
+      elevatorType: this.getElevatorType(lead),
+      probability: this.calculateProbability(lead.status),
+      closeDate: this.estimateCloseDate(lead),
+      contactPerson: lead.fullName,
+      phone: lead.phoneNumber,
+      email: lead.email,
+      status: this.mapLeadStatusToDealStatus(lead.status)
+    };
+  }
+
+  // Generate deal title from lead data
+  private generateDealTitle(lead: Lead): string {
+    if (lead.companyName) {
+      return `${lead.companyName} Project`;
+    }
+    return `${lead.fullName} - New Opportunity`;
+  }
+
+  // Estimate deal amount based on status
+  private estimateDealAmount(status: string): number {
+    const baseAmount = 1000000;
+    const randomFactor = Math.random() * 3 + 1; // 1x to 4x multiplier
+    
+    switch(status) {
+      case 'Won':
+        return Math.round(baseAmount * randomFactor * 1.5);
+      case 'Quoted':
+        return Math.round(baseAmount * randomFactor * 1.2);
+      case 'Qualified':
+        return Math.round(baseAmount * randomFactor);
+      default:
+        return Math.round(baseAmount * randomFactor * 0.8);
+    }
+  }
+
+  // Get elevator type based on amount
+  private getElevatorType(lead: Lead): string {
+    const types = [
+      'Passenger Elevator',
+      'High-Speed Elevator',
+      'Freight Elevator',
+      'Residential Elevator',
+      'Commercial Elevator'
+    ];
+    // Use a consistent index based on lead ID to ensure same elevator type for same lead
+    const index = Math.abs(lead._id.charCodeAt(0)) % types.length;
+    return types[index];
+  }
+
+  // Calculate probability based on lead status
+  private calculateProbability(status: string): number {
+    const probabilityMap: { [key: string]: number } = {
+      'New': 25,
+      'Qualified': 50,
+      'Quoted': 75,
+      'Won': 100,
+      'Lost': 0
+    };
+    return probabilityMap[status] || 25;
+  }
+
+  // Estimate close date
+  private estimateCloseDate(lead: Lead): string {
+    const today = new Date();
+    const daysToAdd = this.getDaysBasedOnStatus(lead.status);
+    const closeDate = new Date(today);
+    closeDate.setDate(today.getDate() + daysToAdd);
+    return closeDate.toISOString().split('T')[0];
+  }
+
+  private getDaysBasedOnStatus(status: string): number {
+    const daysMap: { [key: string]: number } = {
+      'New': 60,
+      'Qualified': 45,
+      'Quoted': 30,
+      'Won': 0,
+      'Lost': 0
+    };
+    return daysMap[status] || 45;
+  }
+
+  // Map Lead status to Deal status
+  private mapLeadStatusToDealStatus(leadStatus: string): string {
+    const statusMap: { [key: string]: string } = {
+      'New': 'lead',
+      'Qualified': 'qualified',
+      'Quoted': 'proposal',
+      'Won': 'won',
+      'Lost': 'lost'
+    };
+    return statusMap[leadStatus] || 'lead';
+  }
+
+  // Map Deal status back to Lead status for updates
+  private mapDealStatusToLeadStatus(dealStatus: string): string {
+    const statusMap: { [key: string]: string } = {
+      'lead': 'New',
+      'qualified': 'Qualified',
+      'proposal': 'Quoted',
+      'negotiation': 'Quoted',
+      'won': 'Won',
+      'lost': 'Lost'
+    };
+    return statusMap[dealStatus] || 'New';
   }
 
   organizeDeals(): void {
@@ -148,6 +232,11 @@ export class SalesMyDealsComponent implements OnInit {
 
     if (this.filterDate) {
       filteredDeals = filteredDeals.filter(deal => deal.closeDate <= this.filterDate);
+    }
+
+    // Status filter: if not 'all', only include deals matching selected status
+    if (this.selectedStatus && this.selectedStatus !== 'all') {
+      filteredDeals = filteredDeals.filter(deal => deal.status === this.selectedStatus);
     }
 
     // Distribute deals to columns
@@ -184,55 +273,49 @@ export class SalesMyDealsComponent implements OnInit {
     event.preventDefault();
     
     if (this.draggedDeal) {
-      // Update the deal status
-      this.draggedDeal.status = newStatus;
-      
-      // Update probability based on status
-      if (newStatus === 'won') {
-        this.draggedDeal.probability = 100;
-      } else if (newStatus === 'lost') {
-        this.draggedDeal.probability = 0;
-      }
-      
-      // Reorganize deals into columns
-      this.organizeDeals();
-      
-      // Clear dragged deal
-      this.draggedDeal = null;
-      
-      alert('Deal status updated successfully!');
+      this.updateDealStatusInternal(this.draggedDeal, newStatus);
     }
+  }
+
+  private updateDealStatusInternal(deal: Deal, newStatus: string): void {
+    const oldStatus = deal.status;
+
+    // Optimistic update
+    deal.status = newStatus;
+    if (newStatus === 'won') deal.probability = 100;
+    else if (newStatus === 'lost') deal.probability = 0;
+
+    const leadStatus = this.mapDealStatusToLeadStatus(newStatus);
+
+    this.leadsService.updateLead(deal.id, { status: leadStatus as any }).subscribe({
+      next: () => {
+        this.organizeDeals();
+        this.draggedDeal = null;
+        alert('Deal status updated successfully!');
+      },
+      error: (error: any) => {
+        console.error('Error updating deal status:', error);
+        alert('Failed to update deal status. Reverting.');
+        // Revert on error
+        deal.status = oldStatus;
+        this.organizeDeals();
+        this.draggedDeal = null;
+      }
+    });
+  }
+
+  updateDealStatus(deal: Deal, newStatus: string, event: Event): void {
+    event.stopPropagation();
+    this.updateDealStatusInternal(deal, newStatus);
   }
 
   // Navigation Methods
   viewDealDetails(deal: Deal): void {
-    this.router.navigate(['/deals', deal.id]);
+    this.router.navigate(['/leads', deal.id]);
   }
 
   createNewDeal(): void {
-    this.router.navigate(['/deals/create']);
-  }
-
-  convertToProject(deal: Deal, event: Event): void {
-    event.stopPropagation();
-    
-    const confirmConvert = confirm(`Convert "${deal.title}" to project?`);
-    if (confirmConvert) {
-      this.router.navigate(['/projects/create'], { 
-        state: { 
-          deal: {
-            id: deal.id,
-            title: deal.title,
-            company: deal.company,
-            amount: deal.amount,
-            elevatorType: deal.elevatorType,
-            contactPerson: deal.contactPerson,
-            phone: deal.phone,
-            email: deal.email
-          }
-        } 
-      });
-    }
+    this.router.navigate(['/leads/create']);
   }
 
   // Utility Methods

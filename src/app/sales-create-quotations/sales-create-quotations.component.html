@@ -3,8 +3,14 @@
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-left">
-      <h1>✏️ Create Quotation</h1>
-      <p>Build new quotation with products and pricing</p>
+      <button class="btn-back-nav" (click)="navigateToQuotations()">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Quotations</span>
+      </button>
+      <div class="header-title">
+        <h1>✏️ Create Quotation</h1>
+        <p>Build new quotation with products and pricing</p>
+      </div>
     </div>
     <div class="header-actions">
       <button class="btn-secondary" (click)="cancel()">
@@ -17,6 +23,101 @@
   <div class="form-layout">
     <!-- Left Column: Customer & Items -->
     <div class="left-column">
+      
+      <!-- Lead Selection Card -->
+      <div class="form-card lead-selection-card">
+        <div class="card-header">
+          <h3><i class="fas fa-search"></i> Search Lead from Admin's List</h3>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>Search Assigned Leads (Optional)</label>
+            
+            <!-- Loading State -->
+            <div *ngIf="loadingLeads" class="loading-message">
+              <i class="fas fa-spinner fa-spin"></i>
+              Loading leads from admin...
+            </div>
+
+            <!-- Search Input with Dropdown -->
+            <div *ngIf="!loadingLeads" class="lead-search-container">
+              <div class="search-input-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                  type="text"
+                  [(ngModel)]="leadSearchTerm"
+                  (input)="onLeadSearch()"
+                  (focus)="onLeadSearchFocus()"
+                  (blur)="onLeadSearchBlur()"
+                  placeholder="Search by name, company, phone, or email..."
+                  class="form-input lead-search-input"
+                  autocomplete="off"
+                />
+                <button 
+                  *ngIf="leadSearchTerm"
+                  class="clear-search-btn"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="clearLeadSearch()"
+                  type="button"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+
+              <!-- Search Results Dropdown -->
+              <div *ngIf="showLeadDropdown && filteredLeads.length > 0" class="lead-dropdown">
+                <div class="dropdown-header">
+                  <span>{{ filteredLeads.length }} lead(s) found</span>
+                </div>
+                <div class="lead-results">
+                  <div 
+                    *ngFor="let lead of filteredLeads"
+                    class="lead-item"
+                    (mousedown)="$event.preventDefault(); selectLead(lead)"
+                  >
+                    <div class="lead-item-main">
+                      <i class="fas fa-user-circle lead-avatar-icon"></i>
+                      <div class="lead-item-info">
+                        <div class="lead-item-name">{{ lead.name }}</div>
+                        <div class="lead-item-company">{{ lead.company || 'No Company' }}</div>
+                      </div>
+                    </div>
+                    <div class="lead-item-contact">
+                      <div class="contact-detail">
+                        <i class="fas fa-phone"></i>
+                        {{ lead.phone }}
+                      </div>
+                      <div class="contact-detail">
+                        <i class="fas fa-envelope"></i>
+                        {{ lead.email }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- No Results Message -->
+              <div *ngIf="showLeadDropdown && filteredLeads.length === 0 && leadSearchTerm" class="no-results-message">
+                <i class="fas fa-search"></i>
+                No leads found matching "{{ leadSearchTerm }}"
+              </div>
+            </div>
+
+            <!-- No Leads Message -->
+            <p *ngIf="!loadingLeads && leads.length === 0" class="no-leads-message">
+              <i class="fas fa-info-circle"></i>
+              No assigned leads available. Please enter customer details manually below.
+            </p>
+
+            <!-- Helper Text -->
+            <p *ngIf="!loadingLeads && leads.length > 0 && !leadSearchTerm" class="helper-text">
+              <i class="fas fa-info-circle"></i>
+              Start typing to search for a lead from admin's assigned list. Lead information will auto-fill below.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- Customer Information Card -->
       <div class="form-card">
         <div class="card-header">
@@ -55,6 +156,18 @@
               />
             </div>
             <div class="form-group">
+              <label>Company</label>
+              <input 
+                type="text" 
+                [(ngModel)]="customerCompany" 
+                placeholder="Company name"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
               <label>Address</label>
               <input 
                 type="text" 
@@ -84,11 +197,11 @@
               />
             </div>
             <div class="form-group">
-              <label>Quote Date</label>
+              <label>Quote Date <span class="required">*</span></label>
               <input 
                 type="date" 
-                [ngModel]="quoteDate | date:'yyyy-MM-dd'" 
-                (ngModelChange)="quoteDate = $event"
+                [(ngModel)]="quoteDate"
+                [min]="today"
                 class="form-input"
               />
             </div>
@@ -96,11 +209,11 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label>Valid Until</label>
+              <label>Valid Until <span class="required">*</span></label>
               <input 
                 type="date" 
-                [ngModel]="validUntil | date:'yyyy-MM-dd'" 
-                (ngModelChange)="validUntil = $event"
+                [(ngModel)]="validUntil"
+                [min]="quoteDate || today"
                 class="form-input"
               />
             </div>
@@ -235,6 +348,23 @@
           <h3><i class="fas fa-calculator"></i> Quotation Summary</h3>
         </div>
         <div class="card-body">
+          <div class="summary-info">
+            <div class="info-item">
+              <span class="info-label">Quote #:</span>
+              <span class="info-value">{{ quoteNumber }}</span>
+            </div>
+            <div class="info-item" *ngIf="quoteDate">
+              <span class="info-label">Date:</span>
+              <span class="info-value">{{ formatDate(quoteDate) }}</span>
+            </div>
+            <div class="info-item" *ngIf="validUntil">
+              <span class="info-label">Valid Until:</span>
+              <span class="info-value">{{ formatDate(validUntil) }}</span>
+            </div>
+          </div>
+
+          <div class="summary-divider"></div>
+
           <div class="summary-row">
             <span class="summary-label">Subtotal:</span>
             <span class="summary-value">{{ formatCurrency(subtotal) }}</span>
@@ -258,19 +388,31 @@
           </div>
 
           <div class="summary-actions">
-            <button class="btn-action btn-preview" (click)="preview()">
+            <button 
+              class="btn-action btn-preview" 
+              (click)="preview()"
+              [disabled]="loading"
+            >
               <i class="fas fa-eye"></i>
               <span>Preview</span>
             </button>
 
-            <button class="btn-action btn-draft" (click)="saveAsDraft()">
-              <i class="fas fa-save"></i>
-              <span>Save as Draft</span>
+            <button 
+              class="btn-action btn-draft" 
+              (click)="saveAsDraft()"
+              [disabled]="loading"
+            >
+              <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+              <span>{{ loading ? 'Saving...' : 'Save as Draft' }}</span>
             </button>
 
-            <button class="btn-action btn-send" (click)="sendToClient()">
-              <i class="fas fa-paper-plane"></i>
-              <span>Send to Client</span>
+            <button 
+              class="btn-action btn-send" 
+              (click)="sendToClient()"
+              [disabled]="loading"
+            >
+              <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
+              <span>{{ loading ? 'Sending...' : 'Send to Client' }}</span>
             </button>
           </div>
         </div>

@@ -5,12 +5,6 @@
       <h1>My Settings</h1>
       <p>Manage your personal preferences and account settings</p>
     </div>
-    <div class="header-right">
-      <button class="btn-secondary" (click)="exportMyData()">
-        <i class="fas fa-download"></i>
-        Export My Data
-      </button>
-    </div>
   </div>
 
   <!-- Settings Layout -->
@@ -26,14 +20,6 @@
         >
           <i class="fas fa-user"></i>
           <span>Personal Info</span>
-        </a>
-        <a 
-          class="nav-item" 
-          [class.active]="activeSection === 'preferences'"
-          (click)="selectSection('preferences')"
-        >
-          <i class="fas fa-cog"></i>
-          <span>Preferences</span>
         </a>
         <a 
           class="nav-item" 
@@ -151,90 +137,6 @@
             </button>
             <button type="button" class="btn-cancel">
               Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Preferences -->
-      <div class="content-section" *ngIf="activeSection === 'preferences'">
-        <div class="section-header">
-          <h2>Account Preferences</h2>
-          <p>Customize your CRM experience</p>
-        </div>
-
-        <form class="settings-form">
-          <div class="form-section">
-            <h3>Display Settings</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>
-                  <i class="fas fa-language"></i>
-                  Language
-                </label>
-                <select [(ngModel)]="preferences.language" name="language">
-                  <option value="English">English</option>
-                  <option value="Hindi">Hindi</option>
-                  <option value="Malayalam">Malayalam</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>
-                  <i class="fas fa-clock"></i>
-                  Timezone
-                </label>
-                <select [(ngModel)]="preferences.timezone" name="timezone">
-                  <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
-                  <option value="America/New_York">America/New_York (EST)</option>
-                  <option value="Europe/London">Europe/London (GMT)</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>
-                  <i class="fas fa-calendar"></i>
-                  Date Format
-                </label>
-                <select [(ngModel)]="preferences.dateFormat" name="dateFormat">
-                  <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                  <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                  <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>
-                  <i class="fas fa-rupee-sign"></i>
-                  Currency
-                </label>
-                <select [(ngModel)]="preferences.currency" name="currency">
-                  <option value="INR">INR - Indian Rupee</option>
-                  <option value="USD">USD - US Dollar</option>
-                  <option value="EUR">EUR - Euro</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>
-                  <i class="fas fa-palette"></i>
-                  Theme
-                </label>
-                <select [(ngModel)]="preferences.theme" name="theme">
-                  <option value="dark">Dark</option>
-                  <option value="light">Light</option>
-                  <option value="auto">Auto (System)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" class="btn-primary" (click)="savePreferences()">
-              <i class="fas fa-save"></i>
-              Save Preferences
             </button>
           </div>
         </form>

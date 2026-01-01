@@ -1,19 +1,15 @@
-<!-- src/app/features/leads/leads-list/leads-list.component.html -->
-<div class="leads-container">
+<!-- src/app/features/leads/leads-list/leads-list.component.html (Updated with full modal) -->
+<div class="sales-leads-container">
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-left">
-      <h1> Leads Management</h1>
-      <p>Manage and track all your sales leads</p>
+      <h1>Leads Management</h1>
+      <p>View and manage all assigned leads</p>
     </div>
     <div class="header-actions">
-      <button class="btn-secondary" (click)="assignLeads()">
+      <button class="btn-primary" (click)="assignLeads()">
         <i class="fas fa-user-plus"></i>
         <span>Assign Leads</span>
-      </button>
-      <button class="btn-primary" (click)="addNewLead()">
-        <i class="fas fa-plus"></i>
-        <span>Add Lead</span>
       </button>
     </div>
   </div>
@@ -24,84 +20,101 @@
       <i class="fas fa-search"></i>
       <input 
         type="text" 
-        placeholder="Search leads by name, email, phone..." 
+        placeholder="Search by name, email, phone, company..." 
         [(ngModel)]="searchTerm"
-        (input)="filterLeads()"
+        (input)="applyFiltersAndSort()"
       />
     </div>
 
     <div class="filter-controls">
-      <select [(ngModel)]="statusFilter" (change)="filterLeads()" class="filter-select">
-        <option value="">All Status</option>
-        <option value="new">New</option>
-        <option value="qualified">Qualified</option>
-        <option value="quoted">Quoted</option>
-        <option value="won">Won</option>
-        <option value="lost">Lost</option>
-      </select>
-
-      <select [(ngModel)]="sourceFilter" (change)="filterLeads()" class="filter-select">
+      <select [(ngModel)]="sourceFilter" (change)="applyFiltersAndSort()" class="filter-select">
         <option value="">All Sources</option>
         <option value="Website">Website</option>
         <option value="Walk-in">Walk-in</option>
         <option value="Reference">Reference</option>
-        <option value="Phone">Phone Call</option>
+        <option value="Phone Call">Phone Call</option>
+        <option value="Email">Email</option>
+        <option value="Social Media">Social Media</option>
+        <option value="Other">Other</option>
       </select>
 
-      <button class="btn-secondary" (click)="importLeads()">
-        <i class="fas fa-file-import"></i>
-        <span>Import</span>
-      </button>
-
-      <button class="btn-secondary" (click)="exportLeads()">
-        <i class="fas fa-file-export"></i>
-        <span>Export</span>
-      </button>
+      <div class="name-filter-group">
+        <input 
+          type="text" 
+          placeholder="Filter by name..." 
+          [(ngModel)]="nameFilter"
+          (input)="filterByName()"
+          class="name-filter-input"
+        />
+        <button class="btn-secondary" (click)="filterByName()">
+          <i class="fas fa-filter"></i>
+          <span>Filter</span>
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Leads Table -->
-  <div class="table-card">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading leads...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage" class="error-state">
+    <i class="fas fa-exclamation-circle"></i>
+    <p>{{ errorMessage }}</p>
+    <button class="btn-secondary" (click)="loadLeads()">Try Again</button>
+  </div>
+
+  <!-- Table View -->
+  <div *ngIf="!isLoading && !errorMessage" class="table-card">
+    <div class="table-header">
+      <h3>
+        <i class="fas fa-list"></i>
+        Assigned Leads
+        <span class="count-badge">{{ filteredLeads.length }}</span>
+      </h3>
+    </div>
+
     <div class="table-container">
       <table class="leads-table">
         <thead>
           <tr>
-            <th>Lead ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Company</th>
+            <th>Name & Company</th>
+            <th>Contact</th>
             <th>Source</th>
-            <th>Status</th>
-            <th>Assigned To</th>
-            <th>Actions</th>
+            <th class="col-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let lead of filteredLeads" class="table-row">
-            <td class="lead-id">{{ lead.id }}</td>
-            <td class="lead-name">{{ lead.name }}</td>
-            <td>{{ lead.email }}</td>
-            <td>{{ lead.phone }}</td>
-            <td>{{ lead.company || '-' }}</td>
+          <tr *ngFor="let lead of paginatedLeads" class="table-row" (click)="viewLeadModal(lead.id)">
+            <td>
+              <div class="lead-info-cell">
+                <div class="lead-avatar">
+                  <i class="fas fa-user-circle"></i>
+                </div>
+                <div>
+                  <strong class="lead-name">{{ lead.name }}</strong>
+                  <div class="lead-company">{{ lead.company }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="contact-cell">
+                <div><i class="fas fa-envelope"></i> {{ lead.email }}</div>
+                <div class="text-muted"><i class="fas fa-phone"></i> {{ lead.phone }}</div>
+              </div>
+            </td>
             <td>
               <span class="source-badge">{{ lead.source }}</span>
             </td>
-            <td>
-              <span class="status-badge" [ngClass]="getStatusClass(lead.status)">
-                {{ getStatusLabel(lead.status) }}
-              </span>
-            </td>
-            <td>{{ lead.assignedTo }}</td>
-            <td>
+            <td class="col-actions">
               <div class="action-buttons">
-                <button class="action-btn btn-view" (click)="viewLead(lead.id)" title="View">
+                <button class="action-btn btn-view" (click)="viewLeadModal(lead.id, $event)" title="View Details">
                   <i class="fas fa-eye"></i>
                 </button>
-                <button class="action-btn btn-edit" (click)="editLead(lead.id)" title="Edit">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-btn btn-delete" (click)="deleteLead(lead.id)" title="Delete">
+                <button class="action-btn btn-delete" (click)="deleteLead(lead.id); $event.stopPropagation()" title="Delete">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -113,9 +126,182 @@
       <!-- Empty State -->
       <div *ngIf="filteredLeads.length === 0" class="empty-state">
         <i class="fas fa-inbox"></i>
-        <h3>No leads found</h3>
-        <p>Try adjusting your search or filters</p>
+        <h3>No assigned leads found</h3>
+        <p>No leads have been assigned yet. Click "Assign Leads" to get started.</p>
       </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-controls" *ngIf="filteredLeads.length > 0">
+      <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Enhanced View Lead Modal with All Details -->
+<div *ngIf="showViewModal && selectedLead" class="modal-overlay" (click)="closeViewModal()">
+  <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-user-circle"></i>
+        Lead Details
+      </h2>
+      <button class="modal-close" (click)="closeViewModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body modal-scrollable">
+      <!-- Lead Header -->
+      <div class="detail-section header-section">
+        <div class="lead-avatar-large">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="lead-main-info">
+          <h3>{{ selectedLead.fullName }}</h3>
+          <p class="company-name">{{ selectedLead.companyName || 'N/A' }}</p>
+          <div class="badges-row">
+            <span class="status-badge" [ngClass]="getStatusClass(selectedLead.status)">
+              <i class="fas" [ngClass]="getStatusIcon(selectedLead.status)"></i>
+              {{ selectedLead.status }}
+            </span>
+            <span class="source-badge">
+              <i class="fas fa-tag"></i>
+              {{ selectedLead.leadSource }}
+            </span>
+            <span class="priority-badge" [ngClass]="getPriorityClass(getPriority())">
+              <i class="fas" [ngClass]="getPriorityIcon(getPriority())"></i>
+              {{ getPriority() | titlecase }} Priority
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Basic Information -->
+      <div class="detail-section">
+        <h4><i class="fas fa-info-circle"></i> Basic Information</h4>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label><i class="fas fa-user"></i> Full Name</label>
+            <p>{{ selectedLead.fullName }}</p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-building"></i> Company Name</label>
+            <p>{{ selectedLead.companyName || 'N/A' }}</p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-id-badge"></i> Designation</label>
+            <p>{{ getDesignation() }}</p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-tag"></i> Lead Source</label>
+            <p><span class="source-badge">{{ selectedLead.leadSource }}</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Details -->
+      <div class="detail-section">
+        <h4><i class="fas fa-address-card"></i> Contact Details</h4>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label><i class="fas fa-envelope"></i> Email Address</label>
+            <p><a [href]="'mailto:' + selectedLead.email">{{ selectedLead.email }}</a></p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-phone"></i> Primary Phone</label>
+            <p><a [href]="'tel:' + selectedLead.phoneNumber">{{ selectedLead.phoneNumber }}</a></p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-phone-alt"></i> Alternate Phone</label>
+            <p>{{ getAlternatePhone() }}</p>
+          </div>
+          <div class="detail-item full-width">
+            <label><i class="fas fa-map-marker-alt"></i> Address</label>
+            <p>{{ getAddress() }}</p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-city"></i> City</label>
+            <p>{{ getCity() }}</p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-map"></i> State</label>
+            <p>{{ getState() }}</p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-map-pin"></i> Pincode</label>
+            <p>{{ getPincode() }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Requirements & Budget -->
+      <div class="detail-section">
+        <h4><i class="fas fa-clipboard-list"></i> Requirements & Budget</h4>
+        <div class="detail-grid">
+          <div class="detail-item full-width">
+            <label><i class="fas fa-shopping-cart"></i> Product/Service Interest</label>
+            <p>{{ getProductInterest() }}</p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-rupee-sign"></i> Estimated Budget</label>
+            <p class="budget-value">{{ getBudget() }}</p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-calendar-alt"></i> Purchase Timeline</label>
+            <p>{{ getTimeline() }}</p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-boxes"></i> Quantity</label>
+            <p>{{ getQuantity() }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lead Status Information -->
+      <div class="detail-section">
+        <h4><i class="fas fa-chart-line"></i> Lead Status Information</h4>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label><i class="fas fa-signal"></i> Current Status</label>
+            <p>
+              <span class="status-badge" [ngClass]="getStatusClass(selectedLead.status)">
+                <i class="fas" [ngClass]="getStatusIcon(selectedLead.status)"></i>
+                {{ selectedLead.status }}
+              </span>
+            </p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-calendar-plus"></i> Created Date</label>
+            <p>{{ formatDate(selectedLead.createdAt) }}</p>
+          </div>
+          <div class="detail-item">
+            <label><i class="fas fa-calendar-check"></i> Last Updated</label>
+            <p>{{ formatDate(selectedLead.updatedAt) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Notes (if any leftover notes exist) -->
+      <div class="detail-section" *ngIf="selectedLead.notes && selectedLead.notes.length > 0">
+        <h4><i class="fas fa-sticky-note"></i> Additional Notes</h4>
+        <div class="notes-display">
+          <p>{{ selectedLead.notes }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeViewModal()">
+        <i class="fas fa-times"></i>
+        Close
+      </button>
     </div>
   </div>
 </div>

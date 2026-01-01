@@ -1,10 +1,16 @@
-<!-- src/app/features/leads/sales-add-lead/sales-add-lead.component.html -->
+<!-- src/app/sales-add-leads/sales-add-leads.component.html -->
 <div class="add-lead-container">
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-left">
-      <h1>{{ isEditMode ? 'Edit Lead' : 'Add New Lead' }}</h1>
-      <p>{{ isEditMode ? 'Update lead information' : 'Fill in the details to create a new lead' }}</p>
+      <button class="btn-back" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to My Leads</span>
+      </button>
+      <div class="header-title">
+        <h1>{{ isEditMode ? 'Edit Lead' : 'Add New Lead' }}</h1>
+        <p>{{ isEditMode ? 'Update lead information' : 'Fill in the details to create a new lead' }}</p>
+      </div>
     </div>
     <div class="header-actions">
       <button class="btn-cancel" (click)="cancel()">
@@ -53,16 +59,6 @@
           <span *ngIf="currentStep <= 3">3</span>
         </div>
         <div class="step-label">Requirements</div>
-      </div>
-
-      <div class="step-line" [ngClass]="{'completed': currentStep > 3}"></div>
-
-      <div class="step" [ngClass]="getStepClass(4)" (click)="goToStep(4)">
-        <div class="step-number">
-          <i *ngIf="currentStep > 4" class="fas fa-check"></i>
-          <span *ngIf="currentStep <= 4">4</span>
-        </div>
-        <div class="step-label">Notes</div>
       </div>
     </div>
   </div>
@@ -290,91 +286,6 @@
             placeholder="0"
             min="1"
           />
-        </div>
-
-        <div class="form-group full-width">
-          <label>Specifications / Additional Requirements</label>
-          <textarea 
-            [(ngModel)]="leadDraft.requirements.specifications"
-            placeholder="Enter any specific requirements, technical specifications, or special needs..."
-            rows="4"
-          ></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 4: Notes -->
-    <div *ngIf="currentStep === 4" class="form-step">
-      <h2 class="step-title">
-        <i class="fas fa-sticky-note"></i>
-        Notes & Attachments
-      </h2>
-
-      <div class="form-grid">
-        <div class="form-group full-width">
-          <label>Lead Description / Notes</label>
-          <textarea 
-            [(ngModel)]="leadDraft.notes.description"
-            placeholder="Add any additional notes, observations, or follow-up reminders..."
-            rows="5"
-          ></textarea>
-        </div>
-
-        <div class="form-group full-width">
-          <label>Tags</label>
-          <div class="tags-input-container">
-            <div class="tags-display">
-              <span 
-                *ngFor="let tag of leadDraft.notes.tags" 
-                class="tag"
-              >
-                {{ tag }}
-                <i class="fas fa-times" (click)="removeTag(tag)"></i>
-              </span>
-            </div>
-            <div class="tag-input-row">
-              <input 
-                type="text" 
-                [(ngModel)]="currentTag"
-                placeholder="Add tags (e.g. hot-lead, follow-up)"
-                (keyup.enter)="addTag()"
-              />
-              <button type="button" class="btn-add-tag" (click)="addTag()">
-                <i class="fas fa-plus"></i> Add
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group full-width">
-          <label>Attachments</label>
-          <div class="file-upload-container">
-            <input 
-              type="file" 
-              id="fileInput" 
-              multiple 
-              (change)="onFileSelect($event)"
-              style="display: none;"
-            />
-            <label for="fileInput" class="file-upload-label">
-              <i class="fas fa-cloud-upload-alt"></i>
-              <span>Click to upload files or drag and drop</span>
-              <small>PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 5MB each)</small>
-            </label>
-            
-            <div *ngIf="leadDraft.notes.attachments.length > 0" class="attachments-list">
-              <div 
-                *ngFor="let file of leadDraft.notes.attachments; let i = index" 
-                class="attachment-item"
-              >
-                <i class="fas fa-file"></i>
-                <span>{{ file.name }}</span>
-                <button type="button" (click)="removeAttachment(i)">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

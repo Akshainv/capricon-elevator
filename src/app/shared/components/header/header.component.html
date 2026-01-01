@@ -1,9 +1,6 @@
-<!-- src/app/shared/components/header/header.component.html -->
 <header class="header">
   <div class="header-left">
-    <button class="menu-toggle">
-      <i class="fas fa-bars"></i>
-    </button>
+    <!-- Removed: menu-toggle button with 3-lines icon -->
     <div class="search-box">
       <i class="fas fa-search search-icon"></i>
       <input type="text" placeholder="Search leads, deals, customers...">
@@ -11,12 +8,7 @@
   </div>
   
   <div class="header-right">
-    <!-- Quick Actions -->
-    <button class="header-btn" title="Add New">
-      <i class="fas fa-plus"></i>
-    </button>
-
-    <!-- 🌓 THEME TOGGLE BUTTON -->
+    <!-- 🌓 THEME TOGGLE BUTTON (Kept unchanged) -->
     <button 
       class="header-btn theme-toggle" 
       (click)="toggleTheme()"
@@ -26,77 +18,12 @@
       <i class="fas" [ngClass]="getThemeIcon()"></i>
     </button>
     
-    <!-- Notifications -->
-    <div class="header-dropdown">
-      <button class="header-btn notification-btn" (click)="toggleNotifications()">
-        <i class="fas fa-bell"></i>
-        <span class="badge">3</span>
-      </button>
-      
-      <div class="dropdown-menu" [class.show]="showNotifications">
-        <div class="dropdown-header">
-          <h4>Notifications</h4>
-          <span class="badge-count">3 new</span>
-        </div>
-        <div class="dropdown-body">
-          <div *ngFor="let notification of notifications" class="notification-item">
-            <div class="notification-icon" [class]="notification.type">
-              <i class="fas {{ notification.icon }}"></i>
-            </div>
-            <div class="notification-content">
-              <p class="notification-text">{{ notification.text }}</p>
-              <span class="notification-time">{{ notification.time }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="dropdown-footer">
-          <a href="#">View all notifications</a>
-        </div>
+    <!-- STATIC ADMIN DISPLAY (Kept unchanged) -->
+    <div class="header-btn profile-btn static-profile">
+      <div class="profile-avatar">
+        <i class="fas fa-user"></i>
       </div>
-    </div>
-    
-    <!-- User Profile -->
-    <div class="header-dropdown">
-      <button class="header-btn profile-btn" (click)="toggleProfile()">
-        <div class="profile-avatar">
-          <i class="fas fa-user"></i>
-        </div>
-        <span class="profile-name">John Doe</span>
-        <i class="fas fa-chevron-down"></i>
-      </button>
-      
-      <div class="dropdown-menu profile-menu" [class.show]="showProfile">
-        <div class="profile-info">
-          <div class="profile-avatar-large">
-            <i class="fas fa-user"></i>
-          </div>
-          <h4>John Doe</h4>
-          <p>john&#64;inspitetech.com</p>
-          <span class="role-badge">Admin</span>
-        </div>
-        <div class="dropdown-divider"></div>
-        <div class="dropdown-body">
-          <a (click)="navigateTo('/profile')" class="dropdown-item">
-            <i class="fas fa-user"></i>
-            <span>My Profile</span>
-          </a>
-          <a (click)="navigateTo('/settings')" class="dropdown-item">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-          </a>
-          <a (click)="navigateTo('/help')" class="dropdown-item">
-            <i class="fas fa-question-circle"></i>
-            <span>Help</span>
-          </a>
-        </div>
-        <div class="dropdown-divider"></div>
-        <div class="dropdown-footer">
-          <a (click)="navigateTo('/login')" class="logout-link">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
-          </a>
-        </div>
-      </div>
+      <span class="profile-name">Admin</span>
     </div>
   </div>
 </header>

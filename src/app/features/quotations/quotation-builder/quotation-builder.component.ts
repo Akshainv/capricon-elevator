@@ -11,6 +11,15 @@ interface ElevatorType {
   description: string;
 }
 
+interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  address: string;
+}
+
 @Component({
   selector: 'app-quotation-builder',
   standalone: true,
@@ -24,32 +33,76 @@ export class QuotationBuilderComponent implements OnInit {
   isEditMode: boolean = false;
   quotationId: string | null = null;
 
-elevatorTypes: ElevatorType[] = [
-  {
-    id: 'home',
-    name: 'Home Lift',
-    icon: '🏠',
-    description: 'Compact elevator for private homes'
-  },
-  {
-    id: 'commercial',
-    name: 'Commercial Elevator',
-    icon: '🏬',
-    description: 'High-traffic elevators for commercial spaces'
-  },
-  {
-    id: 'shaft-with',
-    name: 'Elevator with Shaft',
-    icon: '🔲',
-    description: 'Traditional elevator requiring shaft construction'
-  },
-  {
-    id: 'shaft-without',
-    name: 'Shaftless Elevator',
-    icon: '⬜',
-    description: 'Modern elevator without traditional shaft requirements'
-  }
-];
+  // Mock leads data - Replace with actual service call
+  leads: Lead[] = [
+    {
+      id: '1',
+      name: 'John Smith',
+      email: 'john.smith@example.com',
+      phone: '+91 9876543210',
+      company: 'ABC Corporation',
+      address: '123 Business Park, Kochi, Kerala, 682001'
+    },
+    {
+      id: '2',
+      name: 'Sarah Johnson',
+      email: 'sarah.j@techcorp.com',
+      phone: '+91 9988776655',
+      company: 'Tech Corp India',
+      address: '456 IT Plaza, Bangalore, Karnataka, 560001'
+    },
+    {
+      id: '3',
+      name: 'Rajesh Kumar',
+      email: 'rajesh.k@builders.in',
+      phone: '+91 9123456789',
+      company: 'Kumar Builders & Developers',
+      address: '789 Construction Avenue, Mumbai, Maharashtra, 400001'
+    },
+    {
+      id: '4',
+      name: 'Priya Sharma',
+      email: 'priya.sharma@realestate.com',
+      phone: '+91 9845612378',
+      company: 'Sharma Real Estate',
+      address: '321 Property Lane, Delhi, 110001'
+    },
+    {
+      id: '5',
+      name: 'Michael Chen',
+      email: 'michael.chen@global.com',
+      phone: '+91 9765432109',
+      company: 'Global Enterprises',
+      address: '567 Trade Center, Chennai, Tamil Nadu, 600001'
+    }
+  ];
+
+  elevatorTypes: ElevatorType[] = [
+    {
+      id: 'home',
+      name: 'Home Lift',
+      icon: '🏠',
+      description: 'Compact elevator for private homes'
+    },
+    {
+      id: 'commercial',
+      name: 'Commercial Elevator',
+      icon: '🏬',
+      description: 'High-traffic elevators for commercial spaces'
+    },
+    {
+      id: 'shaft-with',
+      name: 'Elevator with Shaft',
+      icon: '🔲',
+      description: 'Traditional elevator requiring shaft construction'
+    },
+    {
+      id: 'shaft-without',
+      name: 'Shaftless Elevator',
+      icon: '⬜',
+      description: 'Modern elevator without traditional shaft requirements'
+    }
+  ];
 
   speedOptions = [
     { value: '1.0', label: '1.0 m/s' },
@@ -92,6 +145,12 @@ elevatorTypes: ElevatorType[] = [
   sgst: number = 0;
   totalAmount: number = 0;
 
+  // Get today's date in YYYY-MM-DD format
+  today: string = new Date().toISOString().split('T')[0];
+  
+  // Get default valid until date (30 days from today)
+  defaultValidUntil: string = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -111,6 +170,13 @@ elevatorTypes: ElevatorType[] = [
 
   initForm(): void {
     this.quotationForm = this.fb.group({
+      // Lead Selection
+      selectedLeadId: [''],
+      
+      // Quote Dates
+      quoteDate: [this.today, Validators.required],
+      validUntil: [this.defaultValidUntil, Validators.required],
+
       // Step 1: Customer Details
       customerName: ['', Validators.required],
       customerEmail: ['', [Validators.required, Validators.email]],
@@ -135,15 +201,51 @@ elevatorTypes: ElevatorType[] = [
       notes: ['']
     });
 
+    // Watch for lead selection changes
+    this.quotationForm.get('selectedLeadId')?.valueChanges.subscribe(leadId => {
+      this.onLeadSelected(leadId);
+    });
+
     // Watch for changes to recalculate pricing
     this.quotationForm.valueChanges.subscribe(() => {
       this.calculatePricing();
     });
   }
 
+  onLeadSelected(leadId: string): void {
+    if (!leadId) {
+      // Clear customer fields if no lead selected
+      this.quotationForm.patchValue({
+        customerName: '',
+        customerEmail: '',
+        customerPhone: '',
+        customerCompany: '',
+        customerAddress: ''
+      });
+      return;
+    }
+
+    // Find the selected lead
+    const selectedLead = this.leads.find(lead => lead.id === leadId);
+    
+    if (selectedLead) {
+      // Autofill customer information from lead
+      this.quotationForm.patchValue({
+        customerName: selectedLead.name,
+        customerEmail: selectedLead.email,
+        customerPhone: selectedLead.phone,
+        customerCompany: selectedLead.company,
+        customerAddress: selectedLead.address
+      });
+    }
+  }
+
   loadQuotationData(id: string): void {
     // Simulate loading data - replace with actual service call
     const mockData = {
+      selectedLeadId: '1',
+      quoteDate: '2024-12-20',
+      validUntil: '2025-01-20',
       customerName: 'John Smith',
       customerEmail: 'john@example.com',
       customerPhone: '+91 9876543210',
@@ -181,10 +283,10 @@ elevatorTypes: ElevatorType[] = [
     
     // Elevator type multiplier
     const typeMultipliers: { [key: string]: number } = {
-      'passenger': 1,
-      'goods': 1.5,
       'home': 0.8,
-      'hospital': 1.3
+      'commercial': 1.2,
+      'shaft-with': 1,
+      'shaft-without': 1.5
     };
     base *= typeMultipliers[formValues.elevatorType] || 1;
 
@@ -227,14 +329,23 @@ elevatorTypes: ElevatorType[] = [
 
   nextStep(): void {
     if (this.currentStep === 1) {
-      // Validate customer details
-      const customerFields = ['customerName', 'customerEmail', 'customerPhone'];
+      // Validate customer details and dates
+      const customerFields = ['quoteDate', 'validUntil', 'customerName', 'customerEmail', 'customerPhone'];
       const isValid = customerFields.every(field => 
         this.quotationForm.get(field)?.valid
       );
       
       if (!isValid) {
         this.markFieldsAsTouched(customerFields);
+        return;
+      }
+
+      // Validate that validUntil is after quoteDate
+      const quoteDate = new Date(this.quotationForm.get('quoteDate')?.value);
+      const validUntil = new Date(this.quotationForm.get('validUntil')?.value);
+      
+      if (validUntil <= quoteDate) {
+        alert('Valid Until date must be after Quote Date');
         return;
       }
     }
@@ -308,5 +419,15 @@ elevatorTypes: ElevatorType[] = [
   isFieldInvalid(fieldName: string): boolean {
     const field = this.quotationForm.get(fieldName);
     return !!(field && field.invalid && field.touched);
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric' 
+    });
   }
 }

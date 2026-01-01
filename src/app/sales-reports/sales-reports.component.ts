@@ -1,163 +1,228 @@
 // src/app/sales-reports/sales-reports.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import {
+  Chart,
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  PointElement,
+  LineController,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+import { ReportService } from '../services/report.service';
+import { AuthService } from '../services/auth.service';
+import { ProjectService } from '../services/project.service';
+import { DealService } from '../services/deal.service';
 
-interface ProductSales {
-  product: string;
-  quantity: number;
-  revenue: number;
-  percentage: number;
+Chart.register(
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  PointElement,
+  LineController,
+  Title,
+  Tooltip,
+  Legend
+);
+
+interface ReportStat {
+  label: string;
+  value: string | number;
+  icon: string;
   color: string;
-}
-
-interface SourceAnalysis {
-  source: string;
-  leads: number;
-  converted: number;
-  conversionRate: number;
-  revenue: number;
-  color: string;
-}
-
-interface PeriodComparison {
-  period: string;
-  revenue: number;
-  deals: number;
-  leads: number;
+  subtitle: string;
 }
 
 @Component({
   selector: 'app-sales-reports',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, BaseChartDirective],
   templateUrl: './sales-reports.component.html',
   styleUrls: ['./sales-reports.component.css']
 })
 export class SalesReportsComponent implements OnInit {
-  selectedPeriod: string = 'month';
-  comparisonPeriod: string = 'last-month';
+  @ViewChild('revenueChart') revenueChart?: BaseChartDirective;
+
+  loading: boolean = false;
+  currentUserId: string = '';
+  currentUserName: string = '';
   
-  // Product-wise Sales
-  productSales: ProductSales[] = [
-    { product: 'Passenger Elevators', quantity: 12, revenue: 6500000, percentage: 58, color: '#3b82f6' },
-    { product: 'Goods Elevators', quantity: 8, revenue: 2800000, percentage: 25, color: '#22c55e' },
-    { product: 'Home Lifts', quantity: 6, revenue: 1200000, percentage: 11, color: '#f59e0b' },
-    { product: 'Hospital Lifts', quantity: 3, revenue: 700000, percentage: 6, color: '#a855f7' }
-  ];
+  stats: ReportStat[] = [];
+  
+  public revenueChartData: ChartData<'line'> = {
+    labels: [],
+    datasets: [{
+      data: [],
+      label: 'My Monthly Revenue (₹L)',
+      fill: true,
+      tension: 0.4,
+      borderColor: '#d4b347',
+      backgroundColor: 'rgba(212, 179, 71, 0.1)',
+      pointBackgroundColor: '#d4b347',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: '#d4b347',
+      pointRadius: 5,
+      pointHoverRadius: 7,
+    }]
+  };
 
-  // Source Analysis
-  sourceAnalysis: SourceAnalysis[] = [
-    { source: 'Website', leads: 98, converted: 42, conversionRate: 43, revenue: 4200000, color: '#3b82f6' },
-    { source: 'Walk-in', leads: 74, converted: 35, conversionRate: 47, revenue: 3800000, color: '#22c55e' },
-    { source: 'Reference', leads: 49, converted: 28, conversionRate: 57, revenue: 2500000, color: '#f59e0b' },
-    { source: 'Phone Call', leads: 27, converted: 15, conversionRate: 56, revenue: 1200000, color: '#a855f7' }
-  ];
+  public revenueChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+        labels: {
+          color: 'rgba(255, 255, 255, 0.7)',
+          font: { size: 12, family: "'Inter', sans-serif" }
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#d4b347',
+        bodyColor: '#fff',
+        borderColor: '#d4b347',
+        borderWidth: 1
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(212, 179, 71, 0.1)' },
+        ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+      },
+      y: {
+        grid: { color: 'rgba(212, 179, 71, 0.1)' },
+        ticks: { color: 'rgba(255, 255, 255, 0.6)' },
+        beginAtZero: true
+      }
+    }
+  };
 
-  // Time Period Comparison
-  periodComparison: PeriodComparison[] = [
-    { period: 'This Month', revenue: 4500000, deals: 18, leads: 62 },
-    { period: 'Last Month', revenue: 3900000, deals: 14, leads: 58 },
-    { period: 'Same Month Last Year', revenue: 3200000, deals: 12, leads: 45 }
-  ];
+  public revenueChartType: ChartType = 'line';
 
-  // Monthly Sales Trend
-  monthlyTrend = [
-    { month: 'Jul', revenue: 3200000, deals: 12, avgDeal: 266667 },
-    { month: 'Aug', revenue: 3800000, deals: 15, avgDeal: 253333 },
-    { month: 'Sep', revenue: 4200000, deals: 16, avgDeal: 262500 },
-    { month: 'Oct', revenue: 3900000, deals: 14, avgDeal: 278571 },
-    { month: 'Nov', revenue: 4500000, deals: 18, avgDeal: 250000 },
-    { month: 'Dec', revenue: 4500000, deals: 18, avgDeal: 250000 }
-  ];
-
-  // Regional Performance
-  regionalPerformance = [
-    { region: 'Kochi', revenue: 5200000, deals: 22, share: 46 },
-    { region: 'Thrissur', revenue: 3100000, deals: 13, share: 27 },
-    { region: 'Calicut', revenue: 2200000, deals: 9, share: 19 },
-    { region: 'Others', revenue: 900000, deals: 4, share: 8 }
-  ];
-
-  constructor() {}
+  constructor(
+    private reportService: ReportService,
+    private authService: AuthService,
+    private projectService: ProjectService,
+    private dealService: DealService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.loadReportsData();
+    const user = this.authService.currentUserValue;
+    if (user) {
+      this.currentUserId = user.userId || '';
+      this.currentUserName = user.fullName || user.email || 'Sales User';
+      this.loadReportsData();
+    }
   }
 
   loadReportsData(): void {
-    console.log('Loading sales reports for period:', this.selectedPeriod);
+    if (!this.currentUserId) {
+      console.error('No user ID found');
+      return;
+    }
+
+    this.loading = true;
+    
+    Promise.all([
+      this.reportService.getSalesReports(this.currentUserId).toPromise(),
+      this.projectService.getProjectsBySalesExecutive(this.currentUserId).toPromise(),
+      this.dealService.getDealsBySalesExecutive(this.currentUserId).toPromise()
+    ]).then(([reportData, projects, deals]) => {
+      this.processSalesReportData(reportData, projects || [], deals || []);
+      this.loading = false;
+    }).catch(error => {
+      console.error('❌ Error loading sales reports:', error);
+      this.loading = false;
+    });
   }
 
-  changePeriod(period: string): void {
-    this.selectedPeriod = period;
-    this.loadReportsData();
+  private processSalesReportData(data: any, projects: any[], deals: any[]): void {
+    const completedProjects = projects.filter(p => p.projectStatus === 'completed');
+    const totalRevenue = completedProjects.reduce((sum, p) => sum + p.projectValue, 0);
+
+    this.stats = [
+      {
+        label: 'My Total Revenue',
+        value: this.formatCurrency(totalRevenue),
+        icon: 'fa-rupee-sign',
+        color: '#22c55e',
+        subtitle: `${completedProjects.length} projects completed`
+      },
+      {
+        label: 'My Total Projects',
+        value: projects.length,
+        icon: 'fa-project-diagram',
+        color: '#3b82f6',
+        subtitle: `${completedProjects.length} completed`
+      }
+    ];
+
+    this.processRevenueTrend(completedProjects);
+
+    setTimeout(() => {
+      this.revenueChart?.update();
+    }, 100);
   }
 
-  changeComparison(period: string): void {
-    this.comparisonPeriod = period;
-    this.loadReportsData();
+  private processRevenueTrend(completedProjects: any[]): void {
+    const months = this.getLast6Months();
+    const revenueByMonth = months.map(month => {
+      const monthProjects = completedProjects.filter(p => {
+        const completeDate = new Date(p.actualCompletionDate || p.updatedAt);
+        return completeDate.getMonth() === month.index && 
+               completeDate.getFullYear() === month.year;
+      });
+      return monthProjects.reduce((sum, p) => sum + p.projectValue, 0);
+    });
+
+    this.revenueChartData = {
+      labels: months.map(m => m.label),
+      datasets: [{
+        data: revenueByMonth.map(r => parseFloat((r / 100000).toFixed(1))),
+        label: 'My Monthly Revenue (₹L)',
+        fill: true,
+        tension: 0.4,
+        borderColor: '#d4b347',
+        backgroundColor: 'rgba(212, 179, 71, 0.1)',
+        pointBackgroundColor: '#d4b347',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: '#d4b347',
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }]
+    };
   }
 
-  exportToExcel(): void {
-    alert('Exporting to Excel...');
-  }
-
-  exportToPDF(): void {
-    alert('Exporting to PDF...');
+  private getLast6Months(): { label: string; index: number; year: number }[] {
+    const months = [];
+    const now = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({
+        label: date.toLocaleString('en-US', { month: 'short' }),
+        index: date.getMonth(),
+        year: date.getFullYear()
+      });
+    }
+    
+    return months;
   }
 
   formatCurrency(amount: number): string {
-    return `₹${(amount / 100000).toFixed(1)}L`;
-  }
-
-  getTotalRevenue(): number {
-    return this.productSales.reduce((sum, item) => sum + item.revenue, 0);
-  }
-
-  getTotalQuantity(): number {
-    return this.productSales.reduce((sum, item) => sum + item.quantity, 0);
-  }
-
-  getTotalLeads(): number {
-    return this.sourceAnalysis.reduce((sum, item) => sum + item.leads, 0);
-  }
-
-  getTotalConversions(): number {
-    return this.sourceAnalysis.reduce((sum, item) => sum + item.converted, 0);
-  }
-
-  getOverallConversionRate(): number {
-    const total = this.getTotalLeads();
-    const converted = this.getTotalConversions();
-    return total === 0 ? 0 : Math.round((converted / total) * 100);
-  }
-
-  getMaxRevenue(): number {
-    return Math.max(...this.monthlyTrend.map(m => m.revenue));
-  }
-
-  getBarHeight(value: number): number {
-    const max = this.getMaxRevenue();
-    return max === 0 ? 0 : (value / max) * 100;
-  }
-
-  // FIXED: Safe growth calculation with zero check
-  getGrowthPercentage(current: number, previous: number): number {
-    if (!previous || previous === 0) return 0;
-    return ((current - previous) / previous) * 100;
-  }
-
-  // NEW: Returns absolute value for display (e.g., "15%" instead of "-15%")
-  getAbsoluteGrowthPercentage(current: number, previous: number): number {
-    return Math.abs(this.getGrowthPercentage(current, previous));
-  }
-
-  // NEW: Returns rounded value for consistency
-  getRoundedGrowthPercentage(current: number, previous: number): number {
-    return Math.round(this.getGrowthPercentage(current, previous));
-  }
-
-  getGrowthColor(percentage: number): string {
-    return percentage >= 0 ? '#22c55e' : '#ef4444';
+    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(2)}Cr`;
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+    return `₹${amount.toLocaleString('en-IN')}`;
   }
 }

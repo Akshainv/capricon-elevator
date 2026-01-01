@@ -1,4 +1,4 @@
-// src/app/features/quotations/quotation-list/quotation-list.component.ts
+// src/app/features/quotations/quotation-list/quotation-list.component.ts (Updated with pagination)
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -104,18 +104,21 @@ export class QuotationListComponent implements OnInit {
   ];
 
   filteredQuotations: Quotation[] = [];
+  paginatedQuotations: Quotation[] = [];
+
+  // Pagination
+  currentPage: number = 1;
+  pageSize: number = 7;
+  totalPages: number = 0;
 
   constructor(private router: Router) {}
 
   ngOnInit(): void {
     this.filteredQuotations = [...this.quotations];
+    this.updatePagination();
   }
 
-  // Getter methods for stats
-  get draftCount(): number {
-    return this.quotations.filter(q => q.status === 'draft').length;
-  }
-
+  // Getter methods for stats - REMOVED draftCount
   get sentCount(): number {
     return this.quotations.filter(q => q.status === 'sent').length;
   }
@@ -139,45 +142,46 @@ export class QuotationListComponent implements OnInit {
 
       return matchesSearch && matchesStatus;
     });
+
+    this.currentPage = 1;
+    this.updatePagination();
   }
 
-  createQuotation(): void {
-    this.router.navigate(['/quotations/create']);
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredQuotations.length / this.pageSize);
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages;
+    } else if (this.totalPages === 0) {
+      this.currentPage = 1;
+    }
+
+    const start = (this.currentPage - 1) * this.pageSize;
+    const end = start + this.pageSize;
+    this.paginatedQuotations = this.filteredQuotations.slice(start, end);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
   }
 
   viewQuotation(id: string): void {
     this.router.navigate(['/quotations', id]);
   }
 
-  editQuotation(id: string): void {
-    this.router.navigate(['/quotations/edit', id]);
-  }
-
-  downloadPDF(quote: Quotation): void {
-    console.log('Downloading PDF for:', quote.quoteNumber);
-    alert(`Downloading ${quote.quoteNumber}.pdf`);
-  }
-
-  sendEmail(quote: Quotation): void {
-    console.log('Sending email for:', quote.quoteNumber);
-    alert(`Email sent to ${quote.email}`);
-  }
-
   deleteQuotation(id: string): void {
     if (confirm('Are you sure you want to delete this quotation?')) {
       this.quotations = this.quotations.filter(q => q.id !== id);
       this.filterQuotations();
-    }
-  }
-
-  approveQuotation(quote: Quotation): void {
-    console.log('Approving quotation:', quote.quoteNumber);
-    // Update status to accepted
-    const quotation = this.quotations.find(q => q.id === quote.id);
-    if (quotation && confirm(`Approve quotation ${quote.quoteNumber}?`)) {
-      quotation.status = 'accepted';
-      this.filterQuotations();
-      alert(`Quotation ${quote.quoteNumber} has been approved`);
     }
   }
 

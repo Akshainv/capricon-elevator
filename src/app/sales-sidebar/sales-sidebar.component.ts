@@ -1,8 +1,9 @@
-// src/app/shared/components/sales-sidebar/sales-sidebar.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ThemeService } from '../core/services/theme.service';
+import { AuthService } from '../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 import { Subject, takeUntil } from 'rxjs';
 
 interface MenuItem {
@@ -26,6 +27,8 @@ interface MenuSection {
 })
 export class SalesSidebarComponent implements OnInit, OnDestroy {
   currentLogo: string = 'assets/images/logo-light.png';
+  collapsed: boolean = false;
+  private resizeHandler = () => this.handleResize();
   private destroy$ = new Subject<void>();
   
   // Sales user info
@@ -43,59 +46,51 @@ export class SalesSidebarComponent implements OnInit, OnDestroy {
       title: 'Lead Management',
       items: [
         { icon: 'fa-users', label: 'My Leads', route: '/leads', badge: 84 },
-        { icon: 'fa-user-plus', label: 'Add New Lead', route: '/leads/add' },
         { icon: 'fa-file-import', label: 'Import Leads', route: '/leads/import' }
       ]
     },
-    {
-      title: 'Communication',
-      items: [
-        { icon: 'fa-clipboard-list', label: 'Activity Log', route: '/activities' },
-        { icon: 'fa-tasks', label: 'My Tasks', route: '/tasks', badge: 17 },
-        { icon: 'fa-calendar-alt', label: 'Calendar', route: '/calendar' }
-      ]
-    },
+    // Removed: Communication section entirely
     {
       title: 'Quotations',
       items: [
-        { icon: 'fa-file-invoice', label: 'My Quotations', route: '/quotations', badge: 23 },
-        { icon: 'fa-edit', label: 'Create Quotation', route: '/quotations/create' }
+        { icon: 'fa-file-invoice', label: 'My Quotations', route: '/quotations', badge: 23 }
       ]
     },
     {
-      title: 'Deals & Projects',
+      title: 'Project',  // Changed from 'Deals & Projects'
       items: [
-        { icon: 'fa-briefcase', label: 'My Deals', route: '/deals', badge: 31 },
-        { icon: 'fa-project-diagram', label: 'Projects', route: '/projects' }
+        // Removed: My Deals
+        { icon: 'fa-project-diagram', label: 'My Projects', route: '/projects' }  // Renamed from 'Projects'
       ]
     },
     {
       title: 'Reports',
       items: [
-        { icon: 'fa-chart-bar', label: 'My Performance', route: '/reports/performance' },
+        // Removed: My Performance
         { icon: 'fa-chart-pie', label: 'Sales Reports', route: '/reports' }
       ]
     },
     {
       title: 'Settings',
       items: [
-        { icon: 'fa-user-circle', label: 'My Profile', route: '/profile' },
-        { icon: 'fa-cog', label: 'Settings', route: '/settings' }
+        { icon: 'fa-user-circle', label: 'My Profile', route: '/profile' }
+        // Removed: Settings menu item
       ]
     }
   ];
 
   constructor(
     public themeService: ThemeService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService,
+    private toastr: ToastrService
   ) {
-    console.log('✅ Sales Sidebar: Constructor called');
+    console.log('Sales Sidebar: Constructor called');
   }
 
   ngOnInit(): void {
-    console.log('✅ Sales Sidebar: ngOnInit called');
+    console.log('Sales Sidebar: ngOnInit called');
     
-    // Load user info from localStorage or service
     const storedUser = localStorage.getItem('sales_user');
     if (storedUser) {
       const user = JSON.parse(storedUser);
@@ -106,7 +101,7 @@ export class SalesSidebarComponent implements OnInit, OnDestroy {
     this.themeService.theme$
       .pipe(takeUntil(this.destroy$))
       .subscribe((theme: 'dark' | 'light') => {
-        console.log('🎨 Sales Sidebar - Theme changed to:', theme);
+        console.log('Sales Sidebar - Theme changed to:', theme);
         
         if (theme === 'dark') {
           this.currentLogo = 'assets/images/logo1.png';
@@ -116,19 +111,31 @@ export class SalesSidebarComponent implements OnInit, OnDestroy {
           console.log('   → Using capricorn.png');
         }
       });
+    this.handleResize();
+    window.addEventListener('resize', this.resizeHandler);
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    window.removeEventListener('resize', this.resizeHandler);
   }
 
   logout(): void {
-    if (confirm('Are you sure you want to logout?')) {
-      console.log('🚪 Sales Executive logging out...');
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('sales_user');
-      this.router.navigate(['/login']);
-    }
+    this.authService.logout();
+    this.toastr.success('Logged out successfully', 'Logged out');
+  }
+
+  toggleCollapse(): void {
+    this.collapsed = !this.collapsed;
+    const el = document.querySelector('.sidebar');
+    if (el) el.classList.toggle('collapsed', this.collapsed);
+  }
+
+  private handleResize(): void {
+    const shouldCollapse = window.innerWidth <= 768;
+    this.collapsed = shouldCollapse;
+    const el = document.querySelector('.sidebar');
+    if (el) el.classList.toggle('collapsed', shouldCollapse);
   }
 }

@@ -1,19 +1,22 @@
-// src/app/features/employee/employee-approvals/employee-approvals.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { EmployeeService } from '../../employee/employee.service';
+import { AuthService } from '../services/auth.service';
+
+declare var Toastify: any;
 
 interface EmployeeRegistration {
-  id: string;
-  name: string;
+  _id: string;
+  employeeId: string;
+  fullName: string;
   email: string;
   phoneNumber: string;
-  photo: string | null;
-  status: 'pending' | 'approved' | 'rejected';
-  submittedDate: Date;
-  reviewedDate?: Date;
-  reviewedBy?: string;
+  photo?: string;
+  status: 'pending' | 'accept' | 'reject';
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 @Component({
@@ -24,126 +27,176 @@ interface EmployeeRegistration {
   styleUrls: ['./employee-approvals.component.css']
 })
 export class EmployeeApprovalsComponent implements OnInit {
-  // Filter options
-  filterStatus: string = 'all';
+  filterStatus: string = 'pending';
   searchQuery: string = '';
   
-  // Statistics
   totalRegistrations: number = 0;
   pendingCount: number = 0;
   approvedCount: number = 0;
   rejectedCount: number = 0;
 
-  // Mock data - In real app, this would come from API
-  allEmployees: EmployeeRegistration[] = [
-    {
-      id: 'EMP-2024-001',
-      name: 'Rahul Kumar',
-      email: 'rahul.kumar@example.com',
-      phoneNumber: '+91 9876543210',
-      photo: 'assets/images/avatars/user1.jpg',
-      status: 'pending',
-      submittedDate: new Date('2024-12-05T10:30:00')
-    },
-    {
-      id: 'EMP-2024-002',
-      name: 'Priya Sharma',
-      email: 'priya.sharma@example.com',
-      phoneNumber: '+91 9876543211',
-      photo: 'assets/images/avatars/user2.jpg',
-      status: 'pending',
-      submittedDate: new Date('2024-12-06T14:20:00')
-    },
-    {
-      id: 'EMP-2024-003',
-      name: 'Amit Patel',
-      email: 'amit.patel@example.com',
-      phoneNumber: '+91 9876543212',
-      photo: null,
-      status: 'approved',
-      submittedDate: new Date('2024-12-01T09:15:00'),
-      reviewedDate: new Date('2024-12-02T11:00:00'),
-      reviewedBy: 'Admin - Asin Iqbal'
-    },
-    {
-      id: 'EMP-2024-004',
-      name: 'Sneha Reddy',
-      email: 'sneha.reddy@example.com',
-      phoneNumber: '+91 9876543213',
-      photo: 'assets/images/avatars/user3.jpg',
-      status: 'approved',
-      submittedDate: new Date('2024-11-28T16:45:00'),
-      reviewedDate: new Date('2024-11-29T10:30:00'),
-      reviewedBy: 'Admin - Asin Iqbal'
-    },
-    {
-      id: 'EMP-2024-005',
-      name: 'Vijay Singh',
-      email: 'vijay.singh@example.com',
-      phoneNumber: '+91 9876543214',
-      photo: 'assets/images/avatars/user4.jpg',
-      status: 'rejected',
-      submittedDate: new Date('2024-11-25T13:20:00'),
-      reviewedDate: new Date('2024-11-26T09:00:00'),
-      reviewedBy: 'Admin - Asin Iqbal'
-    },
-    {
-      id: 'EMP-2024-006',
-      name: 'Anjali Mehta',
-      email: 'anjali.mehta@example.com',
-      phoneNumber: '+91 9876543215',
-      photo: null,
-      status: 'pending',
-      submittedDate: new Date('2024-12-07T08:10:00')
-    }
-  ];
-
+  allEmployees: EmployeeRegistration[] = [];
   filteredEmployees: EmployeeRegistration[] = [];
   selectedEmployee: EmployeeRegistration | null = null;
+  
+  currentPage: number = 1;
+  itemsPerPage: number = 7;
+  totalPages: number = 0;
+  paginatedEmployees: EmployeeRegistration[] = [];
+  
   showDetailModal: boolean = false;
+  isLoading: boolean = false;
 
-  constructor(private router: Router) {}
+  currentAdminName: string = '';
+
+  Math = Math;
+
+  constructor(
+    private router: Router,
+    private employeeService: EmployeeService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    const currentUser = this.authService.currentUserValue;
+    this.currentAdminName = currentUser?.email || 'Admin';
+    
     this.loadEmployees();
-    this.calculateStatistics();
   }
 
   loadEmployees(): void {
-    // In real app, this would be an API call
-    this.applyFilters();
+    this.isLoading = true;
+
+    this.employeeService.getAllEmployees().subscribe({
+      next: (employees: any[]) => {
+        console.log('Employees loaded:', employees);
+        this.allEmployees = employees.map(emp => ({
+          _id: emp._id,
+          employeeId: emp.employeeId,
+          fullName: emp.fullName,
+          email: emp.email,
+          phoneNumber: emp.phoneNumber,
+          photo: emp.photo,
+          status: emp.status,
+          createdAt: emp.createdAt,
+          updatedAt: emp.updatedAt
+        }));
+        
+        this.calculateStatistics();
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading employees:', error);
+        this.isLoading = false;
+        this.showToast('Failed to load employee registrations. Please try again.', 'error');
+        
+        if (error.status === 401) {
+          this.showToast('Session expired. Please login again.', 'warning');
+          setTimeout(() => this.authService.logout(), 2000);
+        }
+      }
+    });
   }
 
   calculateStatistics(): void {
     this.totalRegistrations = this.allEmployees.length;
     this.pendingCount = this.allEmployees.filter(e => e.status === 'pending').length;
-    this.approvedCount = this.allEmployees.filter(e => e.status === 'approved').length;
-    this.rejectedCount = this.allEmployees.filter(e => e.status === 'rejected').length;
+    this.approvedCount = this.allEmployees.filter(e => e.status === 'accept').length;
+    this.rejectedCount = this.allEmployees.filter(e => e.status === 'reject').length;
   }
 
   applyFilters(): void {
     let filtered = [...this.allEmployees];
 
-    // Apply status filter
-    if (this.filterStatus !== 'all') {
-      filtered = filtered.filter(emp => emp.status === this.filterStatus);
-    }
+    const statusMap: { [key: string]: string } = {
+      'pending': 'pending',
+      'approved': 'accept'
+    };
+    filtered = filtered.filter(emp => emp.status === statusMap[this.filterStatus]);
 
-    // Apply search filter
     if (this.searchQuery.trim()) {
       const query = this.searchQuery.toLowerCase().trim();
       filtered = filtered.filter(emp => 
-        emp.name.toLowerCase().includes(query) ||
+        emp.fullName.toLowerCase().includes(query) ||
         emp.email.toLowerCase().includes(query) ||
         emp.phoneNumber.includes(query) ||
-        emp.id.toLowerCase().includes(query)
+        emp.employeeId.toLowerCase().includes(query)
       );
     }
 
-    // Sort by submitted date (newest first)
-    filtered.sort((a, b) => b.submittedDate.getTime() - a.submittedDate.getTime());
+    filtered.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
 
     this.filteredEmployees = filtered;
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredEmployees.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedEmployees = this.filteredEmployees.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    
+    if (this.totalPages <= maxVisible) {
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (this.currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push(-1);
+        pages.push(this.totalPages);
+      } else if (this.currentPage >= this.totalPages - 2) {
+        pages.push(1);
+        pages.push(-1);
+        for (let i = this.totalPages - 3; i <= this.totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push(-1);
+        for (let i = this.currentPage - 1; i <= this.currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push(-1);
+        pages.push(this.totalPages);
+      }
+    }
+    
+    return pages;
   }
 
   onFilterChange(): void {
@@ -165,64 +218,149 @@ export class EmployeeApprovalsComponent implements OnInit {
   }
 
   approveEmployee(employee: EmployeeRegistration): void {
-    if (confirm(`Are you sure you want to approve ${employee.name}?`)) {
-      employee.status = 'approved';
-      employee.reviewedDate = new Date();
-      employee.reviewedBy = 'Admin - Asin Iqbal';
-      
-      this.calculateStatistics();
-      this.applyFilters();
-      
-      // Show success message
-      this.showNotification('Employee approved successfully!', 'success');
-      
-      // In real app, make API call here
-      console.log('Approved:', employee);
-    }
+    this.isLoading = true;
+
+    this.employeeService.approveEmployee(employee._id).subscribe({
+      next: (response: any) => {
+        console.log('Employee approved:', response);
+
+        const index = this.allEmployees.findIndex(e => e._id === employee._id);
+        if (index > -1) {
+          this.allEmployees[index].status = 'accept';
+          this.allEmployees[index].updatedAt = new Date();
+        }
+
+        this.calculateStatistics();
+        this.applyFilters();
+        this.isLoading = false;
+
+        this.showToast('Employee approved successfully!', 'success');
+      },
+      error: (error: any) => {
+        console.error('Error approving employee:', error);
+        this.isLoading = false;
+        this.showToast(error.error?.message || 'Failed to approve employee. Please try again.', 'error');
+      }
+    });
   }
 
   rejectEmployee(employee: EmployeeRegistration): void {
-    if (confirm(`Are you sure you want to reject ${employee.name}? This action cannot be undone.`)) {
-      employee.status = 'rejected';
-      employee.reviewedDate = new Date();
-      employee.reviewedBy = 'Admin - Asin Iqbal';
-      
-      this.calculateStatistics();
-      this.applyFilters();
-      
-      // Show warning message
-      this.showNotification('Employee registration rejected.', 'warning');
-      
-      // In real app, make API call here
-      console.log('Rejected:', employee);
-    }
+    this.isLoading = true;
+
+    this.employeeService.rejectEmployee(employee._id).subscribe({
+      next: (response: any) => {
+        console.log('Employee rejected:', response);
+
+        const index = this.allEmployees.findIndex(e => e._id === employee._id);
+        if (index > -1) {
+          this.allEmployees[index].status = 'reject';
+          this.allEmployees[index].updatedAt = new Date();
+        }
+
+        this.calculateStatistics();
+        this.applyFilters();
+        this.isLoading = false;
+
+        this.showToast('Employee registration rejected.', 'warning');
+      },
+      error: (error: any) => {
+        console.error('Error rejecting employee:', error);
+        this.isLoading = false;
+        this.showToast(error.error?.message || 'Failed to reject employee. Please try again.', 'error');
+      }
+    });
   }
 
   deleteEmployee(employee: EmployeeRegistration): void {
-    if (confirm(`Are you sure you want to permanently delete ${employee.name}? This action cannot be undone.`)) {
-      // Remove from array
-      const index = this.allEmployees.findIndex(e => e.id === employee.id);
-      if (index > -1) {
-        this.allEmployees.splice(index, 1);
+    if (typeof Toastify !== 'undefined') {
+      const toast = Toastify({
+        text: `Are you sure you want to permanently delete ${employee.fullName}? This action cannot be undone.`,
+        duration: -1,
+        close: true,
+        gravity: "top",
+        position: "center",
+        stopOnFocus: true,
+        style: {
+          background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+          borderRadius: "12px",
+          fontSize: "15px",
+          fontWeight: "500",
+          textAlign: "center",
+          maxWidth: "420px",
+          padding: "20px"
+        }
+      }).showToast();
+
+      // Wait a tick for toast to render, then inject buttons
+      setTimeout(() => {
+        const toastElement = document.querySelector('.toastify') as HTMLElement;
+        if (toastElement) {
+          const buttonsHTML = `
+            <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center;">
+              <button id="toast-confirm-delete" style="padding: 10px 24px; background: #ff5f6d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Yes, Delete Permanently
+              </button>
+              <button id="toast-cancel-delete" style="padding: 10px 24px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Cancel
+              </button>
+            </div>
+          `;
+          toastElement.insertAdjacentHTML('beforeend', buttonsHTML);
+
+          document.getElementById('toast-confirm-delete')?.addEventListener('click', () => {
+            toast.hideToast();  // Properly hide this specific toast
+            this.proceedDeleteEmployee(employee);
+          });
+
+          document.getElementById('toast-cancel-delete')?.addEventListener('click', () => {
+            toast.hideToast();  // Properly hide this specific toast
+            this.showToast('Delete cancelled', 'info');
+          });
+        }
+      }, 100);
+    } else {
+      if (confirm(`Are you sure you want to permanently delete ${employee.fullName}? This action cannot be undone.`)) {
+        this.proceedDeleteEmployee(employee);
       }
-      
-      this.calculateStatistics();
-      this.applyFilters();
-      this.closeDetailModal();
-      
-      // Show error message
-      this.showNotification('Employee record deleted permanently.', 'error');
-      
-      // In real app, make API call here
-      console.log('Deleted:', employee);
     }
+  }
+
+  private proceedDeleteEmployee(employee: EmployeeRegistration): void {
+    this.isLoading = true;
+
+    this.employeeService.deleteEmployee(employee._id).subscribe({
+      next: (response: any) => {
+        console.log('Employee deleted:', response);
+        
+        const index = this.allEmployees.findIndex(e => e._id === employee._id);
+        if (index > -1) {
+          this.allEmployees.splice(index, 1);
+        }
+        
+        this.calculateStatistics();
+        this.applyFilters();
+        this.closeDetailModal();
+        this.isLoading = false;
+        
+        this.showToast('Employee record deleted permanently.', 'success');
+      },
+      error: (error: any) => {
+        console.error('Error deleting employee:', error);
+        this.isLoading = false;
+        this.showToast(error.error?.message || 'Failed to delete employee. Please try again.', 'error');
+      }
+    });
+  }
+
+  refreshData(): void {
+    this.loadEmployees();
   }
 
   getStatusClass(status: string): string {
     const statusClasses: { [key: string]: string } = {
       'pending': 'status-pending',
-      'approved': 'status-approved',
-      'rejected': 'status-rejected'
+      'accept': 'status-approved',
+      'reject': 'status-rejected'
     };
     return statusClasses[status] || '';
   }
@@ -230,10 +368,19 @@ export class EmployeeApprovalsComponent implements OnInit {
   getStatusIcon(status: string): string {
     const statusIcons: { [key: string]: string } = {
       'pending': 'fa-clock',
-      'approved': 'fa-check-circle',
-      'rejected': 'fa-times-circle'
+      'accept': 'fa-check-circle',
+      'reject': 'fa-times-circle'
     };
     return statusIcons[status] || 'fa-question-circle';
+  }
+
+  getStatusDisplay(status: string): string {
+    const statusDisplay: { [key: string]: string } = {
+      'pending': 'Pending',
+      'accept': 'Approved',
+      'reject': 'Rejected'
+    };
+    return statusDisplay[status] || status;
   }
 
   getInitials(name: string): string {
@@ -245,9 +392,14 @@ export class EmployeeApprovalsComponent implements OnInit {
       .slice(0, 2);
   }
 
-  formatDate(date: Date): string {
+  formatDate(date?: Date | string): string {
+    if (!date) {
+      return 'N/A';
+    }
+    
     const now = new Date();
-    const diff = now.getTime() - new Date(date).getTime();
+    const targetDate = new Date(date);
+    const diff = now.getTime() - targetDate.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     
     if (days === 0) {
@@ -262,7 +414,7 @@ export class EmployeeApprovalsComponent implements OnInit {
     } else if (days < 7) {
       return `${days} days ago`;
     } else {
-      return new Date(date).toLocaleDateString('en-IN', {
+      return targetDate.toLocaleDateString('en-IN', {
         day: 'numeric',
         month: 'short',
         year: 'numeric'
@@ -270,14 +422,30 @@ export class EmployeeApprovalsComponent implements OnInit {
     }
   }
 
-  showNotification(message: string, type: 'success' | 'warning' | 'error'): void {
-    // Simple notification - in real app, use a proper notification service
-    alert(message);
-  }
+  showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') {
+    if (typeof Toastify !== 'undefined') {
+      const backgroundColor = 
+        type === 'success' ? 'linear-gradient(to right, #00b09b, #96c93d)' :
+        type === 'error' ? 'linear-gradient(to right, #ff5f6d, #ffc371)' :
+        type === 'warning' ? 'linear-gradient(to right, #f39c12, #e67e22)' :
+        'linear-gradient(to right, #667eea, #764ba2)';
 
-  exportToCSV(): void {
-    // Implement CSV export functionality
-    console.log('Exporting to CSV...');
-    alert('Export functionality will be implemented');
+      Toastify({
+        text: message,
+        duration: 4000,
+        close: true,
+        gravity: "top",
+        position: "right",
+        stopOnFocus: true,
+        style: {
+          background: backgroundColor,
+          borderRadius: "10px",
+          fontSize: "14px",
+          fontWeight: "500"
+        }
+      }).showToast();
+    } else {
+      alert(message);
+    }
   }
 }

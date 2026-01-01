@@ -1,3 +1,4 @@
+<!-- src/app/account-settings/account-settings.component.html -->
 <div class="settings-container">
   <!-- Page Header -->
   <div class="page-header">
@@ -14,29 +15,21 @@
     <div class="settings-sidebar">
       <nav class="settings-nav">
         <a 
-          class="nav-item" 
-          [class.active]="activeSection === 'general'"
+          class="nav-item active"
           (click)="selectSection('general')"
         >
           <i class="fas fa-cog"></i>
           <span>General Settings</span>
         </a>
-        <a 
-          class="nav-item" 
-          [class.active]="activeSection === 'security'"
-          (click)="selectSection('security')"
-        >
-          <i class="fas fa-shield-alt"></i>
-          <span>Security</span>
-        </a>
+        <!-- Security section removed from navigation -->
       </nav>
     </div>
 
     <!-- Settings Content -->
     <div class="settings-content">
       
-      <!-- General Settings -->
-      <div class="content-section" *ngIf="activeSection === 'general'">
+      <!-- General Settings (only section) -->
+      <div class="content-section">
         <div class="section-header">
           <h2>General Settings</h2>
           <p>Configure your company information and regional settings</p>
@@ -67,7 +60,7 @@
                   type="email" 
                   [(ngModel)]="settings.companyEmail" 
                   name="companyEmail"
-                  placeholder="company&#64;example.com"
+                  placeholder="company@example.com"
                 >
               </div>
             </div>
@@ -175,84 +168,6 @@
             </button>
             <button type="button" class="btn-cancel">
               Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Security -->
-      <div class="content-section" *ngIf="activeSection === 'security'">
-        <div class="section-header">
-          <h2>Security Settings</h2>
-          <p>Configure security and authentication settings</p>
-        </div>
-
-        <form class="settings-form">
-          <div class="security-grid">
-            <div class="security-card">
-              <i class="fas fa-mobile-alt"></i>
-              <h3>Two-Factor Authentication</h3>
-              <p>Add an extra layer of security</p>
-              <label class="toggle-switch">
-                <input 
-                  type="checkbox" 
-                  [(ngModel)]="security.twoFactorAuth"
-                  name="twoFactorAuth"
-                >
-                <span class="slider"></span>
-              </label>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <h3>Session & Password Policies</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>
-                  <i class="fas fa-clock"></i>
-                  Session Timeout (minutes)
-                </label>
-                <input 
-                  type="number" 
-                  [(ngModel)]="security.sessionTimeout" 
-                  name="sessionTimeout"
-                  placeholder="30"
-                >
-              </div>
-              <div class="form-group">
-                <label>
-                  <i class="fas fa-calendar-times"></i>
-                  Password Expiry (days)
-                </label>
-                <input 
-                  type="number" 
-                  [(ngModel)]="security.passwordExpiry" 
-                  name="passwordExpiry"
-                  placeholder="90"
-                >
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>
-                  <i class="fas fa-ban"></i>
-                  Max Login Attempts
-                </label>
-                <input 
-                  type="number" 
-                  [(ngModel)]="security.loginAttempts" 
-                  name="loginAttempts"
-                  placeholder="5"
-                >
-              </div>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" class="btn-primary" (click)="saveSecurity()">
-              <i class="fas fa-save"></i>
-              Save Security Settings
             </button>
           </div>
         </form>

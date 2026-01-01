@@ -10,7 +10,6 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./sales-settings.component.css']
 })
 export class SalesSettingsComponent {
-  // Personal Information
   personalInfo = {
     fullName: 'John Doe',
     email: 'john.doe@inspitetech.com',
@@ -20,16 +19,6 @@ export class SalesSettingsComponent {
     joiningDate: '2024-01-15'
   };
 
-  // Account Preferences
-  preferences = {
-    language: 'English',
-    timezone: 'Asia/Kolkata',
-    dateFormat: 'DD/MM/YYYY',
-    currency: 'INR',
-    theme: 'dark'
-  };
-
-  // Privacy & Security
   security = {
     currentPassword: '',
     newPassword: '',
@@ -48,11 +37,6 @@ export class SalesSettingsComponent {
   savePersonalInfo() {
     console.log('Personal Info Saved:', this.personalInfo);
     alert('Personal information updated successfully!');
-  }
-
-  savePreferences() {
-    console.log('Preferences Saved:', this.preferences);
-    alert('Preferences saved successfully!');
   }
 
   changePassword() {

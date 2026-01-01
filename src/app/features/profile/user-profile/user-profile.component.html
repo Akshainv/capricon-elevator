@@ -1,19 +1,30 @@
+<!-- src/app/user-profile/user-profile.component.html -->
 <div class="profile-container">
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i> {{ successMessage }}
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-left">
       <h1>My Profile</h1>
       <p>Manage your account settings and preferences</p>
     </div>
-    <div class="header-right">
-      <button class="btn-secondary">
-        <i class="fas fa-download"></i>
-        Export Data
-      </button>
-    </div>
   </div>
 
-  <!-- Profile Layout -->
+  <!-- Profile Layout -->                                                                                                   
   <div class="profile-layout">
     
     <!-- Sidebar Navigation -->
@@ -27,37 +38,19 @@
               <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
             </label>
           </div>
-          <h3>{{ user.fullName }}</h3>
-          <p class="user-role">{{ user.role }}</p>
+          <h3>{{ user.fullName || 'User Name' }}</h3>
+          <p class="user-role">Sales Representative</p>
         </div>
       </div>
 
       <nav class="profile-nav">
         <a 
-          class="nav-item" 
-          [class.active]="activeTab === 'profile'"
+          class="nav-item active" 
           (click)="selectTab('profile')"
         >
           <i class="fas fa-user"></i>
           <span>Personal Information</span>
         </a>
-        <a 
-          class="nav-item" 
-          [class.active]="activeTab === 'security'"
-          (click)="selectTab('security')"
-        >
-          <i class="fas fa-lock"></i>
-          <span>Security</span>
-        </a>
-        <a 
-          class="nav-item" 
-          [class.active]="activeTab === 'notifications'"
-          (click)="selectTab('notifications')"
-        >
-          <i class="fas fa-bell"></i>
-          <span>Notifications</span>
-        </a>
-     
       </nav>
     </div>
 
@@ -65,7 +58,7 @@
     <div class="profile-content">
       
       <!-- Personal Information Tab -->
-      <div class="content-section" *ngIf="activeTab === 'profile'">
+      <div class="content-section">
         <div class="section-header">
           <h2>Personal Information</h2>
           <p>Update your personal details and contact information</p>
@@ -76,25 +69,27 @@
             <div class="form-group">
               <label>
                 <i class="fas fa-user"></i>
-                Full Name
+                Full Name <span class="required">*</span>
               </label>
               <input 
                 type="text" 
                 [(ngModel)]="user.fullName" 
                 name="fullName"
                 placeholder="Enter your full name"
+                required
               >
             </div>
             <div class="form-group">
               <label>
                 <i class="fas fa-envelope"></i>
-                Email Address
+                Email Address <span class="required">*</span>
               </label>
               <input 
                 type="email" 
                 [(ngModel)]="user.email" 
                 name="email"
                 placeholder="Enter your email"
+                required
               >
             </div>
           </div>
@@ -103,13 +98,14 @@
             <div class="form-group">
               <label>
                 <i class="fas fa-phone"></i>
-                Phone Number
+                Phone Number <span class="required">*</span>
               </label>
               <input 
                 type="tel" 
                 [(ngModel)]="user.phone" 
                 name="phone"
                 placeholder="Enter your phone number"
+                required
               >
             </div>
             <div class="form-group">
@@ -121,25 +117,14 @@
                 type="text" 
                 [(ngModel)]="user.department" 
                 name="department"
-                placeholder="Enter your department"
+                value="Sales"
+                disabled
+                class="disabled-field"
               >
             </div>
           </div>
 
           <div class="form-row">
-            <div class="form-group">
-              <label>
-                <i class="fas fa-id-badge"></i>
-                Role
-              </label>
-              <input 
-                type="text" 
-                [(ngModel)]="user.role" 
-                name="role"
-                placeholder="Enter your role"
-                disabled
-              >
-            </div>
             <div class="form-group">
               <label>
                 <i class="fas fa-map-marker-alt"></i>
@@ -168,222 +153,27 @@
           </div>
 
           <div class="form-actions">
-            <button type="button" class="btn-primary" (click)="updateProfile()">
+            <button 
+              type="button" 
+              class="btn-primary" 
+              (click)="updateProfile()" 
+              [disabled]="loading"
+            >
               <i class="fas fa-save"></i>
-              Save Changes
+              {{ loading ? 'Saving...' : 'Save Changes' }}
             </button>
-            <button type="button" class="btn-cancel">
+            <button 
+              type="button" 
+              class="btn-cancel" 
+              (click)="loadProfileData()"
+              [disabled]="loading"
+            >
               Cancel
             </button>
           </div>
         </form>
       </div>
 
-      <!-- Security Tab -->
-      <div class="content-section" *ngIf="activeTab === 'security'">
-        <div class="section-header">
-          <h2>Security Settings</h2>
-          <p>Manage your password and security preferences</p>
-        </div>
-
-        <form class="profile-form">
-          <div class="form-group">
-            <label>
-              <i class="fas fa-lock"></i>
-              Current Password
-            </label>
-            <input 
-              type="password" 
-              [(ngModel)]="passwordData.currentPassword" 
-              name="currentPassword"
-              placeholder="Enter current password"
-            >
-          </div>
-
-          <div class="form-group">
-            <label>
-              <i class="fas fa-key"></i>
-              New Password
-            </label>
-            <input 
-              type="password" 
-              [(ngModel)]="passwordData.newPassword" 
-              name="newPassword"
-              placeholder="Enter new password"
-            >
-          </div>
-
-          <div class="form-group">
-            <label>
-              <i class="fas fa-check-circle"></i>
-              Confirm New Password
-            </label>
-            <input 
-              type="password" 
-              [(ngModel)]="passwordData.confirmPassword" 
-              name="confirmPassword"
-              placeholder="Confirm new password"
-            >
-          </div>
-
-          <div class="password-requirements">
-            <h4>Password Requirements:</h4>
-            <ul>
-              <li><i class="fas fa-check-circle"></i> At least 8 characters</li>
-              <li><i class="fas fa-check-circle"></i> One uppercase letter</li>
-              <li><i class="fas fa-check-circle"></i> One lowercase letter</li>
-              <li><i class="fas fa-check-circle"></i> One number</li>
-              <li><i class="fas fa-check-circle"></i> One special character</li>
-            </ul>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" class="btn-primary" (click)="changePassword()">
-              <i class="fas fa-shield-alt"></i>
-              Change Password
-            </button>
-            <button type="button" class="btn-cancel">
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Notifications Tab -->
-      <div class="content-section" *ngIf="activeTab === 'notifications'">
-        <div class="section-header">
-          <h2>Notification Preferences</h2>
-          <p>Choose how you want to receive notifications</p>
-        </div>
-
-        <div class="notification-settings">
-          <div class="notification-group">
-            <h3>Communication Channels</h3>
-            <div class="notification-item">
-              <div class="notification-info">
-                <i class="fas fa-envelope"></i>
-                <div>
-                  <h4>Email Notifications</h4>
-                  <p>Receive notifications via email</p>
-                </div>
-              </div>
-              <label class="toggle-switch">
-                <input 
-                  type="checkbox" 
-                  [(ngModel)]="notifications.emailNotifications"
-                  name="emailNotifications"
-                >
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="notification-item">
-              <div class="notification-info">
-                <i class="fas fa-mobile-alt"></i>
-                <div>
-                  <h4>Push Notifications</h4>
-                  <p>Receive push notifications in browser</p>
-                </div>
-              </div>
-              <label class="toggle-switch">
-                <input 
-                  type="checkbox" 
-                  [(ngModel)]="notifications.pushNotifications"
-                  name="pushNotifications"
-                >
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="notification-item">
-              <div class="notification-info">
-                <i class="fas fa-sms"></i>
-                <div>
-                  <h4>SMS Notifications</h4>
-                  <p>Receive notifications via SMS</p>
-                </div>
-              </div>
-              <label class="toggle-switch">
-                <input 
-                  type="checkbox" 
-                  [(ngModel)]="notifications.smsNotifications"
-                  name="smsNotifications"
-                >
-                <span class="slider"></span>
-              </label>
-            </div>
-          </div>
-
-          <div class="notification-group">
-            <h3>Activity Notifications</h3>
-            <div class="notification-item">
-              <div class="notification-info">
-                <i class="fas fa-user-plus"></i>
-                <div>
-                  <h4>Lead Assignments</h4>
-                  <p>Get notified when leads are assigned to you</p>
-                </div>
-              </div>
-              <label class="toggle-switch">
-                <input 
-                  type="checkbox" 
-                  [(ngModel)]="notifications.leadAssignments"
-                  name="leadAssignments"
-                >
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="notification-item">
-              <div class="notification-info">
-                <i class="fas fa-handshake"></i>
-                <div>
-                  <h4>Deal Updates</h4>
-                  <p>Get notified about deal status changes</p>
-                </div>
-              </div>
-              <label class="toggle-switch">
-                <input 
-                  type="checkbox" 
-                  [(ngModel)]="notifications.dealUpdates"
-                  name="dealUpdates"
-                >
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="notification-item">
-              <div class="notification-info">
-                <i class="fas fa-file-invoice"></i>
-                <div>
-                  <h4>Quotation Approvals</h4>
-                  <p>Get notified when quotations are approved</p>
-                </div>
-              </div>
-              <label class="toggle-switch">
-                <input 
-                  type="checkbox" 
-                  [(ngModel)]="notifications.quotationApprovals"
-                  name="quotationApprovals"
-                >
-                <span class="slider"></span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn-primary" (click)="updateNotifications()">
-            <i class="fas fa-save"></i>
-            Save Preferences
-          </button>
-          <button type="button" class="btn-cancel">
-            Cancel
-          </button>
-        </div>
-      </div>
-
-     
     </div>
   </div>
 </div>

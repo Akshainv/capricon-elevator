@@ -81,6 +81,19 @@
       />
     </div>
 
+    <div class="filter-group">
+      <label>Status</label>
+      <select [(ngModel)]="selectedStatus" (change)="applyFilters()" class="filter-input">
+        <option value="all">All Status</option>
+        <option value="lead">Lead</option>
+        <option value="qualified">Qualified</option>
+        <option value="proposal">Proposal</option>
+        <option value="negotiation">Negotiation</option>
+        <option value="won">Won</option>
+        <option value="lost">Lost</option>
+      </select>
+    </div>
+
     <button class="btn-clear-filter" (click)="clearFilters()" *ngIf="filterValue || filterDate">
       <i class="fas fa-times"></i>
       <span>Clear Filters</span>
@@ -145,14 +158,20 @@
               <i class="fas fa-user"></i>
               <span>{{ deal.contactPerson }}</span>
             </div>
-            <div class="deal-actions" *ngIf="column.status === 'won'">
-              <button 
-                class="btn-convert" 
-                (click)="convertToProject(deal, $event)"
+            <div class="deal-status-select">
+              <select
+                class="status-dropdown"
+                [value]="deal.status"
+                (change)="updateDealStatus(deal, $any($event.target).value, $event)"
+                (click)="$event.stopPropagation()"
               >
-                <i class="fas fa-arrow-right"></i>
-                <span>Convert</span>
-              </button>
+                <option value="lead">Lead</option>
+                <option value="qualified">Qualified</option>
+                <option value="proposal">Proposal</option>
+                <option value="negotiation">Negotiation</option>
+                <option value="won">Won</option>
+                <option value="lost">Lost</option>
+              </select>
             </div>
           </div>
         </div>
