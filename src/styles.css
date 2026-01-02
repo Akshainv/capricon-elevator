@@ -904,31 +904,32 @@ html[data-theme="light"] .btn-primary:hover {
    TEXT COLORS IN LIGHT MODE
    ========================================== */
 
-html.light-theme h1,
-html.light-theme h2,
-html.light-theme h3,
-html.light-theme h4,
-html.light-theme h5,
-html.light-theme h6,
-html[data-theme="light"] h1,
-html[data-theme="light"] h2,
-html[data-theme="light"] h3,
-html[data-theme="light"] h4,
-html[data-theme="light"] h5,
-html[data-theme="light"] h6 {
+html.light-theme h1:not(.stat-card h1):not(.stat-card *),
+html.light-theme h2:not(.stat-card h2):not(.stat-card *),
+html.light-theme h3:not(.stat-card h3):not(.stat-card *),
+html.light-theme h4:not(.stat-card h4):not(.stat-card *),
+html.light-theme h5:not(.stat-card h5):not(.stat-card *),
+html.light-theme h6:not(.stat-card h6):not(.stat-card *),
+html[data-theme="light"] h1:not(.stat-card h1):not(.stat-card *),
+html[data-theme="light"] h2:not(.stat-card h2):not(.stat-card *),
+html[data-theme="light"] h3:not(.stat-card h3):not(.stat-card *),
+html[data-theme="light"] h4:not(.stat-card h4):not(.stat-card *),
+html[data-theme="light"] h5:not(.stat-card h5):not(.stat-card *),
+html[data-theme="light"] h6:not(.stat-card h6):not(.stat-card *) {
   color: #d4b347 !important;
 }
 
-html.light-theme p,
-html.light-theme span,
-html.light-theme div,
-html.light-theme label,
-html.light-theme a,
-html[data-theme="light"] p,
-html[data-theme="light"] span,
-html[data-theme="light"] div,
-html[data-theme="light"] label,
-html[data-theme="light"] a {
+/* Exclude stat-card children from global text color */
+html.light-theme p:not(.stat-card p):not(.stat-card *),
+html.light-theme span:not(.stat-card span):not(.stat-card *),
+html.light-theme div:not(.stat-card):not(.stat-card div):not(.stat-card *),
+html.light-theme label:not(.stat-card label):not(.stat-card *),
+html.light-theme a:not(.stat-card a):not(.stat-card *),
+html[data-theme="light"] p:not(.stat-card p):not(.stat-card *),
+html[data-theme="light"] span:not(.stat-card span):not(.stat-card *),
+html[data-theme="light"] div:not(.stat-card):not(.stat-card div):not(.stat-card *),
+html[data-theme="light"] label:not(.stat-card label):not(.stat-card *),
+html[data-theme="light"] a:not(.stat-card a):not(.stat-card *) {
   color: #1f2937 !important;
 }
 
@@ -1602,4 +1603,157 @@ html[data-theme="light"] .login-page .password-input {
   box-shadow: none !important;
   -webkit-box-shadow: none !important;
   -moz-box-shadow: none !important;
+}
+/* ==========================================
+   SALES DASHBOARD CHART - LIGHT MODE FIX
+   ========================================== */
+
+html.light-theme .chart-card canvas,
+html[data-theme="light"] .chart-card canvas {
+  color: #1f2937 !important;
+}
+
+/* Chart.js Light Mode Text Colors */
+html.light-theme .chart-card,
+html[data-theme="light"] .chart-card {
+  --chart-text-color: #1f2937;
+  --chart-grid-color: rgba(0, 0, 0, 0.1);
+}
+/* ==========================================
+   SALES DASHBOARD STAT CARDS - LIGHT MODE TEXT FIX
+   ========================================== */
+
+html.light-theme .stat-card .stat-value,
+html[data-theme="light"] .stat-card .stat-value {
+  color: #d4b347 !important;
+}
+
+html.light-theme .stat-card .stat-label,
+html[data-theme="light"] .stat-card .stat-label {
+  color: #6b7280 !important;
+}
+
+html.light-theme .stat-card .stat-change,
+html[data-theme="light"] .stat-card .stat-change {
+  color: #6b7280 !important;
+}
+
+html.light-theme .stat-card .stat-change.trend-up,
+html[data-theme="light"] .stat-card .stat-change.trend-up {
+  color: #22c55e !important;
+}
+
+html.light-theme .stat-card .stat-change.trend-down,
+html[data-theme="light"] .stat-card .stat-change.trend-down {
+  color: #ef4444 !important;
+}
+
+html.light-theme .stat-card .stat-change.trend-neutral,
+html[data-theme="light"] .stat-card .stat-change.trend-neutral {
+  color: #fbbf24 !important;
+}
+/* ==========================================
+   SALES REPORTS STAT CARDS - LIGHT MODE ICON FIX (ENHANCED)
+   ========================================== */
+
+/* Override inline styles for stat icons in light mode */
+html.light-theme .stat-card .stat-icon[style],
+html[data-theme="light"] .stat-card .stat-icon[style] {
+  opacity: 1 !important;
+  color: inherit !important;
+}
+
+html.light-theme .stat-card .stat-icon i,
+html[data-theme="light"] .stat-card .stat-icon i {
+  color: inherit !important;
+}
+
+html.light-theme .stat-card .stat-value[style],
+html[data-theme="light"] .stat-card .stat-value[style] {
+  color: inherit !important;
+}
+
+html.light-theme .stat-card .stat-label,
+html[data-theme="light"] .stat-card .stat-label {
+  color: #6b7280 !important;
+}
+
+html.light-theme .stat-card .stat-subtitle,
+html[data-theme="light"] .stat-card .stat-subtitle {
+  color: #9ca3af !important;
+}
+
+/* Force background transparency for inline styles */
+html.light-theme .stat-card .stat-icon[style*="background"],
+html[data-theme="light"] .stat-card .stat-icon[style*="background"] {
+  background: inherit !important;
+}
+
+/* Ensure stat values keep their assigned colors */
+html.light-theme .stat-card .stat-value[style*="color"],
+html[data-theme="light"] .stat-card .stat-value[style*="color"] {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+/* ==========================================
+   DASHBOARD STAT CARDS - PRESERVE INLINE COLORS
+   MUST BE AT THE END TO OVERRIDE GLOBAL RULES
+   ========================================== */
+
+/* Force stat icons and values to respect their inline colors */
+html.light-theme .stat-card .stat-icon[style*="color"],
+html.light-theme .stat-card .stat-icon[style*="background"],
+html[data-theme="light"] .stat-card .stat-icon[style*="color"],
+html[data-theme="light"] .stat-card .stat-icon[style*="background"] {
+  background: inherit !important;
+  color: inherit !important;
+}
+
+html.light-theme .stat-card .stat-value[style*="color"],
+html[data-theme="light"] .stat-card .stat-value[style*="color"] {
+  color: inherit !important;
+}
+
+/* Ensure icon elements inside also inherit */
+html.light-theme .stat-card .stat-icon[style] i,
+html[data-theme="light"] .stat-card .stat-icon[style] i {
+  color: inherit !important;
+}
+/* ==========================================
+   ADMIN DASHBOARD & REPORTS - PRESERVE INLINE COLORS
+   MUST BE AT THE END TO OVERRIDE ALL RULES
+   ========================================== */
+
+/* Target stat cards in both dashboard and reports pages */
+html.light-theme .dashboard-container .stat-card .stat-icon[style],
+html.light-theme .reports-container .stat-card .stat-icon[style],
+html[data-theme="light"] .dashboard-container .stat-card .stat-icon[style],
+html[data-theme="light"] .reports-container .stat-card .stat-icon[style] {
+  background: inherit !important;
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+html.light-theme .dashboard-container .stat-card .stat-value[style],
+html.light-theme .reports-container .stat-card .stat-value[style],
+html[data-theme="light"] .dashboard-container .stat-card .stat-value[style],
+html[data-theme="light"] .reports-container .stat-card .stat-value[style] {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+/* Ensure icons inside also inherit the color */
+html.light-theme .stat-card .stat-icon[style] i,
+html[data-theme="light"] .stat-card .stat-icon[style] i {
+  color: inherit !important;
+}
+
+/* Force any element with inline color/background to respect it */
+html.light-theme .stat-card [style*="color"],
+html.light-theme .stat-card [style*="background"],
+html[data-theme="light"] .stat-card [style*="color"],
+html[data-theme="light"] .stat-card [style*="background"] {
+  color: inherit !important;
+  background: inherit !important;
 }

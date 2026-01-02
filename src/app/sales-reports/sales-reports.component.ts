@@ -81,7 +81,7 @@ export class SalesReportsComponent implements OnInit {
         display: true,
         position: 'top',
         labels: {
-          color: 'rgba(255, 255, 255, 0.7)',
+          color: this.getChartTextColor(),
           font: { size: 12, family: "'Inter', sans-serif" }
         }
       },
@@ -95,12 +95,12 @@ export class SalesReportsComponent implements OnInit {
     },
     scales: {
       x: {
-        grid: { color: 'rgba(212, 179, 71, 0.1)' },
-        ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+        grid: { color: this.getChartGridColor() },
+        ticks: { color: this.getChartTextColor() }
       },
       y: {
-        grid: { color: 'rgba(212, 179, 71, 0.1)' },
-        ticks: { color: 'rgba(255, 255, 255, 0.6)' },
+        grid: { color: this.getChartGridColor() },
+        ticks: { color: this.getChartTextColor() },
         beginAtZero: true
       }
     }
@@ -123,6 +123,7 @@ export class SalesReportsComponent implements OnInit {
       this.currentUserName = user.fullName || user.email || 'Sales User';
       this.loadReportsData();
     }
+    this.setupThemeListener();
   }
 
   loadReportsData(): void {
@@ -224,5 +225,61 @@ export class SalesReportsComponent implements OnInit {
     if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(2)}Cr`;
     if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
     return `₹${amount.toLocaleString('en-IN')}`;
+  }
+
+  // ==========================================
+  // LIGHT MODE SUPPORT METHODS
+  // ==========================================
+
+  getChartTextColor(): string {
+    const isLightMode = document.documentElement.classList.contains('light-theme') || 
+                        document.documentElement.getAttribute('data-theme') === 'light';
+    return isLightMode ? '#1f2937' : 'rgba(255, 255, 255, 0.6)';
+  }
+
+  getChartGridColor(): string {
+    const isLightMode = document.documentElement.classList.contains('light-theme') || 
+                        document.documentElement.getAttribute('data-theme') === 'light';
+    return isLightMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(212, 179, 71, 0.1)';
+  }
+
+  setupThemeListener(): void {
+    const observer = new MutationObserver(() => {
+      this.updateChartColors();
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme']
+    });
+  }
+
+  updateChartColors(): void {
+    if (this.revenueChartOptions && this.revenueChartOptions.plugins && this.revenueChartOptions.scales) {
+      // Update legend color
+      if (this.revenueChartOptions.plugins.legend && this.revenueChartOptions.plugins.legend.labels) {
+        this.revenueChartOptions.plugins.legend.labels.color = this.getChartTextColor();
+      }
+      
+      // Update axis colors
+      if (this.revenueChartOptions.scales['x']) {
+        this.revenueChartOptions.scales['x'].grid = { color: this.getChartGridColor() };
+        if (this.revenueChartOptions.scales['x'].ticks) {
+          this.revenueChartOptions.scales['x'].ticks.color = this.getChartTextColor();
+        }
+      }
+      
+      if (this.revenueChartOptions.scales['y']) {
+        this.revenueChartOptions.scales['y'].grid = { color: this.getChartGridColor() };
+        if (this.revenueChartOptions.scales['y'].ticks) {
+          this.revenueChartOptions.scales['y'].ticks.color = this.getChartTextColor();
+        }
+      }
+      
+      // Update chart
+      if (this.revenueChart) {
+        this.revenueChart.update();
+      }
+    }
   }
 }

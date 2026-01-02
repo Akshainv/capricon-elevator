@@ -101,7 +101,7 @@ export class DashboardHomeComponent implements OnInit {
         display: true,
         position: 'top',
         labels: {
-          color: 'rgba(255, 255, 255, 0.7)',
+          color: this.getChartTextColor(),
           font: { size: 12, family: "'Inter', sans-serif" },
           padding: 15,
           usePointStyle: true,
@@ -119,14 +119,14 @@ export class DashboardHomeComponent implements OnInit {
     },
     scales: {
       x: {
-        grid: { color: 'rgba(212, 179, 71, 0.1)' },
+        grid: { color: this.getChartGridColor() },
         border: { display: false },
-        ticks: { color: 'rgba(255, 255, 255, 0.6)', font: { size: 11 } }
+        ticks: { color: this.getChartTextColor(), font: { size: 11 } }
       },
       y: {
-        grid: { color: 'rgba(212, 179, 71, 0.1)' },
+        grid: { color: this.getChartGridColor() },
         border: { display: false },
-        ticks: { color: 'rgba(255, 255, 255, 0.6)', font: { size: 11 } },
+        ticks: { color: this.getChartTextColor(), font: { size: 11 } },
         beginAtZero: true
       }
     }
@@ -145,6 +145,7 @@ export class DashboardHomeComponent implements OnInit {
     console.log('🚀 Dashboard Component Initialized');
     this.loadUserInfo();
     this.loadReportData();
+    this.setupThemeListener();
   }
 
   loadUserInfo(): void {
@@ -382,6 +383,62 @@ export class DashboardHomeComponent implements OnInit {
   navigateTo(route: string): void {
     if (route) {
       this.router.navigate([route]);
+    }
+  }
+
+  // ==========================================
+  // LIGHT MODE SUPPORT METHODS
+  // ==========================================
+
+  getChartTextColor(): string {
+    const isLightMode = document.documentElement.classList.contains('light-theme') || 
+                        document.documentElement.getAttribute('data-theme') === 'light';
+    return isLightMode ? '#1f2937' : 'rgba(255, 255, 255, 0.6)';
+  }
+
+  getChartGridColor(): string {
+    const isLightMode = document.documentElement.classList.contains('light-theme') || 
+                        document.documentElement.getAttribute('data-theme') === 'light';
+    return isLightMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(212, 179, 71, 0.1)';
+  }
+
+  setupThemeListener(): void {
+    const observer = new MutationObserver(() => {
+      this.updateChartColors();
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme']
+    });
+  }
+
+  updateChartColors(): void {
+    if (this.lineChartOptions && this.lineChartOptions.plugins && this.lineChartOptions.scales) {
+      // Update legend color
+      if (this.lineChartOptions.plugins.legend && this.lineChartOptions.plugins.legend.labels) {
+        this.lineChartOptions.plugins.legend.labels.color = this.getChartTextColor();
+      }
+      
+      // Update axis colors
+      if (this.lineChartOptions.scales['x']) {
+        this.lineChartOptions.scales['x'].grid = { color: this.getChartGridColor() };
+        if (this.lineChartOptions.scales['x'].ticks) {
+          this.lineChartOptions.scales['x'].ticks.color = this.getChartTextColor();
+        }
+      }
+      
+      if (this.lineChartOptions.scales['y']) {
+        this.lineChartOptions.scales['y'].grid = { color: this.getChartGridColor() };
+        if (this.lineChartOptions.scales['y'].ticks) {
+          this.lineChartOptions.scales['y'].ticks.color = this.getChartTextColor();
+        }
+      }
+      
+      // Update chart
+      if (this.chart) {
+        this.chart.update();
+      }
     }
   }
 }
