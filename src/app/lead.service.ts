@@ -70,7 +70,7 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class LeadsService {
-  private apiUrl = 'http://localhost:3000/lead';
+ private apiUrl = 'https://capricon-elevator-api.onrender.com/lead';  // ✅ CORRECT
   public leadsUpdated = new Subject<void>();
   public leadsUpdated$ = this.leadsUpdated.asObservable();
 
