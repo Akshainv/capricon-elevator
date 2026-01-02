@@ -27,7 +27,7 @@ export interface TopPerformersResponse {
   providedIn: 'root'
 })
 export class ReportService {
-  private apiUrl = 'http://localhost:3000/reports';
+  private apiUrl = 'https://capricon-elevator-api.onrender.com/reports';
 
   constructor(
     private http: HttpClient,

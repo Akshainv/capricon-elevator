@@ -96,7 +96,7 @@ export interface QuotationStats {
   providedIn: 'root'
 })
 export class QuotationService {
-  private apiUrl = 'http://localhost:3000/api/quotation';
+  private apiUrl = 'https://capricon-elevator-api.onrender.com/api/quotation';
 
   constructor(
     private http: HttpClient, 

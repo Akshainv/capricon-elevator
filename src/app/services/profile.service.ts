@@ -71,7 +71,7 @@ export interface ApiResponse<T = any> {
 })
 export class ProfileService {
   // Direct API URL - Change this to match your backend
-  private apiUrl = 'http://localhost:3000/profile-settings';
+  private apiUrl = 'https://capricon-elevator-api.onrender.com/profile-settings';
   
   // BehaviorSubject to share user data across components
   private userSubject = new BehaviorSubject<User | null>(null);

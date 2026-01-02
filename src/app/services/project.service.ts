@@ -58,7 +58,7 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class ProjectService {
-  private apiUrl = 'http://localhost:3000/project';
+  private apiUrl = 'https://capricon-elevator-api.onrender.com/project';
 
   constructor(
     private http: HttpClient,

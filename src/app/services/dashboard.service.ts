@@ -52,7 +52,7 @@ export interface DashboardResponse<T> {
   providedIn: 'root'
 })
 export class DashboardService {
-  private apiUrl = 'http://localhost:3000/dashboard';
+  private apiUrl = 'https://capricon-elevator-api.onrender.com/dashboard';
 
   constructor(
     private http: HttpClient,

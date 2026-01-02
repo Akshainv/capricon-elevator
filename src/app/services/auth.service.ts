@@ -42,7 +42,7 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = 'https://capricon-elevator-api.onrender.com';
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
 

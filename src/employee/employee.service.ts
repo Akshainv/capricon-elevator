@@ -35,7 +35,7 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class EmployeeService {
-  private apiUrl = 'http://localhost:3000/employee';
+  private apiUrl = 'https://capricon-elevator-api.onrender.com/employee';
 
   constructor(
     private http: HttpClient,
