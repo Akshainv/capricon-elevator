@@ -23,7 +23,7 @@
   <div class="form-layout">
     <!-- Left Column: Customer & Items -->
     <div class="left-column">
-      
+
       <!-- Lead Selection Card -->
       <div class="form-card lead-selection-card">
         <div class="card-header">
@@ -32,7 +32,7 @@
         <div class="card-body">
           <div class="form-group">
             <label>Search Assigned Leads (Optional)</label>
-            
+
             <!-- Loading State -->
             <div *ngIf="loadingLeads" class="loading-message">
               <i class="fas fa-spinner fa-spin"></i>
@@ -43,23 +43,11 @@
             <div *ngIf="!loadingLeads" class="lead-search-container">
               <div class="search-input-wrapper">
                 <i class="fas fa-search search-icon"></i>
-                <input 
-                  type="text"
-                  [(ngModel)]="leadSearchTerm"
-                  (input)="onLeadSearch()"
-                  (focus)="onLeadSearchFocus()"
-                  (blur)="onLeadSearchBlur()"
-                  placeholder="Search by name, company, phone, or email..."
-                  class="form-input lead-search-input"
-                  autocomplete="off"
-                />
-                <button 
-                  *ngIf="leadSearchTerm"
-                  class="clear-search-btn"
-                  (mousedown)="$event.preventDefault()"
-                  (click)="clearLeadSearch()"
-                  type="button"
-                >
+                <input type="text" [(ngModel)]="leadSearchTerm" (input)="onLeadSearch()" (focus)="onLeadSearchFocus()"
+                  (blur)="onLeadSearchBlur()" placeholder="Search by name, company, phone, or email..."
+                  class="form-input lead-search-input" autocomplete="off" />
+                <button *ngIf="leadSearchTerm" class="clear-search-btn" (mousedown)="$event.preventDefault()"
+                  (click)="clearLeadSearch()" type="button">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
@@ -70,11 +58,8 @@
                   <span>{{ filteredLeads.length }} lead(s) found</span>
                 </div>
                 <div class="lead-results">
-                  <div 
-                    *ngFor="let lead of filteredLeads"
-                    class="lead-item"
-                    (mousedown)="$event.preventDefault(); selectLead(lead)"
-                  >
+                  <div *ngFor="let lead of filteredLeads" class="lead-item"
+                    (mousedown)="$event.preventDefault(); selectLead(lead)">
                     <div class="lead-item-main">
                       <i class="fas fa-user-circle lead-avatar-icon"></i>
                       <div class="lead-item-info">
@@ -127,54 +112,29 @@
           <div class="form-row">
             <div class="form-group">
               <label>Customer Name <span class="required">*</span></label>
-              <input 
-                type="text" 
-                [(ngModel)]="customerName" 
-                placeholder="Enter customer name"
-                class="form-input"
-              />
+              <input type="text" [(ngModel)]="customerName" placeholder="Enter customer name" class="form-input" />
             </div>
             <div class="form-group">
               <label>Email <span class="required">*</span></label>
-              <input 
-                type="email" 
-                [(ngModel)]="customerEmail" 
-                placeholder="customer@example.com"
-                class="form-input"
-              />
+              <input type="email" [(ngModel)]="customerEmail" placeholder="customer@example.com" class="form-input" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label>Phone <span class="required">*</span></label>
-              <input 
-                type="tel" 
-                [(ngModel)]="customerPhone" 
-                placeholder="+91 9876543210"
-                class="form-input"
-              />
+              <input type="tel" [(ngModel)]="customerPhone" placeholder="+91 9876543210" class="form-input" />
             </div>
             <div class="form-group">
               <label>Company</label>
-              <input 
-                type="text" 
-                [(ngModel)]="customerCompany" 
-                placeholder="Company name"
-                class="form-input"
-              />
+              <input type="text" [(ngModel)]="customerCompany" placeholder="Company name" class="form-input" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group full-width">
               <label>Address</label>
-              <input 
-                type="text" 
-                [(ngModel)]="customerAddress" 
-                placeholder="Enter address"
-                class="form-input"
-              />
+              <input type="text" [(ngModel)]="customerAddress" placeholder="Enter address" class="form-input" />
             </div>
           </div>
         </div>
@@ -189,33 +149,18 @@
           <div class="form-row">
             <div class="form-group">
               <label>Quote Number</label>
-              <input 
-                type="text" 
-                [(ngModel)]="quoteNumber" 
-                readonly
-                class="form-input readonly"
-              />
+              <input type="text" [(ngModel)]="quoteNumber" readonly class="form-input readonly" />
             </div>
             <div class="form-group">
               <label>Quote Date <span class="required">*</span></label>
-              <input 
-                type="date" 
-                [(ngModel)]="quoteDate"
-                [min]="today"
-                class="form-input"
-              />
+              <input type="date" [(ngModel)]="quoteDate" [min]="today" class="form-input" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label>Valid Until <span class="required">*</span></label>
-              <input 
-                type="date" 
-                [(ngModel)]="validUntil"
-                [min]="quoteDate || today"
-                class="form-input"
-              />
+              <input type="date" [(ngModel)]="validUntil" [min]="quoteDate || today" class="form-input" />
             </div>
           </div>
         </div>
@@ -234,12 +179,8 @@
             <div *ngFor="let item of quotationItems; let i = index" class="quotation-item">
               <div class="item-header">
                 <span class="item-number">Item {{ i + 1 }}</span>
-                <button 
-                  *ngIf="quotationItems.length > 1" 
-                  class="btn-remove-item" 
-                  (click)="removeItem(i)"
-                  title="Remove Item"
-                >
+                <button *ngIf="quotationItems.length > 1" class="btn-remove-item" (click)="removeItem(i)"
+                  title="Remove Item">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -248,11 +189,7 @@
                 <div class="form-row">
                   <div class="form-group full-width">
                     <label>Product/Service <span class="required">*</span></label>
-                    <select 
-                      [(ngModel)]="item.product" 
-                      (ngModelChange)="onProductChange(i)"
-                      class="form-select"
-                    >
+                    <select [(ngModel)]="item.product" (ngModelChange)="onProductChange(i)" class="form-select">
                       <option [ngValue]="null">Select Product/Service</option>
                       <option *ngFor="let product of availableProducts" [ngValue]="product">
                         {{ product.name }} - {{ formatCurrency(product.price) }}
@@ -264,42 +201,23 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label>Quantity</label>
-                    <input 
-                      type="number" 
-                      [(ngModel)]="item.quantity" 
-                      (ngModelChange)="calculateItemTotal(i)"
-                      min="1"
-                      class="form-input"
-                    />
+                    <input type="number" [(ngModel)]="item.quantity" (ngModelChange)="calculateItemTotal(i)" min="1"
+                      class="form-input" />
                   </div>
                   <div class="form-group">
                     <label>Price (₹)</label>
-                    <input 
-                      type="number" 
-                      [(ngModel)]="item.price" 
-                      (ngModelChange)="calculateItemTotal(i)"
-                      class="form-input"
-                    />
+                    <input type="number" [(ngModel)]="item.price" (ngModelChange)="calculateItemTotal(i)"
+                      class="form-input" />
                   </div>
                   <div class="form-group">
                     <label>Discount (%)</label>
-                    <input 
-                      type="number" 
-                      [(ngModel)]="item.discount" 
-                      (ngModelChange)="calculateItemTotal(i)"
-                      min="0"
-                      max="100"
-                      class="form-input"
-                    />
+                    <input type="number" [(ngModel)]="item.discount" (ngModelChange)="calculateItemTotal(i)" min="0"
+                      max="100" class="form-input" />
                   </div>
                   <div class="form-group">
                     <label>Tax (%)</label>
-                    <input 
-                      type="number" 
-                      [(ngModel)]="item.tax" 
-                      (ngModelChange)="calculateItemTotal(i)"
-                      class="form-input"
-                    />
+                    <input type="number" [(ngModel)]="item.tax" (ngModelChange)="calculateItemTotal(i)"
+                      class="form-input" />
                   </div>
                 </div>
 
@@ -320,22 +238,14 @@
         </div>
         <div class="card-body">
           <div class="form-group">
-            <textarea 
-              [(ngModel)]="termsAndConditions" 
-              rows="6"
-              class="form-textarea"
-              placeholder="Enter terms and conditions..."
-            ></textarea>
+            <textarea [(ngModel)]="termsAndConditions" rows="6" class="form-textarea"
+              placeholder="Enter terms and conditions..."></textarea>
           </div>
 
           <div class="form-group">
             <label>Additional Notes</label>
-            <textarea 
-              [(ngModel)]="notes" 
-              rows="3"
-              class="form-textarea"
-              placeholder="Add any additional notes or comments..."
-            ></textarea>
+            <textarea [(ngModel)]="notes" rows="3" class="form-textarea"
+              placeholder="Add any additional notes or comments..."></textarea>
           </div>
         </div>
       </div>
@@ -388,31 +298,9 @@
           </div>
 
           <div class="summary-actions">
-            <button 
-              class="btn-action btn-preview" 
-              (click)="preview()"
-              [disabled]="loading"
-            >
-              <i class="fas fa-eye"></i>
-              <span>Preview</span>
-            </button>
-
-            <button 
-              class="btn-action btn-draft" 
-              (click)="saveAsDraft()"
-              [disabled]="loading"
-            >
-              <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-save'"></i>
-              <span>{{ loading ? 'Saving...' : 'Save as Draft' }}</span>
-            </button>
-
-            <button 
-              class="btn-action btn-send" 
-              (click)="sendToClient()"
-              [disabled]="loading"
-            >
-              <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
-              <span>{{ loading ? 'Sending...' : 'Send to Client' }}</span>
+            <button class="btn-action btn-add" (click)="addQuotation()" [disabled]="loading">
+              <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-plus'"></i>
+              <span>{{ loading ? 'Adding...' : 'Add Quotation' }}</span>
             </button>
           </div>
         </div>

@@ -1,76 +1,103 @@
-<!-- src/app/features/reports/admin-report-dashboard/admin-report-dashboard.component.html -->
+<!-- src/app/features/reports/reports-dashboard/reports-dashboard.component.html -->
 <div class="reports-container">
-  
-  <!-- Loading State -->
-  <div *ngIf="loading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading business analytics...</p>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="glass-loader">
+      <div class="spinner"></div>
+      <p>Fetching Intelligence...</p>
+    </div>
   </div>
 
-  <div *ngIf="!loading">
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-left">
-        <h1>📈 Business Performance Overview</h1>
-        <p>Comprehensive analytics and insights</p>
+  <!-- Page Header (Locked Glassmorphism) -->
+  <div class="dashboard-header glass">
+    <div class="header-main">
+      <div class="title-group">
+        <h1>Report Dashboard</h1>
+        <p class="subtitle">Performance Intelligence & Lifecycle Analytics</p>
       </div>
-      <div class="header-actions">
-        <select [(ngModel)]="dateFilter" (change)="onDateFilterChange()" class="date-filter">
-          <option value="thisMonth">This Month</option>
-          <option value="last3Months">Last 3 Months</option>
-          <option value="thisYear">This Year</option>
-          <option value="all">All Time</option>
-        </select>
-        <button class="btn-view-projects" (click)="viewProjects()">
-          <i class="fas fa-project-diagram"></i>
-          View Projects
-        </button>
-      </div>
-    </div>
 
-    <!-- Key Performance Metrics -->
-    <div class="section-title">
-      <i class="fas fa-chart-bar"></i>
-      <span>Key Performance Metrics</span>
-    </div>
-    
-    <div class="stats-grid">
-      <div *ngFor="let stat of statCards" class="stat-card">
-        <div class="stat-icon" [style.background]="stat.color + '22'" [style.color]="stat.color">
-          <i class="fas" [ngClass]="stat.icon"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-label">{{ stat.label }}</div>
-          <div class="stat-value" [style.color]="stat.color">{{ stat.value }}</div>
-          <div class="stat-subtitle">{{ stat.subtitle }}</div>
-        </div>
-      </div>
-    </div>
+      <div class="header-controls">
+        <!-- Searchable Employee Selector -->
+        <div class="employee-selector">
+          <div class="search-box" (click)="showEmployeeDropdown = !showEmployeeDropdown">
+            <i class="fas fa-user-tie"></i>
+            <input type="text" [(ngModel)]="employeeSearchQuery" (input)="filterEmployees()"
+              placeholder="Select Sales Executive..." readonly>
+            <i class="fas fa-chevron-down toggle-icon" [class.open]="showEmployeeDropdown"></i>
+          </div>
 
-    <!-- Charts Grid -->
-    <div class="charts-section">
-      
-      <!-- Revenue Analytics -->
-      <div class="chart-card full-width">
-        <div class="card-header">
-          <div class="header-content">
-            <h3>💰 Revenue Analytics</h3>
-            <span class="card-subtitle">Monthly revenue trend over the last 6 months</span>
+          <div class="employee-dropdown glass-dropdown" *ngIf="showEmployeeDropdown">
+            <div class="dropdown-item all-option" (click)="selectEmployee('all')">
+              <i class="fas fa-globe"></i>
+              <span>All Sales Executives</span>
+            </div>
+            <div *ngFor="let emp of filteredEmployees" class="dropdown-item" (click)="selectEmployee(emp)">
+              <div class="emp-avatar">{{ emp.fullName.charAt(0) }}</div>
+              <div class="emp-info">
+                <span class="emp-name">{{ emp.fullName }}</span>
+                <span class="emp-email">{{ emp.email }}</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="chart-body">
-          <canvas 
-            baseChart
-            #revenueChart
-            [data]="revenueChartData"
-            [options]="revenueChartOptions"
-            [type]="revenueChartType">
-          </canvas>
+
+        <!-- Analysis Type Toggle -->
+        <div class="analysis-toggle glass-toggle">
+          <button [class.active]="analysisType === 'monthly'" (click)="toggleAnalysisType('monthly')">
+            Monthly Status
+          </button>
+          <button [class.active]="analysisType === 'total'" (click)="toggleAnalysisType('total')">
+            Total Status
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-content">
+    <!-- KPI Analytics Cards -->
+    <div class="stats-grid">
+      <div *ngFor="let stat of statCards" class="stat-card glass-card h-hover">
+        <div class="card-glow"
+          [style.background]="'radial-gradient(circle at 50% 50%, ' + stat.color + '33, transparent 70%)'"></div>
+        <div class="stat-icon" [style.color]="stat.color">
+          <i class="fas" [ngClass]="stat.icon"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">{{ stat.label }}</span>
+          <h2 class="stat-value" [style.color]="stat.color">{{ stat.value }}</h2>
+          <p class="stat-subtitle">{{ stat.subtitle }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Pulse Graph -->
+    <div class="pulse-container glass-card">
+      <div class="card-header">
+        <div class="header-title">
+          <i class="fas fa-wave-square pulse-icon"></i>
+          <div>
+            <h3>Performance Pulse</h3>
+            <span class="subtitle">Revenue trend analysis over the last 6 months</span>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item">
+            <span class="dot"></span>
+            Realized Revenue (₹L)
+          </div>
         </div>
       </div>
 
+      <div class="chart-wrapper">
+        <canvas baseChart #revenueChart [data]="revenueChartData" [options]="revenueChartOptions"
+          [type]="revenueChartType">
+        </canvas>
+      </div>
     </div>
-
   </div>
 
+  <!-- Perspective Backdrop Blur -->
+  <div class="perspective-bg" *ngIf="showEmployeeDropdown" (click)="showEmployeeDropdown = false"></div>
 </div>

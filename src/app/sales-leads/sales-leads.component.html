@@ -55,22 +55,17 @@
   <div class="filters-section">
     <div class="search-box">
       <i class="fas fa-search"></i>
-      <input 
-        type="text" 
-        placeholder="Search by name, email, phone, company..." 
-        [(ngModel)]="searchQuery"
-        (input)="onSearchChange()"
-      />
+      <input type="text" placeholder="Search by name, email, phone, company..." [(ngModel)]="searchQuery"
+        (input)="onSearchChange()" />
     </div>
 
     <div class="filter-controls">
       <select [(ngModel)]="selectedStatus" (change)="onStatusFilterChange()" class="filter-select">
         <option value="all">All Status</option>
-        <option value="New">New</option>
-        <option value="Qualified">Qualified</option>
-        <option value="Quoted">Quoted</option>
-        <option value="Won">Won</option>
-        <option value="Lost">Lost</option>
+        <option value="Seeded Lead">Seeded Lead</option>
+        <option value="Meeting Fixed">Meeting Fixed</option>
+        <option value="Meeting Completed">Meeting Completed</option>
+        <option value="CS Executed">CS Executed</option>
       </select>
 
       <select [(ngModel)]="selectedLeadType" (change)="onLeadTypeChange()" class="filter-select my-leads-filter">
@@ -114,6 +109,7 @@
           <tr>
             <th>Name & Company</th>
             <th>Contact</th>
+            <th *ngIf="selectedLeadType === 'assigned' || selectedLeadType === 'created'">Status</th>
             <th>Source</th>
             <th class="col-actions">Actions</th>
           </tr>
@@ -137,12 +133,23 @@
                 <div class="text-muted"><i class="fas fa-phone"></i> {{ lead.phoneNumber }}</div>
               </div>
             </td>
+            <td *ngIf="selectedLeadType === 'assigned' || selectedLeadType === 'created'">
+              <select (click)="$event.stopPropagation()"
+                (change)="updateLeadStatus(lead, $any($event.target).value, $event)" [value]="lead.status"
+                class="status-dropdown" [ngClass]="getStatusClass(lead.status)">
+                <option value="Seeded Lead">Seeded Lead</option>
+                <option value="Meeting Fixed">Meeting Fixed</option>
+                <option value="Meeting Completed">Meeting Completed</option>
+                <option value="CS Executed">CS Executed</option>
+              </select>
+            </td>
             <td>
               <span class="source-badge">{{ lead.leadSource }}</span>
             </td>
             <td class="col-actions">
               <div class="action-buttons">
-                <button class="action-btn btn-view" (click)="viewLeadModal(lead); $event.stopPropagation()" title="View Details">
+                <button class="action-btn btn-view" (click)="viewLeadModal(lead); $event.stopPropagation()"
+                  title="View Details">
                   <i class="fas fa-eye"></i>
                 </button>
                 <button class="action-btn btn-edit" (click)="editLead(lead, $event)" title="Edit">
@@ -191,7 +198,7 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
+
     <div class="modal-body modal-scrollable">
       <!-- Lead Header -->
       <div class="detail-section header-section">

@@ -38,21 +38,21 @@ export class SalesMyDealsComponent implements OnInit {
   allDeals: Deal[] = [];
   columns: Column[] = [];
   draggedDeal: Deal | null = null;
-  
+
   // Filters
   filterValue: string = '';
   filterDate: string = '';
   selectedStatus: string = 'all';
-  
+
   // Loading state
   isLoading: boolean = false;
   errorMessage: string = '';
 
   constructor(
-    public router: Router, 
+    public router: Router,
     private leadsService: LeadsService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initializeColumns();
@@ -61,12 +61,10 @@ export class SalesMyDealsComponent implements OnInit {
 
   initializeColumns(): void {
     this.columns = [
-      { title: 'Lead', status: 'lead', color: '#3b82f6', deals: [] },
-      { title: 'Qualified', status: 'qualified', color: '#8b5cf6', deals: [] },
-      { title: 'Proposal', status: 'proposal', color: '#f59e0b', deals: [] },
-      { title: 'Negotiation', status: 'negotiation', color: '#ec4899', deals: [] },
-      { title: 'Won', status: 'won', color: '#10b981', deals: [] },
-      { title: 'Lost', status: 'lost', color: '#ef4444', deals: [] }
+      { title: 'Seeded Lead', status: 'seeded', color: '#3b82f6', deals: [] },
+      { title: 'Meeting Fixed', status: 'fixed', color: '#8b5cf6', deals: [] },
+      { title: 'Meeting Completed', status: 'completed', color: '#f59e0b', deals: [] },
+      { title: 'CS Executed', status: 'executed', color: '#10b981', deals: [] }
     ];
   }
 
@@ -76,7 +74,7 @@ export class SalesMyDealsComponent implements OnInit {
 
     // Get current logged in user
     const currentUser = this.authService.currentUserValue;
-    
+
     if (!currentUser || !currentUser.userId) {
       this.errorMessage = 'User not logged in';
       this.isLoading = false;
@@ -87,10 +85,10 @@ export class SalesMyDealsComponent implements OnInit {
     this.leadsService.getMyLeads().subscribe({
       next: (leads: Lead[]) => {
         console.log('Loaded my leads:', leads);
-        
+
         // Convert Lead objects to Deal objects
         this.allDeals = leads.map(lead => this.convertLeadToDeal(lead));
-        
+
         // Organize deals into columns
         this.organizeDeals();
         this.isLoading = false;
@@ -132,13 +130,13 @@ export class SalesMyDealsComponent implements OnInit {
   private estimateDealAmount(status: string): number {
     const baseAmount = 1000000;
     const randomFactor = Math.random() * 3 + 1; // 1x to 4x multiplier
-    
-    switch(status) {
-      case 'Won':
+
+    switch (status) {
+      case 'CS Executed':
         return Math.round(baseAmount * randomFactor * 1.5);
-      case 'Quoted':
+      case 'Meeting Completed':
         return Math.round(baseAmount * randomFactor * 1.2);
-      case 'Qualified':
+      case 'Meeting Fixed':
         return Math.round(baseAmount * randomFactor);
       default:
         return Math.round(baseAmount * randomFactor * 0.8);
@@ -162,11 +160,10 @@ export class SalesMyDealsComponent implements OnInit {
   // Calculate probability based on lead status
   private calculateProbability(status: string): number {
     const probabilityMap: { [key: string]: number } = {
-      'New': 25,
-      'Qualified': 50,
-      'Quoted': 75,
-      'Won': 100,
-      'Lost': 0
+      'Seeded Lead': 25,
+      'Meeting Fixed': 50,
+      'Meeting Completed': 75,
+      'CS Executed': 100
     };
     return probabilityMap[status] || 25;
   }
@@ -182,11 +179,10 @@ export class SalesMyDealsComponent implements OnInit {
 
   private getDaysBasedOnStatus(status: string): number {
     const daysMap: { [key: string]: number } = {
-      'New': 60,
-      'Qualified': 45,
-      'Quoted': 30,
-      'Won': 0,
-      'Lost': 0
+      'Seeded Lead': 60,
+      'Meeting Fixed': 45,
+      'Meeting Completed': 30,
+      'CS Executed': 0
     };
     return daysMap[status] || 45;
   }
@@ -194,26 +190,23 @@ export class SalesMyDealsComponent implements OnInit {
   // Map Lead status to Deal status
   private mapLeadStatusToDealStatus(leadStatus: string): string {
     const statusMap: { [key: string]: string } = {
-      'New': 'lead',
-      'Qualified': 'qualified',
-      'Quoted': 'proposal',
-      'Won': 'won',
-      'Lost': 'lost'
+      'Seeded Lead': 'seeded',
+      'Meeting Fixed': 'fixed',
+      'Meeting Completed': 'completed',
+      'CS Executed': 'executed'
     };
-    return statusMap[leadStatus] || 'lead';
+    return statusMap[leadStatus] || 'seeded';
   }
 
   // Map Deal status back to Lead status for updates
   private mapDealStatusToLeadStatus(dealStatus: string): string {
     const statusMap: { [key: string]: string } = {
-      'lead': 'New',
-      'qualified': 'Qualified',
-      'proposal': 'Quoted',
-      'negotiation': 'Quoted',
-      'won': 'Won',
-      'lost': 'Lost'
+      'seeded': 'Seeded Lead',
+      'fixed': 'Meeting Fixed',
+      'completed': 'Meeting Completed',
+      'executed': 'CS Executed'
     };
-    return statusMap[dealStatus] || 'New';
+    return statusMap[dealStatus] || 'Seeded Lead';
   }
 
   organizeDeals(): void {
@@ -271,7 +264,7 @@ export class SalesMyDealsComponent implements OnInit {
 
   onDrop(event: DragEvent, newStatus: string): void {
     event.preventDefault();
-    
+
     if (this.draggedDeal) {
       this.updateDealStatusInternal(this.draggedDeal, newStatus);
     }
@@ -282,8 +275,7 @@ export class SalesMyDealsComponent implements OnInit {
 
     // Optimistic update
     deal.status = newStatus;
-    if (newStatus === 'won') deal.probability = 100;
-    else if (newStatus === 'lost') deal.probability = 0;
+    if (newStatus === 'executed') deal.probability = 100;
 
     const leadStatus = this.mapDealStatusToLeadStatus(newStatus);
 
@@ -329,28 +321,28 @@ export class SalesMyDealsComponent implements OnInit {
 
   getTotalPipelineValue(): number {
     return this.allDeals
-      .filter(deal => deal.status !== 'won' && deal.status !== 'lost')
+      .filter(deal => deal.status !== 'executed')
       .reduce((sum, deal) => sum + deal.amount, 0);
   }
 
   getWonDealsValue(): number {
     return this.allDeals
-      .filter(deal => deal.status === 'won')
+      .filter(deal => deal.status === 'executed')
       .reduce((sum, deal) => sum + deal.amount, 0);
   }
 
   getActiveDealsCount(): number {
-    return this.allDeals.filter(deal => deal.status !== 'won' && deal.status !== 'lost').length;
+    return this.allDeals.filter(deal => deal.status !== 'executed').length;
   }
 
   getWinRate(): number {
-    const totalClosed = this.allDeals.filter(deal => 
-      deal.status === 'won' || deal.status === 'lost'
+    const totalClosed = this.allDeals.filter(deal =>
+      deal.status === 'executed'
     ).length;
-    
+
     if (totalClosed === 0) return 0;
-    
-    const wonDeals = this.allDeals.filter(deal => deal.status === 'won').length;
+
+    const wonDeals = this.allDeals.filter(deal => deal.status === 'executed').length;
     return Math.round((wonDeals / totalClosed) * 100);
   }
 
@@ -360,8 +352,8 @@ export class SalesMyDealsComponent implements OnInit {
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', { 
-      month: 'short', 
+    return date.toLocaleDateString('en-IN', {
+      month: 'short',
       day: 'numeric',
       year: 'numeric'
     });

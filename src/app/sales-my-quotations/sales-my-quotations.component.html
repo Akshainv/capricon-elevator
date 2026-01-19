@@ -45,16 +45,25 @@
     </div>
   </div>
 
-  <!-- Search Section -->
+  <!-- Search & Filter Section -->
   <div class="filters-section">
-    <div class="search-box">
-      <i class="fas fa-search"></i>
-      <input 
-        type="text" 
-        placeholder="Search by customer, quote number, email, company..." 
-        [(ngModel)]="searchTerm"
-        (input)="applyFiltersAndSort()"
-      />
+    <div class="filter-controls">
+      <!-- Status Filter -->
+      <div class="status-filter">
+        <select [(ngModel)]="selectedStatus" (change)="setFilterStatus($any($event.target).value)"
+          class="status-select">
+          <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+
+      <!-- Search Box -->
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search quotations..." [(ngModel)]="searchTerm"
+          (input)="applyFiltersAndSort()" />
+      </div>
     </div>
   </div>
 
@@ -80,7 +89,8 @@
             <th>Quote Date</th>
             <th>Valid Until</th>
             <th>Elevator Type</th>
-            <th>Amount</th>
+            <th>Status</th>
+            <th>Send to Client</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -109,16 +119,35 @@
               </div>
             </td>
             <td>
-              <div class="amount-total">{{ formatCurrency(quote.totalAmount || quote.totalCost) }}</div>
+              <!-- Status Label Logic -->
+              <div class="status-display" [ngClass]="{
+                    'status-pending': selectedStatus === 'Pending', 
+                    'status-approved': selectedStatus === 'Approved', 
+                    'status-rejected': selectedStatus === 'Rejected'
+                  }">
+                <!-- If Pending view, show 'Sent' as requested. Else show actual status -->
+                {{ selectedStatus === 'Pending' ? 'Sent' : ($any(quote).status || 'Sent') }}
+              </div>
+            </td>
+            <td>
+              <!-- Send Button only for Approved -->
+              <button class="btn-send-client" *ngIf="selectedStatus === 'Approved'" (click)="sendToClient(quote)"
+                title="Send to Client">
+                <i class="fas fa-paper-plane"></i> Send
+              </button>
             </td>
             <td>
               <div class="action-buttons">
                 <button class="action-btn btn-view" (click)="viewQuotation(getQuotationId(quote))" title="View Details">
                   <i class="fas fa-eye"></i>
                 </button>
-                <button class="action-btn btn-deal" (click)="convertToDeal(getQuotationId(quote))" title="Convert to Deal">
+
+                <!-- Deal Button only for Approved -->
+                <button class="action-btn btn-deal" *ngIf="selectedStatus === 'Approved'"
+                  (click)="convertToDeal(getQuotationId(quote))" title="Convert to Deal">
                   <i class="fas fa-handshake"></i>
                 </button>
+
                 <button class="action-btn btn-delete" (click)="deleteQuotation(getQuotationId(quote))" title="Delete">
                   <i class="fas fa-trash"></i>
                 </button>
@@ -132,7 +161,7 @@
       <div *ngIf="filteredQuotations.length === 0 && !loading" class="empty-state">
         <i class="fas fa-file-invoice"></i>
         <h3>No quotations found</h3>
-    
+
       </div>
     </div>
 

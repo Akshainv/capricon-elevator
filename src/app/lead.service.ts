@@ -1,8 +1,8 @@
-// src/app/services/lead.service.ts (Frontend) - FIXED VERSION
+// src/app/lead.service.ts (Frontend) - RESTORED VERSION
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, Subject } from 'rxjs';
-import { catchError, map, tap, delay } from 'rxjs/operators';
+import { catchError, map, tap, delay, switchMap } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 
 export interface Lead {
@@ -12,7 +12,7 @@ export interface Lead {
   phoneNumber: string;
   companyName?: string;
   leadSource: 'Walk-in' | 'Website' | 'Reference' | 'Phone Call' | 'Email' | 'Social Media' | 'Other';
-  status: 'New' | 'Qualified' | 'Quoted' | 'Won' | 'Lost';
+  status: 'Seeded Lead' | 'Meeting Fixed' | 'Meeting Completed' | 'CS Executed';
   assignedTo: string;
   createdBy: string;
   notes?: string;
@@ -38,7 +38,7 @@ export interface UpdateLead {
   phoneNumber?: string;
   companyName?: string;
   leadSource?: 'Walk-in' | 'Website' | 'Reference' | 'Phone Call' | 'Email' | 'Social Media' | 'Other';
-  status?: 'New' | 'Qualified' | 'Quoted' | 'Won' | 'Lost';
+  status?: 'Seeded Lead' | 'Meeting Fixed' | 'Meeting Completed' | 'CS Executed';
   assignedTo?: string;
   createdBy?: string;
   notes?: string;
@@ -70,14 +70,14 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class LeadsService {
- private apiUrl = 'https://capricon-elevator-api.onrender.com/lead';  // ✅ CORRECT
+  private apiUrl = 'https://capricon-elevator-api.onrender.com/lead';  // ✅ CORRECT
   public leadsUpdated = new Subject<void>();
   public leadsUpdated$ = this.leadsUpdated.asObservable();
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   private getHeaders() {
     return {
@@ -118,23 +118,23 @@ export class LeadsService {
       console.error('User not logged in or userId not found');
       return throwError(() => new Error('User not logged in'));
     }
-    
+
     const userId = String(currentUser.userId).trim().toLowerCase();
     console.log('==============================================');
     console.log('🔍 Fetching leads CREATED by userId:', userId);
     console.log('==============================================');
-    
+
     return this.getAllLeads().pipe(
       map(allLeads => {
         console.log('📦 Total leads from backend:', allLeads.length);
-        
+
         const createdLeads = allLeads.filter(lead => {
           const leadCreatedBy = String(lead.createdBy || '').trim().toLowerCase();
           const leadAssignedTo = String(lead.assignedTo || '').trim().toLowerCase();
-          
+
           const isCreatedByMe = leadCreatedBy === userId;
           const notConverted = !lead.isConverted;
-          
+
           console.log('─────────────────────────────────────────────');
           console.log(`📝 Lead: ${lead.fullName}`);
           console.log(`   createdBy: "${leadCreatedBy}"`);
@@ -145,15 +145,15 @@ export class LeadsService {
           console.log(`   ✅ isCreatedByMe: ${isCreatedByMe}`);
           console.log(`   ✅ notConverted: ${notConverted}`);
           console.log(`   🎯 Will show in Created Leads: ${isCreatedByMe && notConverted}`);
-          
+
           return isCreatedByMe && notConverted;
         });
-        
+
         console.log('==============================================');
         console.log('✅ Filtered CREATED leads:', createdLeads.length);
         console.log('Created leads:', createdLeads);
         console.log('==============================================');
-        
+
         return createdLeads;
       }),
       catchError(this.handleError)
@@ -170,7 +170,7 @@ export class LeadsService {
       console.error('User not logged in or userId not found');
       return throwError(() => new Error('User not logged in'));
     }
-    
+
     // ✅ CRITICAL FIX: Normalize userId - trim, lowercase, remove any special characters
     const userId = String(currentUser.userId).trim().toLowerCase().replace(/[\s\u200B-\u200D\uFEFF]/g, '');
     console.log('==============================================');
@@ -179,23 +179,23 @@ export class LeadsService {
     console.log('User ID length:', userId.length);
     console.log('User ID char codes:', Array.from(userId).map(c => c.charCodeAt(0)));
     console.log('==============================================');
-    
+
     return this.getAllLeads().pipe(
       map(allLeads => {
         console.log('📦 Total leads from backend:', allLeads.length);
-        
+
         const assignedLeads = allLeads.filter(lead => {
           // ✅ CRITICAL FIX: Normalize both IDs the same way for comparison
           const leadAssignedTo = String(lead.assignedTo || '').trim().toLowerCase().replace(/[\s\u200B-\u200D\uFEFF]/g, '');
           const leadCreatedBy = String(lead.createdBy || '').trim().toLowerCase().replace(/[\s\u200B-\u200D\uFEFF]/g, '');
-          
+
           // ✅ ENHANCED: Multiple comparison methods
-          const isAssignedToMe = 
+          const isAssignedToMe =
             leadAssignedTo === userId || // Exact match
             leadAssignedTo.includes(userId) || // Contains match
             userId.includes(leadAssignedTo) || // Reverse contains
             this.compareIds(leadAssignedTo, userId); // Flexible comparison
-          
+
           const notConverted = !lead.isConverted;
           const hasAssignedTo = leadAssignedTo && leadAssignedTo.length > 0;
 
@@ -219,12 +219,12 @@ export class LeadsService {
 
           return isAssignedToMe && notConverted && hasAssignedTo;
         });
-        
+
         console.log('==============================================');
         console.log('✅ Filtered ASSIGNED leads (by admin):', assignedLeads.length);
         console.log('Assigned leads:', assignedLeads);
         console.log('==============================================');
-        
+
         return assignedLeads;
       }),
       catchError(this.handleError)
@@ -237,11 +237,11 @@ export class LeadsService {
    */
   private compareIds(id1: string, id2: string): boolean {
     if (!id1 || !id2) return false;
-    
+
     // Normalize both IDs
     const norm1 = id1.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
     const norm2 = id2.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-    
+
     // Check if either contains the other (for partial ObjectId matches)
     if (norm1.length >= 20 && norm2.length >= 20) {
       // Both look like ObjectIds - compare last 12 chars (the unique part)
@@ -249,7 +249,7 @@ export class LeadsService {
       const end2 = norm2.slice(-12);
       return end1 === end2;
     }
-    
+
     return norm1 === norm2;
   }
 
@@ -258,18 +258,45 @@ export class LeadsService {
    */
   getUnassignedAndUnconvertedLeads(): Observable<Lead[]> {
     return this.getAllLeads().pipe(
-      map(leads => leads.filter(lead => 
-        !lead.isConverted && 
-        lead.status === 'New' &&
+      map(leads => leads.filter(lead =>
+        !lead.isConverted &&
+        lead.status === 'Seeded Lead' &&
         (!lead.assignedTo || lead.assignedTo === '')
       ))
     );
   }
 
+  /**
+   * ✅ FIXED: Use PUT for updates (backend doesn't support PATCH)
+   * Sends the full update object as required by the API
+   */
   updateLead(id: string, lead: UpdateLead): Observable<Lead> {
+    console.log('📤 Sending PUT request to update lead:', id, lead);
     return this.http.put<ApiResponse<Lead>>(`${this.apiUrl}/${id}`, lead, this.getHeaders()).pipe(
+      tap(response => console.log('📥 Backend response:', response)),
       map(response => response.data!),
-      tap(() => this.leadsUpdated.next()),
+      tap(() => {
+        console.log('✅ Lead updated, notifying subscribers...');
+        this.leadsUpdated.next();
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * ✅ DEDICATED STATUS UPDATE: Use PATCH for efficient status-only updates
+   * Fulfils the requirement for a dedicated status update API
+   */
+  updateLeadStatus(id: string, newStatus: string): Observable<Lead> {
+    console.log('📤 Updating lead status (PATCH):', id, '→', newStatus);
+
+    return this.http.patch<ApiResponse<Lead>>(`${this.apiUrl}/${id}/status`, { status: newStatus }, this.getHeaders()).pipe(
+      tap(response => console.log('📥 Status update response:', response)),
+      map(response => response.data!),
+      tap(() => {
+        console.log('✅ Status updated via PATCH, notifying all components...');
+        this.leadsUpdated.next();
+      }),
       catchError(this.handleError)
     );
   }
@@ -310,7 +337,7 @@ export class LeadsService {
     );
   }
 
-  getLeadsByStatus(status: 'New' | 'Qualified' | 'Quoted' | 'Won' | 'Lost'): Observable<Lead[]> {
+  getLeadsByStatus(status: 'Seeded Lead' | 'Meeting Fixed' | 'Meeting Completed' | 'CS Executed'): Observable<Lead[]> {
     return this.getAllLeads().pipe(
       map(leads => leads.filter(lead => lead.status === status))
     );
@@ -323,13 +350,13 @@ export class LeadsService {
   }
 
   getNewLeads(): Observable<Lead[]> {
-    return this.getLeadsByStatus('New');
+    return this.getLeadsByStatus('Seeded Lead');
   }
 
   getUnassignedLeads(): Observable<Lead[]> {
     return this.getAllLeads().pipe(
-      map(leads => leads.filter(lead => 
-        lead.status === 'New' && (!lead.assignedTo || lead.assignedTo === '')
+      map(leads => leads.filter(lead =>
+        lead.status === 'Seeded Lead' && (!lead.assignedTo || lead.assignedTo === '')
       ))
     );
   }
@@ -340,9 +367,9 @@ export class LeadsService {
       console.error('User not logged in or userId not found');
       return throwError(() => new Error('User not logged in'));
     }
-    
+
     const userId = currentUser.userId;
-    
+
     return this.getAllLeads().pipe(
       map(leads => {
         const myLeads = leads.filter(lead => lead.assignedTo === userId && lead.createdBy !== userId);
@@ -354,7 +381,7 @@ export class LeadsService {
   searchLeads(searchTerm: string): Observable<Lead[]> {
     const term = searchTerm.toLowerCase().trim();
     return this.getAllLeads().pipe(
-      map(leads => leads.filter(lead => 
+      map(leads => leads.filter(lead =>
         lead.fullName.toLowerCase().includes(term) ||
         lead.email.toLowerCase().includes(term) ||
         lead.phoneNumber.includes(term) ||
@@ -365,29 +392,27 @@ export class LeadsService {
 
   getLeadStats(): Observable<{
     total: number;
-    new: number;
-    qualified: number;
-    quoted: number;
-    won: number;
-    lost: number;
+    seeded: number;
+    fixed: number;
+    completed: number;
+    executed: number;
   }> {
     return this.getAllLeads().pipe(
       map(leads => ({
         total: leads.length,
-        new: leads.filter(l => l.status === 'New').length,
-        qualified: leads.filter(l => l.status === 'Qualified').length,
-        quoted: leads.filter(l => l.status === 'Quoted').length,
-        won: leads.filter(l => l.status === 'Won').length,
-        lost: leads.filter(l => l.status === 'Lost').length
+        seeded: leads.filter(l => l.status === 'Seeded Lead').length,
+        fixed: leads.filter(l => l.status === 'Meeting Fixed').length,
+        completed: leads.filter(l => l.status === 'Meeting Completed').length,
+        executed: leads.filter(l => l.status === 'CS Executed').length
       }))
     );
   }
 
-  bulkUpdateStatus(leadIds: string[], status: 'New' | 'Qualified' | 'Quoted' | 'Won' | 'Lost'): Observable<Lead[]> {
-    const updates = leadIds.map(id => 
+  bulkUpdateStatus(leadIds: string[], status: 'Seeded Lead' | 'Meeting Fixed' | 'Meeting Completed' | 'CS Executed'): Observable<Lead[]> {
+    const updates = leadIds.map(id =>
       this.updateLead(id, { status }).toPromise()
     );
-    
+
     return new Observable(observer => {
       Promise.all(updates)
         .then(results => {
@@ -400,7 +425,7 @@ export class LeadsService {
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
-    
+
     if (error.error instanceof ErrorEvent) {
       errorMessage = `Client Error: ${error.error.message}`;
     } else {
@@ -410,7 +435,7 @@ export class LeadsService {
         errorMessage = `Server Error: ${error.status} - ${error.message}`;
       }
     }
-    
+
     console.error('Lead Service Error:', errorMessage, error);
     return throwError(() => new Error(errorMessage));
   }

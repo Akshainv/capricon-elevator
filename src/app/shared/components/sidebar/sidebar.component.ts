@@ -27,6 +27,7 @@ interface MenuSection {
 export class SidebarComponent implements OnInit, OnDestroy {
   currentLogo: string = 'assets/images/logo-light.png';
   collapsed: boolean = false;
+  mobileMenuOpen: boolean = false;
   private resizeHandler = () => this.handleResize();
   private destroy$ = new Subject<void>();
 
@@ -42,8 +43,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
       title: 'Sales',
       items: [
         { icon: 'fa-users', label: 'Leads', route: '/admin/leads' },
-        { icon: 'fa-handshake', label: 'Deals', route: '/admin/deals' },
-        { icon: 'fa-user-plus', label: 'Assign Leads', route: '/admin/leads/assign' }  // NEW ITEM ADDED
+        { icon: 'fa-user-plus', label: 'Assign Leads', route: '/admin/leads/assign' },
+        { icon: 'fa-file-invoice', label: 'Quotation', route: '/admin/admin-quotations' },
+        { icon: 'fa-handshake', label: 'Deals', route: '/admin/deals' }
       ]
     },
     {
@@ -55,7 +57,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     {
       title: 'Reports',
       items: [
-        { icon: 'fa-chart-bar', label: 'Projects  Report', route: '/admin/reports' }
+        { icon: 'fa-chart-bar', label: 'Report Dashboard', route: '/admin/reports' }
       ]
     }
   ];
@@ -72,12 +74,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     console.log('Sidebar: ngOnInit called');
     console.log('Menu sections loaded:', this.menuSections);
-    
+
     this.themeService.theme$
       .pipe(takeUntil(this.destroy$))
       .subscribe((theme: 'dark' | 'light') => {
         console.log('Theme changed to:', theme);
-        
+
         if (theme === 'dark') {
           this.currentLogo = 'assets/images/logo1.png';
           console.log('   → Using logo1.png (light version)');
@@ -107,15 +109,42 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   toggleCollapse(): void {
-    this.collapsed = !this.collapsed;
-    const el = document.querySelector('.sidebar');
-    if (el) el.classList.toggle('collapsed', this.collapsed);
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+      this.mobileMenuOpen = !this.mobileMenuOpen;
+      // Prevent body scroll when menu is open
+      if (this.mobileMenuOpen) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+    } else {
+      this.collapsed = !this.collapsed;
+    }
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+    document.body.style.overflow = '';
+  }
+
+  onMenuItemClick(): void {
+    // Close mobile menu when clicking a menu item
+    if (window.innerWidth <= 768) {
+      this.closeMobileMenu();
+    }
   }
 
   private handleResize(): void {
-    const shouldCollapse = window.innerWidth <= 768;
-    this.collapsed = shouldCollapse;
-    const el = document.querySelector('.sidebar');
-    if (el) el.classList.toggle('collapsed', shouldCollapse);
+    const isMobile = window.innerWidth <= 768;
+
+    if (!isMobile) {
+      // Reset mobile menu state on desktop
+      this.mobileMenuOpen = false;
+      document.body.style.overflow = '';
+      // Auto-collapse based on screen size for tablets
+      this.collapsed = window.innerWidth <= 1024 && window.innerWidth > 768;
+    }
   }
 }

@@ -1,9 +1,26 @@
-// src/app/services/lead.service.ts (Frontend) - FIXED VERSION
+// src/app/services/lead.service.ts (Frontend) - COMPLETE FIXED VERSION
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, Subject } from 'rxjs';
-import { catchError, map, tap, delay } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+
+// ✅ All possible status values
+export type LeadStatus = 
+  | 'Seeded Lead' 
+  | 'Meeting Fixed' 
+  | 'Meeting Completed' 
+  | 'CS Executed'
+  | 'New'
+  | 'Contacted'
+  | 'Visit Scheduled'
+  | 'Visit Completed'
+  | 'Qualified'
+  | 'Quoted'
+  | 'Won'
+  | 'Lost'
+  | 'Pending'
+  | 'Follow-Up';
 
 export interface Lead {
   _id: string;
@@ -12,7 +29,7 @@ export interface Lead {
   phoneNumber: string;
   companyName?: string;
   leadSource: 'Walk-in' | 'Website' | 'Reference' | 'Phone Call' | 'Email' | 'Social Media' | 'Other';
-  status: 'New' | 'Qualified' | 'Quoted' | 'Won' | 'Lost';
+  status: LeadStatus;
   assignedTo: string;
   createdBy: string;
   notes?: string;
@@ -38,7 +55,7 @@ export interface UpdateLead {
   phoneNumber?: string;
   companyName?: string;
   leadSource?: 'Walk-in' | 'Website' | 'Reference' | 'Phone Call' | 'Email' | 'Social Media' | 'Other';
-  status?: 'New' | 'Qualified' | 'Quoted' | 'Won' | 'Lost';
+  status?: LeadStatus;
   assignedTo?: string;
   createdBy?: string;
   notes?: string;
@@ -107,11 +124,6 @@ export class LeadsService {
     );
   }
 
-  /**
-   * ✅ FIXED: Get leads created by current user (for "Created Leads" dropdown)
-   * Shows ALL leads created by the user, regardless of assignment status
-   * Only excludes leads that have been converted to deals
-   */
   getLeadsCreatedByMe(): Observable<Lead[]> {
     const currentUser = this.authService.currentUserValue;
     if (!currentUser || !currentUser.userId) {
@@ -120,39 +132,15 @@ export class LeadsService {
     }
     
     const userId = String(currentUser.userId).trim().toLowerCase();
-    console.log('==============================================');
-    console.log('🔍 Fetching leads CREATED by userId:', userId);
-    console.log('==============================================');
     
     return this.getAllLeads().pipe(
       map(allLeads => {
-        console.log('📦 Total leads from backend:', allLeads.length);
-        
         const createdLeads = allLeads.filter(lead => {
           const leadCreatedBy = String(lead.createdBy || '').trim().toLowerCase();
-          const leadAssignedTo = String(lead.assignedTo || '').trim().toLowerCase();
-          
           const isCreatedByMe = leadCreatedBy === userId;
           const notConverted = !lead.isConverted;
-          
-          console.log('─────────────────────────────────────────────');
-          console.log(`📝 Lead: ${lead.fullName}`);
-          console.log(`   createdBy: "${leadCreatedBy}"`);
-          console.log(`   userId: "${userId}"`);
-          console.log(`   assignedTo: "${leadAssignedTo}"`);
-          console.log(`   status: ${lead.status}`);
-          console.log(`   isConverted: ${lead.isConverted}`);
-          console.log(`   ✅ isCreatedByMe: ${isCreatedByMe}`);
-          console.log(`   ✅ notConverted: ${notConverted}`);
-          console.log(`   🎯 Will show in Created Leads: ${isCreatedByMe && notConverted}`);
-          
           return isCreatedByMe && notConverted;
         });
-        
-        console.log('==============================================');
-        console.log('✅ Filtered CREATED leads:', createdLeads.length);
-        console.log('Created leads:', createdLeads);
-        console.log('==============================================');
         
         return createdLeads;
       }),
@@ -160,10 +148,6 @@ export class LeadsService {
     );
   }
 
-  /**
-   * ✅ CRITICAL FIX: Get leads assigned to current user by admin (for "Assigned Leads" dropdown)
-   * Enhanced string comparison with normalization and case-insensitivity
-   */
   getLeadsAssignedToMe(): Observable<Lead[]> {
     const currentUser = this.authService.currentUserValue;
     if (!currentUser || !currentUser.userId) {
@@ -171,59 +155,23 @@ export class LeadsService {
       return throwError(() => new Error('User not logged in'));
     }
     
-    // ✅ CRITICAL FIX: Normalize userId - trim, lowercase, remove any special characters
     const userId = String(currentUser.userId).trim().toLowerCase().replace(/[\s\u200B-\u200D\uFEFF]/g, '');
-    console.log('==============================================');
-    console.log('🔍 Fetching leads ASSIGNED to userId:', userId);
-    console.log('User ID type:', typeof userId);
-    console.log('User ID length:', userId.length);
-    console.log('User ID char codes:', Array.from(userId).map(c => c.charCodeAt(0)));
-    console.log('==============================================');
     
     return this.getAllLeads().pipe(
       map(allLeads => {
-        console.log('📦 Total leads from backend:', allLeads.length);
-        
         const assignedLeads = allLeads.filter(lead => {
-          // ✅ CRITICAL FIX: Normalize both IDs the same way for comparison
           const leadAssignedTo = String(lead.assignedTo || '').trim().toLowerCase().replace(/[\s\u200B-\u200D\uFEFF]/g, '');
-          const leadCreatedBy = String(lead.createdBy || '').trim().toLowerCase().replace(/[\s\u200B-\u200D\uFEFF]/g, '');
-          
-          // ✅ ENHANCED: Multiple comparison methods
           const isAssignedToMe = 
-            leadAssignedTo === userId || // Exact match
-            leadAssignedTo.includes(userId) || // Contains match
-            userId.includes(leadAssignedTo) || // Reverse contains
-            this.compareIds(leadAssignedTo, userId); // Flexible comparison
+            leadAssignedTo === userId || 
+            leadAssignedTo.includes(userId) || 
+            userId.includes(leadAssignedTo) || 
+            this.compareIds(leadAssignedTo, userId);
           
           const notConverted = !lead.isConverted;
           const hasAssignedTo = leadAssignedTo && leadAssignedTo.length > 0;
 
-          console.log('─────────────────────────────────────────────');
-          console.log(`📝 Lead: ${lead.fullName}`);
-          console.log(`   Raw assignedTo: "${lead.assignedTo}" (type: ${typeof lead.assignedTo})`);
-          console.log(`   Normalized assignedTo: "${leadAssignedTo}" (length: ${leadAssignedTo.length})`);
-          console.log(`   assignedTo char codes:`, Array.from(leadAssignedTo).map(c => c.charCodeAt(0)));
-          console.log(`   Raw createdBy: "${lead.createdBy}"`);
-          console.log(`   Normalized createdBy: "${leadCreatedBy}"`);
-          console.log(`   Normalized userId: "${userId}" (length: ${userId.length})`);
-          console.log(`   status: ${lead.status}`);
-          console.log(`   isConverted: ${lead.isConverted}`);
-          console.log(`   ✅ hasAssignedTo: ${hasAssignedTo}`);
-          console.log(`   ✅ isAssignedToMe (exact): ${leadAssignedTo === userId}`);
-          console.log(`   ✅ isAssignedToMe (contains): ${leadAssignedTo.includes(userId)}`);
-          console.log(`   ✅ isAssignedToMe (flexible): ${this.compareIds(leadAssignedTo, userId)}`);
-          console.log(`   ✅ isAssignedToMe (final): ${isAssignedToMe}`);
-          console.log(`   ✅ notConverted: ${notConverted}`);
-          console.log(`   🎯 Will show in Assigned Leads: ${isAssignedToMe && notConverted && hasAssignedTo}`);
-
           return isAssignedToMe && notConverted && hasAssignedTo;
         });
-        
-        console.log('==============================================');
-        console.log('✅ Filtered ASSIGNED leads (by admin):', assignedLeads.length);
-        console.log('Assigned leads:', assignedLeads);
-        console.log('==============================================');
         
         return assignedLeads;
       }),
@@ -231,20 +179,13 @@ export class LeadsService {
     );
   }
 
-  /**
-   * ✅ NEW: Flexible ID comparison helper
-   * Handles ObjectId string differences and various formats
-   */
   private compareIds(id1: string, id2: string): boolean {
     if (!id1 || !id2) return false;
     
-    // Normalize both IDs
     const norm1 = id1.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
     const norm2 = id2.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
     
-    // Check if either contains the other (for partial ObjectId matches)
     if (norm1.length >= 20 && norm2.length >= 20) {
-      // Both look like ObjectIds - compare last 12 chars (the unique part)
       const end1 = norm1.slice(-12);
       const end2 = norm2.slice(-12);
       return end1 === end2;
@@ -253,24 +194,64 @@ export class LeadsService {
     return norm1 === norm2;
   }
 
-  /**
-   * Get unassigned and unconverted leads for admin assignment page
-   */
   getUnassignedAndUnconvertedLeads(): Observable<Lead[]> {
     return this.getAllLeads().pipe(
       map(leads => leads.filter(lead => 
         !lead.isConverted && 
-        lead.status === 'New' &&
+        (lead.status === 'Seeded Lead' || lead.status === 'New') &&
         (!lead.assignedTo || lead.assignedTo === '')
       ))
     );
   }
 
   updateLead(id: string, lead: UpdateLead): Observable<Lead> {
+    console.log('Frontend: Sending update request for lead:', id);
+    
     return this.http.put<ApiResponse<Lead>>(`${this.apiUrl}/${id}`, lead, this.getHeaders()).pipe(
-      map(response => response.data!),
+      map(response => {
+        console.log('Frontend: Received update response:', response.data);
+        return response.data!;
+      }),
       tap(() => this.leadsUpdated.next()),
       catchError(this.handleError)
+    );
+  }
+
+  // ✅ CRITICAL: Dedicated status update method using PATCH
+  updateLeadStatus(leadId: string, newStatus: string): Observable<Lead> {
+    console.log('==============================================');
+    console.log('🔄 LeadService: Updating status via PATCH');
+    console.log('Lead ID:', leadId);
+    console.log('New Status:', newStatus);
+    console.log('API URL:', `${this.apiUrl}/${leadId}/status`);
+    console.log('==============================================');
+
+    return this.http.patch<ApiResponse<Lead>>(
+      `${this.apiUrl}/${leadId}/status`, 
+      { status: newStatus }, 
+      this.getHeaders()
+    ).pipe(
+      map(response => {
+        console.log('==============================================');
+        console.log('✅ Status update SUCCESS');
+        console.log('Response:', response);
+        console.log('Updated status:', response.data?.status);
+        console.log('==============================================');
+        return response.data!;
+      }),
+      tap(() => {
+        console.log('🔔 Triggering leadsUpdated event');
+        this.leadsUpdated.next();
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('==============================================');
+        console.error('❌ Status update FAILED');
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
+        console.error('Error body:', error.error);
+        console.error('==============================================');
+        return this.handleError(error);
+      })
     );
   }
 
@@ -310,7 +291,7 @@ export class LeadsService {
     );
   }
 
-  getLeadsByStatus(status: 'New' | 'Qualified' | 'Quoted' | 'Won' | 'Lost'): Observable<Lead[]> {
+  getLeadsByStatus(status: LeadStatus): Observable<Lead[]> {
     return this.getAllLeads().pipe(
       map(leads => leads.filter(lead => lead.status === status))
     );
@@ -323,13 +304,18 @@ export class LeadsService {
   }
 
   getNewLeads(): Observable<Lead[]> {
-    return this.getLeadsByStatus('New');
+    return this.getAllLeads().pipe(
+      map(leads => leads.filter(lead => 
+        lead.status === 'Seeded Lead' || lead.status === 'New'
+      ))
+    );
   }
 
   getUnassignedLeads(): Observable<Lead[]> {
     return this.getAllLeads().pipe(
       map(leads => leads.filter(lead => 
-        lead.status === 'New' && (!lead.assignedTo || lead.assignedTo === '')
+        (lead.status === 'Seeded Lead' || lead.status === 'New') && 
+        (!lead.assignedTo || lead.assignedTo === '')
       ))
     );
   }
@@ -337,17 +323,15 @@ export class LeadsService {
   getMyLeads(): Observable<Lead[]> {
     const currentUser = this.authService.currentUserValue;
     if (!currentUser || !currentUser.userId) {
-      console.error('User not logged in or userId not found');
       return throwError(() => new Error('User not logged in'));
     }
     
     const userId = currentUser.userId;
     
     return this.getAllLeads().pipe(
-      map(leads => {
-        const myLeads = leads.filter(lead => lead.assignedTo === userId && lead.createdBy !== userId);
-        return myLeads;
-      })
+      map(leads => leads.filter(lead => 
+        lead.assignedTo === userId && lead.createdBy !== userId
+      ))
     );
   }
 
@@ -363,27 +347,24 @@ export class LeadsService {
     );
   }
 
-  getLeadStats(): Observable<{
-    total: number;
-    new: number;
-    qualified: number;
-    quoted: number;
-    won: number;
-    lost: number;
-  }> {
+  getLeadStats(): Observable<any> {
     return this.getAllLeads().pipe(
       map(leads => ({
         total: leads.length,
+        seededLead: leads.filter(l => l.status === 'Seeded Lead').length,
+        meetingFixed: leads.filter(l => l.status === 'Meeting Fixed').length,
+        meetingCompleted: leads.filter(l => l.status === 'Meeting Completed').length,
+        csExecuted: leads.filter(l => l.status === 'CS Executed').length,
         new: leads.filter(l => l.status === 'New').length,
+        contacted: leads.filter(l => l.status === 'Contacted').length,
         qualified: leads.filter(l => l.status === 'Qualified').length,
-        quoted: leads.filter(l => l.status === 'Quoted').length,
         won: leads.filter(l => l.status === 'Won').length,
         lost: leads.filter(l => l.status === 'Lost').length
       }))
     );
   }
 
-  bulkUpdateStatus(leadIds: string[], status: 'New' | 'Qualified' | 'Quoted' | 'Won' | 'Lost'): Observable<Lead[]> {
+  bulkUpdateStatus(leadIds: string[], status: LeadStatus): Observable<Lead[]> {
     const updates = leadIds.map(id => 
       this.updateLead(id, { status }).toPromise()
     );

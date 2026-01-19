@@ -45,7 +45,7 @@ export class LeadAssignmentComponent implements OnInit {
     private leadsService: LeadsService,
     private employeeService: EmployeeService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -62,17 +62,17 @@ export class LeadAssignmentComponent implements OnInit {
   loadUnassignedLeads(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    
+
     this.leadsService.getAllLeads().subscribe({
       next: (allLeads: Lead[]) => {
         const unassignedLeads = allLeads.filter(lead => {
           const isUnassigned = !lead.assignedTo || lead.assignedTo === '' || lead.assignedTo === null;
-          const isNew = lead.status === 'New';
+          const isNew = lead.status === 'Seeded Lead';
           const notConverted = !lead.isConverted;
-          
+
           return isNew && isUnassigned && notConverted;
         });
-        
+
         this.leads = unassignedLeads.map(lead => ({
           id: lead._id,
           name: lead.fullName,
@@ -99,9 +99,8 @@ export class LeadAssignmentComponent implements OnInit {
           next: (allLeads: Lead[]) => {
             this.salesPersons = employees.map(emp => {
               const activeLeadsCount = allLeads.filter(
-                lead => lead.assignedTo === emp._id && 
-                       lead.status !== 'Won' && 
-                       lead.status !== 'Lost'
+                lead => lead.assignedTo === emp._id &&
+                  lead.status !== 'CS Executed'
               ).length;
 
               return {
@@ -174,7 +173,7 @@ export class LeadAssignmentComponent implements OnInit {
 
     const formData = this.assignmentForm.value;
     const selectedLeadIds = this.selectedLeads.map(lead => lead.id);
-    
+
     const assignmentData = {
       leadIds: selectedLeadIds,
       assignedSales: formData.salesPerson,
@@ -193,24 +192,24 @@ export class LeadAssignmentComponent implements OnInit {
         console.log('==============================================');
         console.log('Frontend: Assignment response received:', response);
         console.log('==============================================');
-        
+
         // ✅ CRITICAL FIX: Add delay to ensure backend MongoDB writes are persisted
         // Wait 800ms before triggering refresh to allow backend updates to complete
         setTimeout(() => {
           console.log('Frontend: Triggering refresh after delay...');
-          
+
           // Trigger real-time update for all subscribed components
           this.leadsService.leadsUpdated.next();
-          
+
           this.isLoading = false;
-          
+
           alert(`Successfully assigned ${this.selectedCount} lead(s) to ${this.getSelectedSalesPersonName()}`);
-          
+
           // Reset form and reload unassigned leads
           this.assignmentForm.reset();
           this.selectAll = false;
           this.loadUnassignedLeads();
-          
+
           console.log('Frontend: Refresh completed');
         }, 800); // 800ms delay to ensure backend persistence
       },
@@ -250,7 +249,7 @@ export class LeadAssignmentComponent implements OnInit {
       return;
     }
 
-    const leastBusySalesPerson = this.salesPersons.reduce((prev, current) => 
+    const leastBusySalesPerson = this.salesPersons.reduce((prev, current) =>
       prev.activeLeads < current.activeLeads ? prev : current
     );
 

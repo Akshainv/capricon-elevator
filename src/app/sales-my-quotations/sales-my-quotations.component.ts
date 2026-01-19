@@ -8,6 +8,8 @@ import { QuotationService, Quotation } from '../services/quotation.service';
 import { DealService } from '../services/deal.service';
 import { AuthService } from '../services/auth.service';
 
+declare var Toastify: any;
+
 @Component({
   selector: 'app-sales-my-quotations',
   standalone: true,
@@ -28,12 +30,16 @@ export class SalesMyQuotationsComponent implements OnInit {
   pageSize: number = 7;
   totalPages: number = 0;
 
+
+  // Filter
+  selectedStatus: string = 'Pending';
+
   constructor(
     private router: Router,
     private quotationService: QuotationService,
     private dealService: DealService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadQuotations();
@@ -42,12 +48,19 @@ export class SalesMyQuotationsComponent implements OnInit {
   loadQuotations(): void {
     this.loading = true;
     this.error = '';
-    
+
     this.quotationService.getAllQuotations().subscribe({
       next: (response) => {
         if (response.statusCode === 200) {
           const data = Array.isArray(response.data) ? response.data : [response.data];
-          this.quotations = data.map(q => this.quotationService.formatQuotationForFrontend(q));
+          this.quotations = data.map((q, index) => {
+            const formatted = this.quotationService.formatQuotationForFrontend(q);
+            // Ensure status exists
+            if (!(formatted as any).status) {
+              (formatted as any).status = 'draft';
+            }
+            return formatted;
+          });
           this.applyFiltersAndSort();
         }
         this.loading = false;
@@ -73,15 +86,36 @@ export class SalesMyQuotationsComponent implements OnInit {
     return this.totalValue / this.quotations.length;
   }
 
+  setFilterStatus(status: string): void {
+    this.selectedStatus = status;
+    this.loadQuotations(); // Re-fetch to get latest status updates from Admin
+  }
+
   applyFiltersAndSort(): void {
     this.filteredQuotations = this.quotations.filter(quote => {
-      const matchesSearch = !this.searchTerm || 
+      const status = (quote as any).status || 'draft';
+      const normalizedStatus = status.toLowerCase();
+
+      // Status Filter
+      let matchesStatus = false;
+      if (this.selectedStatus === 'Pending') {
+        // Show if explicitly pending/draft/sent OR if NOT Approved/Rejected
+        matchesStatus = ['pending', 'draft', 'sent'].includes(normalizedStatus) ||
+          (status !== 'Approved' && status !== 'Rejected');
+      } else if (this.selectedStatus === 'Approved') {
+        matchesStatus = status === 'Approved';
+      } else if (this.selectedStatus === 'Rejected') {
+        matchesStatus = status === 'Rejected';
+      }
+
+      // Search Filter
+      const matchesSearch = !this.searchTerm ||
         (quote.customerName || '').toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         (quote.quoteNumber || '').toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         (quote.customerEmail || '').toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         (quote.customerCompany || quote.companyName || '').toLowerCase().includes(this.searchTerm.toLowerCase());
 
-      return matchesSearch;
+      return matchesStatus && matchesSearch;
     });
 
     this.filteredQuotations.sort((a, b) => {
@@ -135,7 +169,7 @@ export class SalesMyQuotationsComponent implements OnInit {
       const local = this.quotations.find(q => (q.id || q._id) === id || q._id === id || q.id === id);
       if (local) {
         const previewData = this.buildPreviewFromQuotation(local);
-        try { localStorage.setItem('quotationPreview', JSON.stringify(previewData)); } catch (e) {}
+        try { localStorage.setItem('quotationPreview', JSON.stringify(previewData)); } catch (e) { }
         this.router.navigate(['/quotations/preview'], { state: { quotationData: previewData } });
         return;
       }
@@ -148,7 +182,7 @@ export class SalesMyQuotationsComponent implements OnInit {
             const backend = response.data as any;
             const formatted = this.quotationService.formatQuotationForFrontend(backend);
             const previewData = this.buildPreviewFromQuotation(formatted);
-            try { localStorage.setItem('quotationPreview', JSON.stringify(previewData)); } catch (e) {}
+            try { localStorage.setItem('quotationPreview', JSON.stringify(previewData)); } catch (e) { }
             this.router.navigate(['/quotations/preview'], { state: { quotationData: previewData } });
           } else {
             alert('Quotation data not found');
@@ -203,6 +237,128 @@ export class SalesMyQuotationsComponent implements OnInit {
       termsAndConditions: q.termsAndConditions || q.internalNotes || '',
       notes: q.notes || q.specialRequirements || ''
     };
+  }
+
+  sendToClient(quote: Quotation): void {
+    const email = quote.customerEmail;
+    if (!email) {
+      alert('Customer email is missing.');
+      return;
+    }
+
+    if (typeof Toastify !== 'undefined') {
+      const toastHtml = `
+        <div style="text-align: center;">
+          <div style="font-weight: 600; margin-bottom: 8px;">Send Quotation?</div>
+          <div style="font-size: 13px; opacity: 0.9;">Send quotation to ${email}</div>
+        </div>
+      `;
+
+      const toast = Toastify({
+        text: toastHtml,
+        duration: -1,
+        close: true,
+        gravity: "top",
+        position: "center",
+        stopOnFocus: true,
+        escapeMarkup: false,
+        style: {
+          background: "#60a5fa",
+          borderRadius: "8px",
+          fontSize: "14px",
+          fontWeight: "500",
+          textAlign: "center",
+          maxWidth: "400px",
+          padding: "20px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+        },
+        onClick: function () { }
+      }).showToast();
+
+      setTimeout(() => {
+        const toastElement = document.querySelector('.toastify') as HTMLElement;
+        if (toastElement) {
+          const buttonsHTML = `
+            <div style="margin-top: 16px; display: flex; gap: 10px; justify-content: center;">
+              <button id="toast-confirm-btn" style="padding: 8px 20px; background: white; color: #60a5fa; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">
+                Send
+              </button>
+              <button id="toast-cancel-btn" style="padding: 8px 20px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">
+                Cancel
+              </button>
+            </div>
+          `;
+          toastElement.insertAdjacentHTML('beforeend', buttonsHTML);
+
+          document.getElementById('toast-confirm-btn')?.addEventListener('click', () => {
+            toast.hideToast();
+            this.proceedSendToClient(quote);
+          });
+
+          document.getElementById('toast-cancel-btn')?.addEventListener('click', () => {
+            toast.hideToast();
+          });
+        }
+      }, 100);
+    } else {
+      if (confirm(`Send quotation to ${email}?`)) {
+        this.proceedSendToClient(quote);
+      }
+    }
+  }
+
+  private proceedSendToClient(quote: Quotation): void {
+    this.loading = true;
+    const quotationId = (quote._id || quote.id) as string;
+    const email = quote.customerEmail;
+
+    // Use existing buildPreview logic as it matches the PDF data structure
+    const quotationData = this.buildPreviewFromQuotation(quote);
+
+    console.log('📧 Sending email to client...');
+
+    this.quotationService.sendQuotationWithPDF(quotationId, email, quotationData).subscribe({
+      next: (response) => {
+        this.loading = false;
+        console.log('✅ Email sent successfully!', response);
+        this.showToast(`Quotation sent to ${email} successfully!`, 'success');
+
+        // Optionally update status to 'Sent' if it was 'Approved'
+        // But prompt says "Visible only for Approved", typically it might stay approved or change to sent.
+        // I'll leave status update optional or separate. The prompt says "Reuse existing logic".
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('❌ Error sending email:', error);
+        this.showToast('Failed to send email. Please try again.', 'error');
+      }
+    });
+  }
+
+  showToast(message: string, type: 'success' | 'error' | 'info' = 'info') {
+    if (typeof Toastify !== 'undefined') {
+      let backgroundColor = '#60a5fa';
+      if (type === 'success') backgroundColor = '#22c55e';
+      if (type === 'error') backgroundColor = '#ef4444';
+
+      Toastify({
+        text: message,
+        duration: 4000,
+        close: true,
+        gravity: "top",
+        position: "right",
+        stopOnFocus: true,
+        style: {
+          background: backgroundColor,
+          borderRadius: "8px",
+          padding: "12px 20px",
+          fontSize: "14px",
+          fontWeight: "500"
+        }
+      }).showToast();
+    } else {
+      alert(message);
+    }
   }
 
   deleteQuotation(id: string | undefined): void {
@@ -273,18 +429,18 @@ export class SalesMyQuotationsComponent implements OnInit {
         next: (deal) => {
           this.loading = false;
           console.log('Deal created successfully:', deal);
-          
+
           alert(`✓ Quotation converted to deal successfully!\n\nDeal Title: ${deal.title || deal.dealTitle || 'New Deal'}\nDeal Amount: ${this.formatCurrency(deal.dealAmount || quotation.totalAmount)}\n\nThe new deal is now available in the Deals section.`);
-          
+
           // Stay on the current page and refresh the list
           this.loadQuotations();
         },
         error: (error) => {
           this.loading = false;
           console.error('Error converting quotation to deal:', error);
-          
+
           let errorMessage = 'Failed to convert quotation to deal.\n\n';
-          
+
           if (error.status === 400) {
             errorMessage += 'Bad Request: ';
             if (error.error && error.error.message) {
@@ -299,7 +455,7 @@ export class SalesMyQuotationsComponent implements OnInit {
           } else {
             errorMessage += error.message || 'Unknown error occurred.';
           }
-          
+
           errorMessage += '\n\nPlease check the browser console for more details.';
           alert(errorMessage);
         }
@@ -317,7 +473,7 @@ export class SalesMyQuotationsComponent implements OnInit {
   formatDate(dateString: string): string {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', { 
+    return date.toLocaleDateString('en-IN', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
@@ -340,5 +496,18 @@ export class SalesMyQuotationsComponent implements OnInit {
 
   getQuotationId(quote: Quotation): string {
     return (quote._id || quote.id || '') as string;
+  }
+
+  updateQuotationStatus(quote: Quotation, newStatus: string, event: Event): void {
+    event.stopPropagation();
+    // Since we are UI-only, we just update the local object
+    (quote as any).status = newStatus;
+    // Force UI update if needed, though Angular change detection should handle it
+  }
+
+  getQuotationStatusClass(status: string): string {
+    if (status === 'Approved') return 'status-approved';
+    if (status === 'Not Approved') return 'status-not-approved';
+    return ''; // Default or unknown
   }
 }

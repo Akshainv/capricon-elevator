@@ -63,12 +63,13 @@ import { CustomReportBuilderComponent } from './features/reports/custom-report-b
 import { ExportReportsComponent } from './features/reports/export-reports/export-reports.component';
 import { SalesMyPerformanceComponent } from './sales-my-perfomance/sales-my-perfomance.component';
 import { SalesReportsComponent } from './sales-reports/sales-reports.component';
+import { AdminQuotationComponent } from './admin-quotation/admin-quotation.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterHereComponent },
-  
+
   {
     path: '',
     component: MainLayoutComponent,
@@ -76,17 +77,17 @@ export const routes: Routes = [
       // ========================================
       // 👨‍💼 SALES EXECUTIVE ROUTES
       // ========================================
-      
+
       // Dashboard
       { path: 'dashboard', component: SalesDashboardComponent },
-      
+
       // Profile & Settings
       { path: 'profile', component: SalesProfileComponent },
       { path: 'settings', component: SalesSettingsComponent },
-      
+
       // Notifications (Sales Executive)
       { path: 'notifications', component: AdminNotificationsComponent },
-      
+
       // Lead Management (Sales Executive View)
       { path: 'leads', component: SalesLeadsComponent },
       { path: 'leads/add', component: SalesAddLeadComponent },
@@ -98,7 +99,7 @@ export const routes: Routes = [
       { path: 'activities', component: SalesActivityLogComponent },
       { path: 'tasks', component: SalesMyTasksComponent },
       { path: 'calendar', component: SalesCalendarComponent },
-      
+
       // Quotation Management (Sales Executive)
       { path: 'quotations', component: SalesMyQuotationsComponent },
       { path: 'quotations/create', component: SalesCreateQuotationComponent },
@@ -107,26 +108,26 @@ export const routes: Routes = [
       { path: 'quotations/preview', component: QuotationPreviewComponent },
       { path: 'quotations/preview/:id', component: QuotationPreviewComponent },
       { path: 'quotations/:id', component: SalesQuotationDetailsComponent },
-      
+
       // Deal Management (Sales Executive)
       { path: 'deals', component: SalesMyDealsComponent },
       { path: 'deals/create', component: DealFormComponent },
       { path: 'deals/edit/:id', component: DealFormComponent },
       { path: 'deals/:id', component: SalesDealDetailsComponent },
-      
+
       // Project Management (Sales Executive - View Only)
       { path: 'projects', component: SalesMyProjectsComponent },
       { path: 'projects/:id', component: ProjectTrackingComponent },
-      
+
       // Reports (Sales Executive - Personal Performance)
       { path: 'reports', component: SalesReportsComponent },
       { path: 'reports/performance', component: SalesMyPerformanceComponent },
       { path: 'reports/sales', component: SalesReportsComponent },
-      
+
       // ========================================
       // 🧑‍💼 ADMIN ROUTES (with /admin prefix)
       // ========================================
-      
+
       // Admin Dashboard
       { path: 'admin-dashboard', component: DashboardHomeComponent },
       { path: 'admin/dashboard', component: DashboardHomeComponent },
@@ -150,7 +151,8 @@ export const routes: Routes = [
       { path: 'admin/calendar', component: SalesCalendarComponent },
 
       // Admin Quotations
-      { path: 'admin/quotations', component: QuotationListComponent },
+      { path: 'admin/quotations', component: QuotationListComponent }, // Keep existing just in case, but unused by sidebar
+      { path: 'admin/admin-quotations', component: AdminQuotationComponent }, // NEW ROUTE
       { path: 'admin/quotations/create', component: QuotationBuilderComponent },
       { path: 'admin/quotations/preview', component: QuotationPreviewComponent },
       { path: 'admin/quotations/edit/:id', component: QuotationBuilderComponent },

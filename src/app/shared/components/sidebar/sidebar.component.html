@@ -1,38 +1,29 @@
-<div class="sidebar">
+<div class="sidebar" [class.collapsed]="collapsed" [class.mobile-open]="mobileMenuOpen">
   <!-- Sidebar Header -->
   <div class="sidebar-header">
     <div class="logo-container">
-      <img 
-        [src]="currentLogo" 
-        alt="Capricorn CRM Logo" 
-        class="sidebar-logo"
-        (error)="currentLogo = 'assets/images/logo1.png'"
-      >
+      <img [src]="currentLogo" alt="Capricorn CRM Logo" class="sidebar-logo"
+        (error)="currentLogo = 'assets/images/logo1.png'">
     </div>
     <h3 class="brand-name">Capricorn CRM</h3>
     <button class="sidebar-toggle" (click)="toggleCollapse()" aria-label="Toggle sidebar">
       <i class="fas fa-bars"></i>
     </button>
   </div>
-  
+
   <!-- Sidebar Navigation -->
   <nav class="sidebar-nav">
     <div *ngFor="let section of menuSections" class="nav-section">
       <h4 class="section-title">{{ section.title }}</h4>
-      <a 
-        *ngFor="let item of section.items" 
-        [routerLink]="item.route" 
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{exact: item.route === '/admin-dashboard'}"
-        class="nav-item"
-        [title]="item.label"
-      >
+      <a *ngFor="let item of section.items" [routerLink]="item.route" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: item.route === '/admin-dashboard'}" class="nav-item" [title]="item.label"
+        [attr.data-tooltip]="item.label" (click)="onMenuItemClick()">
         <i class="fas {{ item.icon }} nav-icon"></i>
         <span class="nav-label">{{ item.label }}</span>
       </a>
     </div>
   </nav>
-  
+
   <!-- Sidebar Footer -->
   <div class="sidebar-footer">
     <div class="user-info">
@@ -44,8 +35,11 @@
         <p class="user-role">Admin</p>
       </div>
     </div>
-    <button class="logout-btn" (click)="logout()" title="Logout">
+    <button class="logout-btn" (click)="logout()" title="Logout" data-tooltip="Logout">
       <i class="fas fa-sign-out-alt"></i>
     </button>
   </div>
 </div>
+
+<!-- Mobile Overlay Backdrop -->
+<div class="sidebar-backdrop" [class.show]="mobileMenuOpen" (click)="closeMobileMenu()"></div>

@@ -55,7 +55,7 @@ export class LeadsListComponent implements OnInit, OnDestroy {
     private router: Router,
     private leadsService: LeadsService,
     private employeeService: EmployeeService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadEmployees();
@@ -63,8 +63,11 @@ export class LeadsListComponent implements OnInit, OnDestroy {
 
     // Subscribe to real-time updates
     this.leadsSubscription = this.leadsService.leadsUpdated$.subscribe(() => {
-      console.log('Leads updated - refreshing admin leads list');
-      this.loadLeads();
+      console.log('Leads updated - waiting 1000ms for backend persistence...');
+      setTimeout(() => {
+        console.log('Refreshing admin leads list now');
+        this.loadLeads();
+      }, 1000);
     });
   }
 
@@ -102,24 +105,24 @@ export class LeadsListComponent implements OnInit, OnDestroy {
           this.leadsMap.set(lead._id, lead);
         });
 
-        // Filter only assigned leads (admin-assigned ones)
-        const assignedLeads = allLeads.filter(lead => 
-          lead.assignedTo && lead.assignedTo.trim() !== ''
-        );
+        // Show ALL leads in Admin view (both created and assigned)
+        const displayLeads = allLeads;
 
         // Map to display format with employee name
-        this.leads = assignedLeads.map(lead => ({
+        this.leads = displayLeads.map(lead => ({
           id: lead._id,
           name: lead.fullName,
           email: lead.email,
           phone: lead.phoneNumber,
           company: lead.companyName || '-',
           source: lead.leadSource,
-          status: lead.status.toLowerCase(),
-          assignedToName: this.employeesMap.get(lead.assignedTo) || 'Unknown Employee'
+          status: lead.status,
+          assignedToName: (lead.assignedTo && this.employeesMap.get(lead.assignedTo)) ||
+            (lead.createdBy && this.employeesMap.get(lead.createdBy)) ||
+            'Unassigned'
         }));
 
-        console.log('Admin assigned leads loaded:', this.leads.length);
+        console.log('Admin total leads loaded:', this.leads.length);
 
         this.filteredLeads = [...this.leads];
         this.applyFiltersAndSort();
@@ -135,7 +138,7 @@ export class LeadsListComponent implements OnInit, OnDestroy {
 
   applyFiltersAndSort(): void {
     this.filteredLeads = this.leads.filter(lead => {
-      const matchesSearch = !this.searchTerm || 
+      const matchesSearch = !this.searchTerm ||
         lead.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         lead.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         lead.phone.includes(this.searchTerm) ||
@@ -154,6 +157,7 @@ export class LeadsListComponent implements OnInit, OnDestroy {
   filterByName(): void {
     this.applyFiltersAndSort();
   }
+
 
   updatePagination(): void {
     this.totalPages = Math.ceil(this.filteredLeads.length / this.pageSize);
@@ -210,7 +214,7 @@ export class LeadsListComponent implements OnInit, OnDestroy {
     if (event) {
       event.stopPropagation();
     }
-    
+
     const lead = this.leadsMap.get(leadId);
     if (lead) {
       this.selectedLead = lead;
@@ -228,12 +232,12 @@ export class LeadsListComponent implements OnInit, OnDestroy {
   // Parse notes field to extract structured data
   parseNotesForDisplay(lead: Lead): void {
     this.parsedNotes = {};
-    
+
     if (!lead.notes) return;
 
     // Notes format: "Designation: Manager | Priority: high | Alt Phone: +91 1234567890 | ..."
     const parts = lead.notes.split(' | ');
-    
+
     parts.forEach(part => {
       const [key, ...valueParts] = part.split(': ');
       if (key && valueParts.length > 0) {
@@ -311,22 +315,20 @@ export class LeadsListComponent implements OnInit, OnDestroy {
 
   getStatusClass(status: string): string {
     const statusClasses: { [key: string]: string } = {
-      'new': 'status-new',
-      'qualified': 'status-qualified',
-      'quoted': 'status-quoted',
-      'won': 'status-won',
-      'lost': 'status-lost'
+      'seeded lead': 'status-seeded',
+      'meeting fixed': 'status-fixed',
+      'meeting completed': 'status-completed',
+      'cs executed': 'status-executed'
     };
     return statusClasses[status.toLowerCase()] || '';
   }
 
   getStatusIcon(status: string): string {
     const statusIcons: { [key: string]: string } = {
-      'new': 'fa-star',
-      'qualified': 'fa-check-circle',
-      'quoted': 'fa-file-invoice-dollar',
-      'won': 'fa-trophy',
-      'lost': 'fa-times-circle'
+      'seeded lead': 'fa-seedling',
+      'meeting fixed': 'fa-calendar-plus',
+      'meeting completed': 'fa-calendar-check',
+      'cs executed': 'fa-file-signature'
     };
     return statusIcons[status.toLowerCase()] || 'fa-circle';
   }

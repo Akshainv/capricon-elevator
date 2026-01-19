@@ -85,11 +85,10 @@ export class CustomReportBuilderComponent implements OnInit {
 
   statusOptions = [
     { value: 'all', label: 'All Status' },
-    { value: 'new', label: 'New' },
-    { value: 'qualified', label: 'Qualified' },
-    { value: 'quoted', label: 'Quoted' },
-    { value: 'won', label: 'Won' },
-    { value: 'lost', label: 'Lost' }
+    { value: 'Seeded Lead', label: 'Seeded Lead' },
+    { value: 'Meeting Fixed', label: 'Meeting Fixed' },
+    { value: 'Meeting Completed', label: 'Meeting Completed' },
+    { value: 'CS Executed', label: 'CS Executed' }
   ];
 
   includeOptions = [
@@ -104,7 +103,7 @@ export class CustomReportBuilderComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -168,8 +167,8 @@ export class CustomReportBuilderComponent implements OnInit {
         this.isGenerating = false;
         alert('Report generated successfully!');
         // Navigate to export page or download
-        this.router.navigate(['/reports/export'], { 
-          state: { reportData } 
+        this.router.navigate(['/reports/export'], {
+          state: { reportData }
         });
       }, 2000);
 

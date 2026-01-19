@@ -28,9 +28,10 @@ interface MenuSection {
 export class SalesSidebarComponent implements OnInit, OnDestroy {
   currentLogo: string = 'assets/images/logo-light.png';
   collapsed: boolean = false;
+  mobileMenuOpen: boolean = false;
   private resizeHandler = () => this.handleResize();
   private destroy$ = new Subject<void>();
-  
+
   // Sales user info
   userName: string = 'Sales Executive';
   userRole: string = 'Sales Team';
@@ -49,7 +50,6 @@ export class SalesSidebarComponent implements OnInit, OnDestroy {
         { icon: 'fa-file-import', label: 'Import Leads', route: '/leads/import' }
       ]
     },
-    // Removed: Communication section entirely
     {
       title: 'Quotations',
       items: [
@@ -57,24 +57,21 @@ export class SalesSidebarComponent implements OnInit, OnDestroy {
       ]
     },
     {
-      title: 'Project',  // Changed from 'Deals & Projects'
+      title: 'Project',
       items: [
-        // Removed: My Deals
-        { icon: 'fa-project-diagram', label: 'My Projects', route: '/projects' }  // Renamed from 'Projects'
+        { icon: 'fa-project-diagram', label: 'My Projects', route: '/projects' }
       ]
     },
     {
       title: 'Reports',
       items: [
-        // Removed: My Performance
-        { icon: 'fa-chart-pie', label: 'Sales Reports', route: '/reports' }
+        { icon: 'fa-chart-pie', label: 'Report Dashboard', route: '/reports' }
       ]
     },
     {
       title: 'Settings',
       items: [
         { icon: 'fa-user-circle', label: 'My Profile', route: '/profile' }
-        // Removed: Settings menu item
       ]
     }
   ];
@@ -90,19 +87,19 @@ export class SalesSidebarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     console.log('Sales Sidebar: ngOnInit called');
-    
+
     const storedUser = localStorage.getItem('sales_user');
     if (storedUser) {
       const user = JSON.parse(storedUser);
       this.userName = user.name || 'Sales Executive';
       this.userRole = user.role || 'Sales Team';
     }
-    
+
     this.themeService.theme$
       .pipe(takeUntil(this.destroy$))
       .subscribe((theme: 'dark' | 'light') => {
         console.log('Sales Sidebar - Theme changed to:', theme);
-        
+
         if (theme === 'dark') {
           this.currentLogo = 'assets/images/logo1.png';
           console.log('   → Using logo1.png');
@@ -127,15 +124,40 @@ export class SalesSidebarComponent implements OnInit, OnDestroy {
   }
 
   toggleCollapse(): void {
-    this.collapsed = !this.collapsed;
-    const el = document.querySelector('.sidebar');
-    if (el) el.classList.toggle('collapsed', this.collapsed);
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+      this.mobileMenuOpen = !this.mobileMenuOpen;
+      if (this.mobileMenuOpen) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+    } else {
+      this.collapsed = !this.collapsed;
+    }
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+    document.body.style.overflow = '';
+  }
+
+  onMenuItemClick(): void {
+    if (window.innerWidth <= 768) {
+      this.closeMobileMenu();
+    }
   }
 
   private handleResize(): void {
-    const shouldCollapse = window.innerWidth <= 768;
-    this.collapsed = shouldCollapse;
-    const el = document.querySelector('.sidebar');
-    if (el) el.classList.toggle('collapsed', shouldCollapse);
+    const isMobile = window.innerWidth <= 768;
+
+    if (!isMobile) {
+      this.mobileMenuOpen = false;
+      document.body.style.overflow = '';
+      this.collapsed = window.innerWidth <= 1024 && window.innerWidth > 768;
+    } else {
+      this.collapsed = true;
+    }
   }
 }

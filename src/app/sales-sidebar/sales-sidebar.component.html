@@ -1,12 +1,8 @@
-<div class="sidebar">
+<div class="sidebar" [class.collapsed]="collapsed" [class.mobile-open]="mobileMenuOpen">
   <div class="sidebar-header">
     <div class="logo-container">
-      <img 
-        [src]="currentLogo" 
-        alt="Capricorn CRM Logo" 
-        class="sidebar-logo"
-        (error)="currentLogo = 'assets/images/logo1.png'"
-      >
+      <img [src]="currentLogo" alt="Capricorn CRM Logo" class="sidebar-logo"
+        (error)="currentLogo = 'assets/images/logo1.png'">
     </div>
     <h3 class="brand-name">Capricorn CRM</h3>
     <p class="brand-subtitle">Sales Dashboard</p>
@@ -17,20 +13,16 @@
   <nav class="sidebar-nav">
     <div *ngFor="let section of menuSections" class="nav-section">
       <h4 class="section-title">{{ section.title }}</h4>
-      <a 
-        *ngFor="let item of section.items" 
-        [routerLink]="item.route" 
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
-        class="nav-item"
-      >
+      <a *ngFor="let item of section.items" [routerLink]="item.route" routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}" class="nav-item"
+        [attr.data-tooltip]="item.label" (click)="onMenuItemClick()">
         <i class="fas {{ item.icon }} nav-icon"></i>
         <span class="nav-label">{{ item.label }}</span>
         <span *ngIf="item.badge" class="nav-badge">{{ item.badge }}</span>
       </a>
     </div>
   </nav>
-  
+
   <div class="sidebar-footer">
     <div class="user-info">
       <div class="user-avatar">
@@ -41,8 +33,11 @@
         <p class="user-role">{{ userRole }}</p>
       </div>
     </div>
-    <button class="logout-btn" (click)="logout()" title="Logout">
+    <button class="logout-btn" (click)="logout()" title="Logout" data-tooltip="Logout">
       <i class="fas fa-sign-out-alt"></i>
     </button>
   </div>
 </div>
+
+<!-- Mobile Overlay Backdrop -->
+<div class="sidebar-backdrop" [class.show]="mobileMenuOpen" (click)="closeMobileMenu()"></div>

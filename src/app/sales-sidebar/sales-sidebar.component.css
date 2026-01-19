@@ -12,7 +12,7 @@
   top: 0;
   z-index: 1000;
   overflow-y: auto;
-  transition: background 0.3s ease, border-color 0.3s ease;
+  transition: background 0.3s ease, border-color 0.3s ease, width 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
 }
 
 /* Toggle button */
@@ -33,18 +33,10 @@
   transition: transform 0.2s ease, background 0.2s ease;
 }
 
-.sidebar-toggle:hover { transform: rotate(90deg); background: rgba(212, 179, 71, 0.12); }
-
-/* Collapsed state */
-.sidebar.collapsed { width: 80px !important; }
-.sidebar.collapsed .nav-label,
-.sidebar.collapsed .section-title,
-.sidebar.collapsed .user-details,
-.sidebar.collapsed .brand-name { display: none !important; }
-.sidebar.collapsed .nav-item { justify-content: center; padding: 12px 8px; }
-.sidebar.collapsed .sidebar-logo { width: 48px; height: 40px; }
-.sidebar.collapsed .sidebar-footer { justify-content: center; gap: 6px; }
-.sidebar { transition: width 0.2s ease; }
+.sidebar-toggle:hover {
+  transform: rotate(90deg);
+  background: rgba(212, 179, 71, 0.12);
+}
 
 /* Custom Scrollbar */
 .sidebar::-webkit-scrollbar {
@@ -71,6 +63,60 @@
   border-bottom: 1px solid var(--border-color);
   background: transparent;
   transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Tooltip for collapsed/mobile mode */
+.nav-item[data-tooltip]:hover::after,
+.logout-btn[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 12px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  z-index: 10000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  animation: tooltipFadeIn 0.2s ease;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+/* Mobile Overlay Backdrop */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-backdrop.show {
+  opacity: 1;
+  visibility: visible;
 }
 
 .logo-container {
@@ -106,6 +152,7 @@
 .sidebar-nav {
   flex: 1;
   padding: 20px 0;
+  overflow-y: auto;
 }
 
 /* Navigation Sections */
@@ -202,9 +249,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
@@ -290,127 +340,190 @@
   box-shadow: 0 4px 12px rgba(212, 179, 71, 0.3);
 }
 
-.logout-btn i {
-  font-size: 1rem;
-}
+/* Responsive Design */
 
-/* Responsive */
+/* Large tablets (iPad Pro, etc.) */
 @media (max-width: 1024px) {
   .sidebar {
     width: 240px;
   }
 }
 
+/* Tablets (iPad, etc.) */
 @media (max-width: 768px) {
   .sidebar {
-    width: 80px;
+    width: 70px;
+    z-index: 1001;
   }
-  
+
+  .sidebar.mobile-open {
+    width: 280px;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar.mobile-open .brand-name,
+  .sidebar.mobile-open .brand-subtitle,
+  .sidebar.mobile-open .nav-label,
+  .sidebar.mobile-open .user-details,
+  .sidebar.mobile-open .section-title,
+  .sidebar.mobile-open .nav-badge {
+    display: block !important;
+  }
+
+  .sidebar.mobile-open .nav-item {
+    justify-content: flex-start;
+    padding: 14px 25px;
+  }
+
+  .sidebar.mobile-open .sidebar-logo {
+    width: 120px;
+    height: 80px;
+  }
+
+  .sidebar.mobile-open .sidebar-footer {
+    flex-direction: row;
+    padding: 20px;
+  }
+
   .brand-name,
   .brand-subtitle,
   .nav-label,
   .user-details,
   .section-title,
   .nav-badge {
-    display: none;
+    display: none !important;
   }
-  
+
   .nav-item {
     justify-content: center;
     padding: 14px 10px;
   }
-  
+
   .sidebar-footer {
     flex-direction: column;
     gap: 10px;
+    padding: 15px 10px;
   }
-  
+
   .user-info {
     justify-content: center;
   }
+
+  /* Hamburger positioning */
+  .sidebar-toggle {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1002;
+    display: flex;
+    width: 44px;
+    height: 44px;
+    background: var(--accent-gold);
+    color: #000;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .sidebar.mobile-open .sidebar-toggle {
+    left: auto;
+    right: 15px;
+  }
+
+  .nav-item[data-tooltip]::after {
+    display: none;
+  }
+
+  .sidebar:not(.mobile-open) .nav-item:hover[data-tooltip]::after {
+    display: block;
+  }
+
+  .sidebar-nav {
+    max-height: calc(100vh - 200px);
+  }
 }
 
-/* ==========================================
-   Light theme - clean sidebar overrides
-   Ensure no dark/black gradients or heavy shadows
-========================================== */
+/* Mobile devices */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 60px;
+  }
+
+  .sidebar.mobile-open {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .sidebar-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .sidebar.mobile-open .sidebar-logo {
+    width: 100px;
+    height: 70px;
+  }
+
+  .nav-item,
+  .logout-btn,
+  .sidebar-toggle {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Light theme overrides */
 html.light-theme .sidebar,
 html[data-theme="light"] .sidebar {
   background: var(--bg-sidebar) !important;
   border-right: 1px solid var(--border-color) !important;
   box-shadow: none !important;
-  filter: none !important;
 }
 
-/* Header/Footer clean */
-html.light-theme .sidebar-header,
-html[data-theme="light"] .sidebar-header,
-html.light-theme .sidebar-footer,
-html[data-theme="light"] .sidebar-footer {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-/* Logo and brand - remove drop shadows and glows */
 html.light-theme .sidebar-logo,
 html[data-theme="light"] .sidebar-logo {
   filter: none !important;
-  box-shadow: none !important;
-  mix-blend-mode: normal !important;
-  background: transparent !important;
-}
-
-html.light-theme .brand-name,
-html[data-theme="light"] .brand-name {
-  text-shadow: none !important;
-}
-
-/* Navigation items - remove pseudo-element overlays and shadows */
-html.light-theme .nav-item,
-html[data-theme="light"] .nav-item {
-  background: transparent !important;
-  color: var(--text-secondary) !important;
-  box-shadow: none !important;
-}
-
-/* Disable the ::before gradient overlay used for hover effect */
-html.light-theme .nav-item::before,
-html[data-theme="light"] .nav-item::before {
-  background: transparent !important;
   box-shadow: none !important;
 }
 
 html.light-theme .nav-item:hover,
 html[data-theme="light"] .nav-item:hover {
   background: var(--bg-tertiary) !important;
-  color: var(--accent-gold) !important;
-  box-shadow: none !important;
 }
 
-/* Active item should be flat — no inset glow */
 html.light-theme .nav-item.active,
 html[data-theme="light"] .nav-item.active {
   background: rgba(212, 179, 71, 0.08) !important;
-  color: var(--accent-gold) !important;
-  border-left-color: var(--accent-gold) !important;
   box-shadow: none !important;
 }
 
-/* Badge and small UI elements: remove shadows (keep color) */
-html.light-theme .nav-badge,
-html[data-theme="light"] .nav-badge,
-html.light-theme .user-avatar,
-html[data-theme="light"] .user-avatar {
-  box-shadow: none !important;
+/* Collapsed state (desktop only) */
+.sidebar.collapsed:not(.mobile-open) {
+  width: 80px !important;
 }
 
-/* Footer buttons: remove hover shadows */
-html.light-theme .logout-btn,
-html[data-theme="light"] .logout-btn {
-  box-shadow: none !important;
+.sidebar.collapsed:not(.mobile-open) .nav-label,
+.sidebar.collapsed:not(.mobile-open) .section-title,
+.sidebar.collapsed:not(.mobile-open) .user-details,
+.sidebar.collapsed:not(.mobile-open) .brand-name {
+  display: none !important;
 }
 
-html.light-theme .logout-btn:hover,
-html[data-theme="light"] .logout-btn:hover {
-  box-shadow: none !important;
+.sidebar.collapsed:not(.mobile-open) .nav-item {
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+@media (min-width: 769px) {
+
+  .sidebar.collapsed .nav-item:hover[data-tooltip]::after,
+  .sidebar.collapsed .logout-btn:hover[data-tooltip]::after {
+    display: block;
+  }
+}
+
+.nav-item:focus,
+.sidebar-toggle:focus,
+.logout-btn:focus {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
 }

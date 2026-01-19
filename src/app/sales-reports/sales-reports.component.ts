@@ -17,8 +17,10 @@ import {
 } from 'chart.js';
 import { ReportService } from '../services/report.service';
 import { AuthService } from '../services/auth.service';
-import { ProjectService } from '../services/project.service';
-import { DealService } from '../services/deal.service';
+import { ProjectService, Project } from '../services/project.service';
+import { QuotationService } from '../services/quotation.service';
+import { LeadsService } from '../lead.service';
+
 
 Chart.register(
   CategoryScale,
@@ -52,24 +54,19 @@ export class SalesReportsComponent implements OnInit {
   loading: boolean = false;
   currentUserId: string = '';
   currentUserName: string = '';
-  
+
   stats: ReportStat[] = [];
-  
-  public revenueChartData: ChartData<'line'> = {
+  analysisType: 'monthly' | 'total' = 'monthly';
+
+  public revenueChartData: ChartData<'bar'> = {
     labels: [],
     datasets: [{
       data: [],
-      label: 'My Monthly Revenue (₹L)',
-      fill: true,
-      tension: 0.4,
-      borderColor: '#d4b347',
-      backgroundColor: 'rgba(212, 179, 71, 0.1)',
-      pointBackgroundColor: '#d4b347',
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: '#d4b347',
-      pointRadius: 5,
-      pointHoverRadius: 7,
+      label: 'Monthly Revenue (₹L)',
+      backgroundColor: '#d4b347',
+      hoverBackgroundColor: '#c9a642',
+      borderRadius: 6,
+      borderWidth: 0
     }]
   };
 
@@ -106,15 +103,16 @@ export class SalesReportsComponent implements OnInit {
     }
   };
 
-  public revenueChartType: ChartType = 'line';
+  public revenueChartType: ChartType = 'bar';
 
   constructor(
     private reportService: ReportService,
     private authService: AuthService,
     private projectService: ProjectService,
-    private dealService: DealService,
+    private quotationService: QuotationService,
+    private leadsService: LeadsService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const user = this.authService.currentUserValue;
@@ -133,13 +131,18 @@ export class SalesReportsComponent implements OnInit {
     }
 
     this.loading = true;
-    
+
     Promise.all([
-      this.reportService.getSalesReports(this.currentUserId).toPromise(),
-      this.projectService.getProjectsBySalesExecutive(this.currentUserId).toPromise(),
-      this.dealService.getDealsBySalesExecutive(this.currentUserId).toPromise()
-    ]).then(([reportData, projects, deals]) => {
-      this.processSalesReportData(reportData, projects || [], deals || []);
+      this.leadsService.getLeadsAssignedToMe().toPromise(),
+      this.quotationService.getAllQuotations().toPromise(),
+      this.projectService.getProjectsBySalesExecutive(this.currentUserId).toPromise()
+    ]).then(([leads, quotesResponse, projects]) => {
+      const allQuotes = quotesResponse?.data || [];
+      const myQuotes = Array.isArray(allQuotes)
+        ? allQuotes.filter((q: any) => q.createdBy === this.currentUserId || q.userId === this.currentUserId)
+        : [];
+
+      this.processSalesReportData(leads || [], myQuotes, projects || []);
       this.loading = false;
     }).catch(error => {
       console.error('❌ Error loading sales reports:', error);
@@ -147,77 +150,122 @@ export class SalesReportsComponent implements OnInit {
     });
   }
 
-  private processSalesReportData(data: any, projects: any[], deals: any[]): void {
-    const completedProjects = projects.filter(p => p.projectStatus === 'completed');
-    const totalRevenue = completedProjects.reduce((sum, p) => sum + p.projectValue, 0);
+  setAnalysisType(type: 'monthly' | 'total'): void {
+    this.analysisType = type;
+    this.loadReportsData();
+  }
+
+  private processSalesReportData(leads: any[], quotes: any[], projects: any[]): void {
+    let filteredLeads = [...leads];
+    let filteredQuotes = [...quotes];
+    let filteredProjects = [...projects];
+
+    // Period filtering for Stat Cards
+    if (this.analysisType === 'monthly') {
+      const now = new Date();
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      filteredLeads = filteredLeads.filter(l => new Date(l.createdAt!) >= firstDayOfMonth);
+      filteredQuotes = filteredQuotes.filter(q => new Date(q.createdAt || q.date) >= firstDayOfMonth);
+      filteredProjects = filteredProjects.filter(p => new Date(p.createdAt || p.startDate) >= firstDayOfMonth);
+    }
+
+    const completedProjects = filteredProjects.filter(p => p.projectStatus === 'completed');
+    const totalRevenue = completedProjects.reduce((sum, p) => sum + (p.projectValue || 0), 0);
 
     this.stats = [
       {
-        label: 'My Total Revenue',
+        label: this.analysisType === 'monthly' ? 'Monthly Revenue' : 'Total Revenue',
         value: this.formatCurrency(totalRevenue),
         icon: 'fa-rupee-sign',
         color: '#22c55e',
         subtitle: `${completedProjects.length} projects completed`
       },
       {
-        label: 'My Total Projects',
-        value: projects.length,
-        icon: 'fa-project-diagram',
+        label: this.analysisType === 'monthly' ? 'New Leads' : 'Total Leads',
+        value: filteredLeads.length,
+        icon: 'fa-users',
         color: '#3b82f6',
-        subtitle: `${completedProjects.length} completed`
+        subtitle: `${filteredLeads.filter(l => l.status === 'CS Executed').length} executed`
+      },
+      {
+        label: this.analysisType === 'monthly' ? 'Quotations' : 'Total Quotations',
+        value: filteredQuotes.length,
+        icon: 'fa-file-invoice',
+        color: '#d4b347',
+        subtitle: `${filteredQuotes.filter(q => q.status === 'Approved').length} approved`
+      },
+      {
+        label: this.analysisType === 'monthly' ? 'Project Load' : 'Total Projects',
+        value: filteredProjects.length,
+        icon: 'fa-project-diagram',
+        color: '#94a3b8',
+        subtitle: `${filteredProjects.filter(p => p.projectStatus === 'ongoing').length} ongoing`
       }
     ];
 
-    this.processRevenueTrend(completedProjects);
+    // Chart logic (always shows 6+ months trend, but based on all my projects)
+    const trendProjects = projects.filter(p => p.projectStatus === 'completed');
+    this.processRevenueTrend(trendProjects, projects);
 
     setTimeout(() => {
       this.revenueChart?.update();
     }, 100);
   }
 
-  private processRevenueTrend(completedProjects: any[]): void {
-    const months = this.getLast6Months();
+  private processRevenueTrend(completedProjects: any[], allProjects: any[]): void {
+    const months = this.getTrendMonths(allProjects);
     const revenueByMonth = months.map(month => {
       const monthProjects = completedProjects.filter(p => {
-        const completeDate = new Date(p.actualCompletionDate || p.updatedAt);
-        return completeDate.getMonth() === month.index && 
-               completeDate.getFullYear() === month.year;
+        // Use createdAt for revenue tracking as per Admin logic
+        const date = new Date(p.createdAt || p.startDate);
+        return date.getMonth() === month.index &&
+          date.getFullYear() === month.year;
       });
-      return monthProjects.reduce((sum, p) => sum + p.projectValue, 0);
+      return monthProjects.reduce((sum, p) => sum + (p.projectValue || 0), 0);
     });
 
     this.revenueChartData = {
       labels: months.map(m => m.label),
       datasets: [{
         data: revenueByMonth.map(r => parseFloat((r / 100000).toFixed(1))),
-        label: 'My Monthly Revenue (₹L)',
-        fill: true,
-        tension: 0.4,
-        borderColor: '#d4b347',
-        backgroundColor: 'rgba(212, 179, 71, 0.1)',
-        pointBackgroundColor: '#d4b347',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: '#d4b347',
-        pointRadius: 5,
-        pointHoverRadius: 7,
+        label: this.analysisType === 'total' ? 'Total Revenue Growth (₹L)' : 'Monthly Revenue (₹L)',
+        backgroundColor: '#d4b347',
+        hoverBackgroundColor: '#c9a642',
+        borderRadius: 6,
+        borderWidth: 0
       }]
     };
   }
 
-  private getLast6Months(): { label: string; index: number; year: number }[] {
+  private getTrendMonths(projects: any[] = []): { label: string; index: number; year: number }[] {
     const months = [];
     const now = new Date();
-    
-    for (let i = 5; i >= 0; i--) {
+
+    let count = 6;
+
+    if (this.analysisType === 'total' && projects.length > 0) {
+      const earliestProjectDate = projects.reduce((earliest, p) => {
+        const date = new Date(p.createdAt || p.startDate);
+        return date < earliest ? date : earliest;
+      }, new Date());
+
+      const diffMonths = (now.getFullYear() - earliestProjectDate.getFullYear()) * 12 + (now.getMonth() - earliestProjectDate.getMonth());
+      count = Math.max(12, diffMonths + 1);
+      if (count > 24) count = 24;
+    } else if (this.analysisType === 'total') {
+      count = 12;
+    }
+
+    for (let i = count - 1; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       months.push({
-        label: date.toLocaleString('en-US', { month: 'short' }),
+        label: date.toLocaleString('en-US', { month: 'short' }) +
+          (count > 6 ? ` ${date.getFullYear().toString().slice(-2)}` : ''),
         index: date.getMonth(),
         year: date.getFullYear()
       });
     }
-    
     return months;
   }
 
@@ -232,14 +280,14 @@ export class SalesReportsComponent implements OnInit {
   // ==========================================
 
   getChartTextColor(): string {
-    const isLightMode = document.documentElement.classList.contains('light-theme') || 
-                        document.documentElement.getAttribute('data-theme') === 'light';
+    const isLightMode = document.documentElement.classList.contains('light-theme') ||
+      document.documentElement.getAttribute('data-theme') === 'light';
     return isLightMode ? '#1f2937' : 'rgba(255, 255, 255, 0.6)';
   }
 
   getChartGridColor(): string {
-    const isLightMode = document.documentElement.classList.contains('light-theme') || 
-                        document.documentElement.getAttribute('data-theme') === 'light';
+    const isLightMode = document.documentElement.classList.contains('light-theme') ||
+      document.documentElement.getAttribute('data-theme') === 'light';
     return isLightMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(212, 179, 71, 0.1)';
   }
 
@@ -247,7 +295,7 @@ export class SalesReportsComponent implements OnInit {
     const observer = new MutationObserver(() => {
       this.updateChartColors();
     });
-    
+
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['class', 'data-theme']
@@ -260,7 +308,7 @@ export class SalesReportsComponent implements OnInit {
       if (this.revenueChartOptions.plugins.legend && this.revenueChartOptions.plugins.legend.labels) {
         this.revenueChartOptions.plugins.legend.labels.color = this.getChartTextColor();
       }
-      
+
       // Update axis colors
       if (this.revenueChartOptions.scales['x']) {
         this.revenueChartOptions.scales['x'].grid = { color: this.getChartGridColor() };
@@ -268,14 +316,14 @@ export class SalesReportsComponent implements OnInit {
           this.revenueChartOptions.scales['x'].ticks.color = this.getChartTextColor();
         }
       }
-      
+
       if (this.revenueChartOptions.scales['y']) {
         this.revenueChartOptions.scales['y'].grid = { color: this.getChartGridColor() };
         if (this.revenueChartOptions.scales['y'].ticks) {
           this.revenueChartOptions.scales['y'].ticks.color = this.getChartTextColor();
         }
       }
-      
+
       // Update chart
       if (this.revenueChart) {
         this.revenueChart.update();

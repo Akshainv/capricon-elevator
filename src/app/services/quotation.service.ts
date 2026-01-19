@@ -1,4 +1,4 @@
-// src/app/services/quotation.service.ts (FRONTEND)
+// src/app/services/quotation.service.ts (FRONTEND) - COMPLETE FILE WITH FIX
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -99,9 +99,9 @@ export class QuotationService {
   private apiUrl = 'https://capricon-elevator-api.onrender.com/api/quotation';
 
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   private getHeadersWithUser(): HttpHeaders {
     const currentUser = this.authService.currentUserValue;
@@ -117,6 +117,8 @@ export class QuotationService {
 
   createQuotation(quotationData: CreateQuotationPayload): Observable<QuotationResponse> {
     const headers = this.getHeadersWithUser();
+    console.log('📤 Creating quotation with payload:', quotationData);
+    console.log('🏗️ elevationType being sent:', quotationData.elevationType);
     return this.http.post<QuotationResponse>(this.apiUrl, quotationData, { headers });
   }
 
@@ -128,7 +130,7 @@ export class QuotationService {
     if (search) {
       params = params.set('search', search);
     }
-    
+
     const headers = this.getHeadersWithUser();
     return this.http.get<QuotationResponse>(this.apiUrl, { params, headers });
   }
@@ -171,7 +173,7 @@ export class QuotationService {
 
   formatQuotationForBackend(formData: any): CreateQuotationPayload {
     const items = formData.items || [];
-    
+
     const baseCost = items.reduce((sum: number, item: any) => {
       return sum + (item.quantity * item.price);
     }, 0);
@@ -182,7 +184,7 @@ export class QuotationService {
     }, 0);
 
     const taxableAmount = baseCost - totalDiscount;
-    
+
     const totalTax = items.reduce((sum: number, item: any) => {
       const itemSubtotal = item.quantity * item.price;
       const discountAmount = itemSubtotal * (item.discount / 100);
@@ -198,12 +200,12 @@ export class QuotationService {
       customerPhone: formData.customerPhone,
       companyName: formData.customerCompany || '',
       address: formData.customerAddress || '',
-      elevationType: items[0]?.product?.category?.toLowerCase() || 'commercial elevator',
+      elevationType: this.mapCategoryToElevationType(items[0]?.product?.category),
       numberOfFloors: formData.floors || 1,
       doorConfiguration: '1 door',
       numberOfElevators: 1,
-      speed: formData.speed || '1.0 m/s',
-      capacity: formData.capacity || '8',
+      speed: '1.0 m/s',
+      capacity: '8',
       driveType: 'variable frequency drive',
       controlSystem: 'microprocessor based',
       includeInstallation: formData.includeInstallation || false,
@@ -251,5 +253,20 @@ export class QuotationService {
       termsAndConditions: backendData.internalNotes,
       notes: backendData.specialRequirements
     };
+  }
+
+  // ✅ FIXED: Returns values matching backend enum exactly
+  private mapCategoryToElevationType(category: string | undefined): any {
+    if (!category) return 'home';
+
+    const cat = category.toLowerCase().trim();
+
+    // Using mapping mentioned in testing guide/backend requirements
+    if (cat.includes('home')) return 'home';
+    if (cat.includes('passenger') || cat.includes('commercial') || cat.includes('hospital')) return 'commercial';
+    if (cat.includes('goods') || cat.includes('shaft')) return 'shaft-with';
+    if (cat.includes('service')) return 'commercial';
+
+    return 'home';
   }
 }

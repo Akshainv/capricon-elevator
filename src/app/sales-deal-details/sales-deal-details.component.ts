@@ -71,15 +71,15 @@ export class SalesDealDetailsComponent implements OnInit {
     elevatorType: 'Passenger Elevator',
     probability: 75,
     closeDate: '2024-12-15',
-    status: 'proposal',
+    status: 'Meeting Completed',
     contactPerson: 'Raj Kumar',
     phone: '+91 9876543210',
     email: 'raj@prestige.com',
     address: 'Whitefield, Bangalore, Karnataka - 560066',
     stageHistory: [
-      { stage: 'Lead', date: '2024-10-01', duration: '5 days' },
-      { stage: 'Qualified', date: '2024-10-06', duration: '8 days' },
-      { stage: 'Proposal', date: '2024-10-14', duration: 'Current' }
+      { stage: 'Seeded Lead', date: '2024-10-01', duration: '5 days' },
+      { stage: 'Meeting Fixed', date: '2024-10-06', duration: '8 days' },
+      { stage: 'Meeting Completed', date: '2024-10-14', duration: 'Current' }
     ],
     quotations: [
       {
@@ -170,7 +170,7 @@ export class SalesDealDetailsComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadDealDetails();
@@ -251,12 +251,10 @@ export class SalesDealDetailsComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     const labels: { [key: string]: string } = {
-      'lead': 'Lead',
-      'qualified': 'Qualified',
-      'proposal': 'Proposal',
-      'negotiation': 'Negotiation',
-      'won': 'Won',
-      'lost': 'Lost'
+      'Seeded Lead': 'Seeded Lead',
+      'Meeting Fixed': 'Meeting Fixed',
+      'Meeting Completed': 'Meeting Completed',
+      'CS Executed': 'CS Executed'
     };
     return labels[status] || status;
   }

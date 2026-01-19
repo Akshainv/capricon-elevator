@@ -1,4 +1,4 @@
-// src/app/sales-leads/sales-leads.component.ts - FIXED VERSION
+// src/app/sales-leads/sales-leads.component.ts - COMPLETE FILE
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,20 +19,20 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
   // Separate arrays for created vs assigned leads
   createdLeads: Lead[] = [];
   assignedLeads: Lead[] = [];
-  
+
   // Display arrays (after filtering)
   displayedLeads: Lead[] = [];
   paginatedLeads: Lead[] = [];
-  
+
   // Filter states
   selectedLeadType: 'created' | 'assigned' = 'assigned';
   searchQuery: string = '';
   selectedStatus: string = 'all';
-  
+
   // Loading and error states
   isLoading: boolean = false;
   errorMessage: string = '';
-  
+
   // Stats
   totalCreatedLeads: number = 0;
   totalAssignedLeads: number = 0;
@@ -56,23 +56,21 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
     private leadsService: LeadsService,
     private authService: AuthService,
     private toastr: ToastrService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadLeads();
-    
-    // ✅ CRITICAL FIX: Add delay to subscription to allow backend persistence
+
     this.leadsSubscription = this.leadsService.leadsUpdated$.subscribe(() => {
       console.log('==============================================');
       console.log('🔔 Leads update notification received');
       console.log('⏳ Waiting 1000ms for backend persistence...');
       console.log('==============================================');
-      
-      // ✅ Add delay to ensure backend MongoDB writes are persisted
+
       setTimeout(() => {
         console.log('✅ Delay complete - refreshing sales leads now...');
         this.loadLeads();
-      }, 1000); // 1 second delay
+      }, 1000);
     });
   }
 
@@ -92,21 +90,19 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
     console.log('📊 Loading leads for sales user...');
     console.log('==============================================');
 
-    // ✅ Load both created and assigned leads with proper error handling
     Promise.all([
       this.leadsService.getLeadsCreatedByMe().toPromise(),
       this.leadsService.getLeadsAssignedToMe().toPromise()
     ]).then(([created, assigned]) => {
       this.createdLeads = created || [];
       this.assignedLeads = assigned || [];
-      
+
       console.log('==============================================');
       console.log('📈 === LEADS LOADED SUCCESSFULLY ===');
       console.log('✅ Created leads (by me):', this.createdLeads.length);
       console.log('✅ Assigned leads (by admin):', this.assignedLeads.length);
       console.log('==============================================');
-      
-      // Debug: Log all assigned leads details
+
       if (this.assignedLeads.length > 0) {
         console.log('📋 Assigned Leads Details:');
         this.assignedLeads.forEach((lead, index) => {
@@ -123,10 +119,10 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
         console.log('  - Check backend logs for assignment details');
       }
       console.log('==============================================');
-      
+
       this.totalCreatedLeads = this.createdLeads.length;
       this.totalAssignedLeads = this.assignedLeads.length;
-      
+
       this.applyFilters();
       this.isLoading = false;
     }).catch(error => {
@@ -145,20 +141,17 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(): void {
-    // Start with the selected lead type
-    let filtered: Lead[] = this.selectedLeadType === 'created' 
-      ? [...this.createdLeads] 
+    let filtered: Lead[] = this.selectedLeadType === 'created'
+      ? [...this.createdLeads]
       : [...this.assignedLeads];
 
     console.log(`🔍 Applying filters for ${this.selectedLeadType}:`, filtered.length, 'leads');
 
-    // Apply status filter
     if (this.selectedStatus && this.selectedStatus !== 'all') {
       filtered = filtered.filter(lead => lead.status === this.selectedStatus);
       console.log(`  After status filter (${this.selectedStatus}):`, filtered.length, 'leads');
     }
 
-    // Apply search filter
     if (this.searchQuery.trim()) {
       const query = this.searchQuery.toLowerCase().trim();
       filtered = filtered.filter(lead =>
@@ -173,7 +166,6 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
     this.displayedLeads = filtered;
     console.log('✅ Final filtered leads:', this.displayedLeads.length);
 
-    // Apply pagination
     this.currentPage = this.currentPageMap[this.selectedLeadType];
     this.totalPages = Math.ceil(this.displayedLeads.length / this.pageSize);
     if (this.currentPage > this.totalPages && this.totalPages > 0) {
@@ -239,10 +231,10 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
     if (event) {
       event.stopPropagation();
     }
-    
+
     const leadId = typeof leadOrId === 'string' ? leadOrId : leadOrId._id;
     const leadName = typeof leadOrId === 'string' ? 'this lead' : leadOrId.fullName;
-    
+
     if (confirm(`Are you sure you want to delete the lead for ${leadName}?`)) {
       this.leadsService.deleteLead(leadId).subscribe({
         next: () => {
@@ -257,18 +249,68 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ✅ FIXED: Use dedicated updateLeadStatus method for proper persistence
   updateLeadStatus(lead: Lead, newStatus: string, event: Event): void {
     event.stopPropagation();
-    
-    this.leadsService.updateLead(lead._id, { status: newStatus as any }).subscribe({
-      next: () => {
+
+    // Basic validation
+    if (!lead || !lead._id) {
+      console.error('❌ Cannot update: Lead or Lead ID is missing!');
+      this.toastr.error('Invalid lead data. Please refresh the page.');
+      return;
+    }
+
+    if (!newStatus || newStatus === lead.status) {
+      console.log('⚠️ Status unchanged, skipping update');
+      return;
+    }
+
+    console.log('==============================================');
+    console.log('🔄 Updating lead status via PATCH');
+    console.log('Lead ID:', lead._id);
+    console.log('Lead Name:', lead.fullName);
+    console.log('Old Status:', lead.status);
+    console.log('New Status:', newStatus);
+    console.log('==============================================');
+
+    // ✅ FIXED: Use dedicated updateLeadStatus method (PATCH request)
+    this.leadsService.updateLeadStatus(lead._id, newStatus).subscribe({
+      next: (updatedLead) => {
+        console.log('==============================================');
+        console.log('✅ Status PERSISTED to database successfully!');
+        console.log('Backend returned:', updatedLead);
+        console.log('Confirmed new status:', updatedLead?.status || newStatus);
+        console.log('==============================================');
+
+        // Update local lead object immediately
         lead.status = newStatus as any;
-        this.toastr.success('Lead status updated successfully!');
-        this.loadLeads();
+        this.toastr.success(`Status updated to "${newStatus}" successfully!`);
+
+        // Refresh leads list after a short delay to ensure backend sync
+        setTimeout(() => {
+          this.loadLeads();
+        }, 500);
       },
       error: (error) => {
-        console.error('Error updating lead status:', error);
-        this.toastr.error('Failed to update lead status. Please try again.');
+        console.error('==============================================');
+        console.error('❌ Error updating lead status:', error);
+        console.error('Full error object:', error);
+        console.error('==============================================');
+
+        let errorMsg = 'Failed to update status. ';
+        if (error.status === 403) {
+          errorMsg += 'You do not have permission to update this lead.';
+        } else if (error.status === 404) {
+          errorMsg += 'Lead not found in database.';
+        } else if (error.status === 400) {
+          errorMsg += 'Invalid status value.';
+        } else if (error.status === 0) {
+          errorMsg += 'Network error. Check your connection.';
+        } else {
+          errorMsg += 'Please try again or contact support.';
+        }
+
+        this.toastr.error(errorMsg);
       }
     });
   }
@@ -279,22 +321,20 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
 
   getStatusClass(status: string): string {
     const statusClasses: { [key: string]: string } = {
-      'New': 'status-new',
-      'Qualified': 'status-qualified',
-      'Quoted': 'status-quoted',
-      'Won': 'status-won',
-      'Lost': 'status-lost'
+      'Seeded Lead': 'status-seeded',
+      'Meeting Fixed': 'status-fixed',
+      'Meeting Completed': 'status-completed',
+      'CS Executed': 'status-executed'
     };
     return statusClasses[status] || '';
   }
 
   getStatusIcon(status: string): string {
     const statusIcons: { [key: string]: string } = {
-      'New': 'fa-star',
-      'Qualified': 'fa-check-circle',
-      'Quoted': 'fa-file-invoice-dollar',
-      'Won': 'fa-trophy',
-      'Lost': 'fa-times-circle'
+      'Seeded Lead': 'fa-seedling',
+      'Meeting Fixed': 'fa-calendar-plus',
+      'Meeting Completed': 'fa-calendar-check',
+      'CS Executed': 'fa-file-signature'
     };
     return statusIcons[status] || 'fa-circle';
   }
@@ -322,11 +362,11 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
 
   parseNotesForDisplay(lead: Lead): void {
     this.parsedNotes = {};
-    
+
     if (!lead.notes) return;
 
     const parts = lead.notes.split(' | ');
-    
+
     parts.forEach(part => {
       const [key, ...valueParts] = part.split(': ');
       if (key && valueParts.length > 0) {
@@ -359,38 +399,45 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
   }
 
   getState(): string {
-return this.parsedNotes['State'] || 'N/A';
-}
-getPincode(): string {
-return this.parsedNotes['Pincode'] || 'N/A';
-}
-getProductInterest(): string {
-return this.parsedNotes['Product Interest'] || 'N/A';
-}
-getBudget(): string {
-const budget = this.parsedNotes['Budget'];
-return budget ? budget : 'N/A';
-}
-getTimeline(): string {
-return this.parsedNotes['Timeline'] || 'N/A';
-}
-getQuantity(): string {
-return this.parsedNotes['Quantity'] || 'N/A';
-}
-getPriorityClass(priority: string): string {
-const classes: { [key: string]: string } = {
-'low': 'priority-low',
-'medium': 'priority-medium',
-'high': 'priority-high'
-};
-return classes[priority.toLowerCase()] || 'priority-medium';
-}
-getPriorityIcon(priority: string): string {
-const icons: { [key: string]: string } = {
-'low': 'fa-flag',
-'medium': 'fa-flag',
-'high': 'fa-flag'
-};
-return icons[priority.toLowerCase()] || 'fa-flag';
-}
+    return this.parsedNotes['State'] || 'N/A';
+  }
+
+  getPincode(): string {
+    return this.parsedNotes['Pincode'] || 'N/A';
+  }
+
+  getProductInterest(): string {
+    return this.parsedNotes['Product Interest'] || 'N/A';
+  }
+
+  getBudget(): string {
+    const budget = this.parsedNotes['Budget'];
+    return budget ? budget : 'N/A';
+  }
+
+  getTimeline(): string {
+    return this.parsedNotes['Timeline'] || 'N/A';
+  }
+
+  getQuantity(): string {
+    return this.parsedNotes['Quantity'] || 'N/A';
+  }
+
+  getPriorityClass(priority: string): string {
+    const classes: { [key: string]: string } = {
+      'low': 'priority-low',
+      'medium': 'priority-medium',
+      'high': 'priority-high'
+    };
+    return classes[priority.toLowerCase()] || 'priority-medium';
+  }
+
+  getPriorityIcon(priority: string): string {
+    const icons: { [key: string]: string } = {
+      'low': 'fa-flag',
+      'medium': 'fa-flag',
+      'high': 'fa-flag'
+    };
+    return icons[priority.toLowerCase()] || 'fa-flag';
+  }
 }

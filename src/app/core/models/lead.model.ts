@@ -5,7 +5,7 @@ export interface Lead {
   phone: string;
   company?: string;
   source: string;
-  status: 'New' | 'Qualified' | 'Quoted' | 'Won' | 'Lost';
+  status: 'Seeded Lead' | 'Meeting Fixed' | 'Meeting Completed' | 'CS Executed';
   assignedTo: string;
   createdAt: Date;
 }
