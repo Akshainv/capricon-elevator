@@ -507,32 +507,45 @@
   }
 }
 
-/* Responsive Design */
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablets (≤1024px) */
 @media (max-width: 1024px) {
+  .details-container {
+    max-width: 100%;
+    padding: 20px 20px 20px 72px;
+    /* Clearance for fixed toggle */
+  }
+
   .quotation-document {
     padding: 30px;
   }
 }
 
+/* Mobile (≤768px) */
 @media (max-width: 768px) {
   .details-container {
-    padding: 15px;
-    max-width: 100%;
+    padding: 15px 15px 15px 72px;
   }
 
   .details-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
+    margin-bottom: 20px;
   }
 
   .header-actions {
     width: 100%;
+    gap: 10px;
   }
 
   .btn-action {
     flex: 1;
     justify-content: center;
+    padding: 12px;
   }
 
   .quotation-card {
@@ -540,57 +553,81 @@
   }
 
   .quotation-document {
-    padding: 20px;
+    padding: 20px 15px;
   }
 
   .doc-header {
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
   }
 
   .quote-info {
     text-align: left;
+    min-width: 100%;
   }
 
-  .company-logo-img {
-    max-width: 90px;
+  .items-section {
+    overflow-x: auto;
+    margin: 0 -15px 25px -15px;
+    padding: 0 15px;
   }
 
   .items-table {
-    font-size: 0.75rem;
+    min-width: 600px;
   }
 
-  .items-table th,
-  .items-table td {
-    padding: 8px 6px;
+  .totals-section {
+    justify-content: stretch;
   }
 
   .totals-table {
     width: 100%;
+    padding: 15px;
   }
 }
 
+/* Small Mobile (≤480px) */
 @media (max-width: 480px) {
+  .details-container {
+    padding: 15px 10px 15px 65px;
+  }
+
   .page-title {
     font-size: 1.4rem;
   }
 
   .company-name {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
   }
 
   .quote-header {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
 
-  .items-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
+  .header-actions {
+    flex-direction: column;
   }
 
-  .total-row.grand-total .total-label,
+  .btn-action {
+    width: 100%;
+  }
+
+  .total-row.grand-total .total-label {
+    font-size: 1rem;
+  }
+
   .total-row.grand-total .total-value {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
+  }
+}
+
+/* Very Small (≤320px) */
+@media (max-width: 320px) {
+  .details-container {
+    padding: 15px 8px 15px 58px;
+  }
+
+  .page-title {
+    font-size: 1.2rem;
   }
 }

@@ -28,6 +28,7 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
   selectedLeadType: 'created' | 'assigned' = 'assigned';
   searchQuery: string = '';
   selectedStatus: string = 'all';
+  dateFilter: string = '';
 
   // Loading and error states
   isLoading: boolean = false;
@@ -163,6 +164,22 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
       console.log(`  After search filter ("${this.searchQuery}"):`, filtered.length, 'leads');
     }
 
+    if (this.dateFilter) {
+      filtered = filtered.filter(lead => {
+        if (!lead.createdAt) return false;
+        const leadDate = new Date(lead.createdAt).toISOString().split('T')[0];
+        return leadDate === this.dateFilter;
+      });
+      console.log(`  After date filter (${this.dateFilter}):`, filtered.length, 'leads');
+    }
+
+    // ✅ SORT BY CREATED AT DESCENDING (Newest First)
+    filtered.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+
     this.displayedLeads = filtered;
     console.log('✅ Final filtered leads:', this.displayedLeads.length);
 
@@ -209,9 +226,14 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
+  onDateFilterChange(): void {
+    this.applyFilters();
+  }
+
   clearFilters(): void {
     this.searchQuery = '';
     this.selectedStatus = 'all';
+    this.dateFilter = '';
     this.applyFilters();
   }
 
@@ -322,9 +344,11 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
   getStatusClass(status: string): string {
     const statusClasses: { [key: string]: string } = {
       'Seeded Lead': 'status-seeded',
+      'CS Executive Assigned': 'status-assigned',
+      'Qualified': 'status-qualified',
       'Meeting Fixed': 'status-fixed',
       'Meeting Completed': 'status-completed',
-      'CS Executed': 'status-executed'
+      'Junk Lead': 'status-junk'
     };
     return statusClasses[status] || '';
   }
@@ -332,9 +356,11 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
   getStatusIcon(status: string): string {
     const statusIcons: { [key: string]: string } = {
       'Seeded Lead': 'fa-seedling',
+      'CS Executive Assigned': 'fa-user-tag',
+      'Qualified': 'fa-check-double',
       'Meeting Fixed': 'fa-calendar-plus',
       'Meeting Completed': 'fa-calendar-check',
-      'CS Executed': 'fa-file-signature'
+      'Junk Lead': 'fa-trash-alt'
     };
     return statusIcons[status] || 'fa-circle';
   }
@@ -383,7 +409,7 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
   }
 
   getPriority(): string {
-    return this.parsedNotes['Priority'] || 'medium';
+    return this.selectedLead?.priority || 'medium';
   }
 
   getAlternatePhone(): string {
@@ -423,21 +449,23 @@ export class SalesLeadsComponent implements OnInit, OnDestroy {
     return this.parsedNotes['Quantity'] || 'N/A';
   }
 
-  getPriorityClass(priority: string): string {
+  getPriorityClass(priority?: string): string {
+    const p = (priority || 'medium').toLowerCase();
     const classes: { [key: string]: string } = {
       'low': 'priority-low',
       'medium': 'priority-medium',
       'high': 'priority-high'
     };
-    return classes[priority.toLowerCase()] || 'priority-medium';
+    return classes[p] || 'priority-medium';
   }
 
-  getPriorityIcon(priority: string): string {
+  getPriorityIcon(priority?: string): string {
+    const p = (priority || 'medium').toLowerCase();
     const icons: { [key: string]: string } = {
       'low': 'fa-flag',
       'medium': 'fa-flag',
       'high': 'fa-flag'
     };
-    return icons[priority.toLowerCase()] || 'fa-flag';
+    return icons[p] || 'fa-flag';
   }
 }

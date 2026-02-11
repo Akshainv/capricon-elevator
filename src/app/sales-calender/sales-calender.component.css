@@ -91,6 +91,7 @@
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -556,8 +557,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .event-details-modal {
@@ -576,6 +582,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -636,7 +643,7 @@
   padding-bottom: 0;
 }
 
-.detail-row > i {
+.detail-row>i {
   color: var(--accent-gold);
   font-size: 1.2rem;
   width: 24px;
@@ -767,48 +774,103 @@
   background: rgba(239, 68, 68, 0.3);
 }
 
-/* Responsive */
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablets (≤1024px) */
 @media (max-width: 1024px) {
+  .calendar-container {
+    max-width: 100%;
+    padding: 25px 25px 25px 72px;
+    /* Clearance for fixed toggle */
+  }
+
   .calendar-controls {
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
+    padding: 20px;
   }
 
   .period-navigation {
     order: -1;
+    width: 100%;
+    justify-content: center;
   }
 
-  .form-row {
-    grid-template-columns: 1fr;
+  .period-label {
+    min-width: unset;
+    font-size: 1.2rem;
+  }
+
+  .calendar-grid {
+    padding: 10px;
+  }
+
+  .day-header {
+    padding: 8px 4px;
+    font-size: 0.75rem;
+  }
+
+  .calendar-day {
+    min-height: 100px;
   }
 }
 
+/* Mobile (≤768px) */
 @media (max-width: 768px) {
+  .calendar-container {
+    padding: 15px 15px 15px 72px;
+  }
+
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
 
-  .btn-primary {
-    width: 100%;
-    justify-content: center;
+  .period-navigation {
+    gap: 10px;
   }
 
-  .calendar-body {
-    grid-template-columns: 1fr;
+  .period-label {
+    font-size: 1.1rem;
+  }
+
+  .view-switcher {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .view-btn {
+    justify-content: center;
+    padding: 10px 5px;
+    font-size: 0.8rem;
   }
 
   .calendar-day {
     min-height: 80px;
+    padding: 5px;
   }
 
-  .week-body {
-    grid-template-columns: 1fr;
+  .day-number {
+    font-size: 1rem;
   }
 
-  .timeline-hour {
-    grid-template-columns: 60px 1fr;
+  .week-day-header {
+    padding: 10px;
+  }
+
+  .day-date {
+    font-size: 1.2rem;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-today {
+    width: 100%;
+    justify-content: center;
   }
 
   .view-switcher {
@@ -818,23 +880,93 @@
   .view-btn {
     flex: 1;
     justify-content: center;
+    padding: 10px;
+  }
+
+  .calendar-header {
+    display: none;
+    /* Hide day names on very small screens or stack them */
+  }
+
+  .calendar-body {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .calendar-day {
+    min-height: auto;
+    padding: 15px;
+  }
+
+  .day-number {
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .day-number::after {
+    content: attr(data-day-name);
+    font-size: 0.9rem;
+    color: var(--accent-gold);
+    font-weight: 500;
+  }
+
+  .week-header,
+  .week-body {
+    grid-template-columns: 1fr;
+  }
+
+  .week-day-column {
+    min-height: auto;
+    margin-bottom: 20px;
+  }
+
+  .timeline-hour {
+    grid-template-columns: 60px 1fr;
+  }
+
+  .hour-label {
+    padding-right: 10px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Small Mobile (≤480px) */
+@media (max-width: 480px) {
+  .calendar-container {
+    padding: 0 10px 0 68px;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .add-form-card {
+    padding: 20px;
+  }
+
+  .period-navigation {
+    gap: 10px;
   }
 
   .period-label {
-    font-size: 1.1rem;
-    min-width: auto;
+    font-size: 1rem;
   }
 
-  .form-actions {
-    flex-direction: column;
+  .nav-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Very Small (≤320px) */
+@media (max-width: 320px) {
+  .calendar-container {
+    padding: 0 8px 0 62px;
   }
 
-  .btn-secondary {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .modal-footer {
-    flex-direction: column;
+  .page-header h1 {
+    font-size: 1.3rem;
   }
 }

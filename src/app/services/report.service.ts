@@ -27,12 +27,12 @@ export interface TopPerformersResponse {
   providedIn: 'root'
 })
 export class ReportService {
-  private apiUrl = 'https://capricon-elevator-api.onrender.com/reports';
+  private apiUrl = 'http://localhost:3000/reports';
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   private getHeaders(): { headers: HttpHeaders } {
     return {
@@ -44,7 +44,7 @@ export class ReportService {
   getSalesReports(userId: string, filters?: any): Observable<any> {
     const salesFilters = { ...filters, employeeId: userId };
     return this.http.post(
-      `${this.apiUrl}/custom`, 
+      `${this.apiUrl}/custom`,
       salesFilters,
       this.getHeaders()
     );
@@ -53,8 +53,8 @@ export class ReportService {
   // Admin reports - general summary
   getAdminReports(filters?: any): Observable<any> {
     return this.http.get(
-      `${this.apiUrl}/summary`, 
-      { 
+      `${this.apiUrl}/summary`,
+      {
         params: this.buildParams(filters),
         ...this.getHeaders()
       }
@@ -64,7 +64,7 @@ export class ReportService {
   // ✅ NEW: Dedicated method for fetching top performers
   getTopPerformers(limit: number = 10, startDate?: string, endDate?: string): Observable<TopPerformersResponse> {
     let params = new HttpParams().set('limit', limit.toString());
-    
+
     if (startDate) {
       params = params.set('startDate', startDate);
     }
@@ -74,7 +74,7 @@ export class ReportService {
 
     return this.http.get<TopPerformersResponse>(
       `${this.apiUrl}/top-performers`,
-      { 
+      {
         params,
         ...this.getHeaders()
       }

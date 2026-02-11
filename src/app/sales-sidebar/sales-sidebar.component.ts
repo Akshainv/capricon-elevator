@@ -46,14 +46,14 @@ export class SalesSidebarComponent implements OnInit, OnDestroy {
     {
       title: 'Lead Management',
       items: [
-        { icon: 'fa-users', label: 'My Leads', route: '/leads', badge: 84 },
+        { icon: 'fa-users', label: 'My Leads', route: '/leads' },
         { icon: 'fa-file-import', label: 'Import Leads', route: '/leads/import' }
       ]
     },
     {
       title: 'Quotations',
       items: [
-        { icon: 'fa-file-invoice', label: 'My Quotations', route: '/quotations', badge: 23 }
+        { icon: 'fa-file-invoice', label: 'My Quotations', route: '/quotations' }
       ]
     },
     {
@@ -124,7 +124,7 @@ export class SalesSidebarComponent implements OnInit, OnDestroy {
   }
 
   toggleCollapse(): void {
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= 1024;
 
     if (isMobile) {
       this.mobileMenuOpen = !this.mobileMenuOpen;
@@ -144,20 +144,19 @@ export class SalesSidebarComponent implements OnInit, OnDestroy {
   }
 
   onMenuItemClick(): void {
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 1024) {
       this.closeMobileMenu();
     }
   }
 
   private handleResize(): void {
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= 1024;
 
     if (!isMobile) {
       this.mobileMenuOpen = false;
       document.body.style.overflow = '';
-      this.collapsed = window.innerWidth <= 1024 && window.innerWidth > 768;
     } else {
-      this.collapsed = true;
+      this.collapsed = false;
     }
   }
 }

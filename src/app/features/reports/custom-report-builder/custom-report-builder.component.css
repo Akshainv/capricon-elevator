@@ -158,7 +158,7 @@ select.form-control {
 }
 
 select.form-control option {
- 
+
   padding: 10px;
 }
 
@@ -261,8 +261,7 @@ textarea.form-control {
   font-weight: 600;
 }
 
-.include-item.checked .include-label {
-}
+.include-item.checked .include-label {}
 
 /* Preview Section */
 .preview-section {
@@ -403,8 +402,13 @@ button i.fa-spinner {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */

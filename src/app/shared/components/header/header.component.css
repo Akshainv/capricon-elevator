@@ -1,5 +1,6 @@
-/* src/app/shared/components/header/header.component.css */
-
+/* ========================================
+   HEADER BASE STYLES
+   ======================================== */
 .header {
   height: 70px;
   background: var(--header-bg);
@@ -15,12 +16,15 @@
   transition: all 0.3s ease;
 }
 
-/* Header Left */
+/* ========================================
+   HEADER LEFT
+   ======================================== */
 .header-left {
   display: flex;
   align-items: center;
   gap: 20px;
   flex: 1;
+  min-width: 0;
 }
 
 .menu-toggle {
@@ -35,6 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .menu-toggle:hover {
@@ -46,6 +51,7 @@
   max-width: 500px;
   width: 100%;
   position: relative;
+  flex: 1;
 }
 
 .search-icon {
@@ -79,11 +85,14 @@
   color: var(--text-placeholder);
 }
 
-/* Header Right */
+/* ========================================
+   HEADER RIGHT
+   ======================================== */
 .header-right {
   display: flex;
   align-items: center;
   gap: 15px;
+  flex-shrink: 0;
 }
 
 .header-btn {
@@ -99,6 +108,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  flex-shrink: 0;
 }
 
 .header-btn:hover {
@@ -107,7 +117,7 @@
   transform: translateY(-2px);
 }
 
-/* 🌓 THEME TOGGLE BUTTON STYLES */
+/* Theme Toggle */
 .theme-toggle {
   position: relative;
   overflow: hidden;
@@ -133,7 +143,6 @@
   border-color: #3b82f6;
 }
 
-/* Animated glow effect on theme toggle */
 .theme-toggle::before {
   content: '';
   position: absolute;
@@ -156,6 +165,7 @@
   background: radial-gradient(circle, rgba(59, 130, 246, 0.4), transparent);
 }
 
+/* Notification Badge */
 .notification-btn .badge {
   position: absolute;
   top: -5px;
@@ -190,15 +200,19 @@
   justify-content: center;
   color: #000;
   font-size: 0.9rem;
+  flex-shrink: 0;
 }
 
 .profile-name {
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
-/* Dropdown */
+/* ========================================
+   DROPDOWN STYLES
+   ======================================== */
 .header-dropdown {
   position: relative;
 }
@@ -310,6 +324,7 @@
 
 .notification-content {
   flex: 1;
+  min-width: 0;
 }
 
 .notification-text {
@@ -427,39 +442,296 @@
   color: #dc2626 !important;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .header {
-    padding: 0 15px;
-  }
-  
-  .search-box {
-    max-width: 200px;
-  }
-  
-  .profile-name {
-    display: none;
-  }
-  
-  .dropdown-menu {
-    width: 280px;
-  }
-}
-/* Existing styles remain unchanged... */
-
-/* Static Profile Button (non-clickable) */
+/* Static Profile Button */
 .static-profile {
   width: auto;
   padding: 0 15px;
   gap: 10px;
-  cursor: default; /* Not clickable */
-  pointer-events: none; /* Disable interaction */
+  cursor: default;
+  pointer-events: none;
 }
 
 .static-profile:hover {
-  background: rgba(212, 179, 71, 0.1); /* Keep consistent look but no hover effect */
+  background: rgba(212, 179, 71, 0.1);
   transform: none;
   border-color: var(--border-color);
 }
 
-/* Remove chevron and dropdown completely - no need for related styles */
+.empty-notifications {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.empty-notifications i {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  opacity: 0.5;
+  display: block;
+}
+
+.empty-notifications p {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ========================================
+   RESPONSIVE: TABLETS (≤1024px)
+   ======================================== */
+@media (max-width: 1024px) {
+  .header {
+    padding: 0 25px 0 72px;
+    height: 65px;
+  }
+
+  .header-left {
+    gap: 12px;
+    flex: 1;
+  }
+
+  .search-box {
+    max-width: 160px;
+    flex: 0 1 auto;
+  }
+
+  .header-right {
+    gap: 20px !important;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-btn {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  .dropdown-menu {
+    width: 280px;
+  }
+
+  .profile-btn {
+    padding: 0 14px;
+    gap: 10px;
+  }
+}
+
+/* ========================================
+   RESPONSIVE: SMALL TABLETS (768px-1024px)
+   ======================================== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .header {
+    padding: 0 25px 0 72px;
+  }
+
+  .search-box {
+    max-width: 140px;
+  }
+
+  .header-right {
+    gap: 20px !important;
+  }
+
+  .profile-name {
+    display: block;
+    font-size: 0.85rem;
+  }
+
+  .profile-btn {
+    padding: 0 14px;
+    gap: 10px;
+  }
+}
+
+/* ========================================
+   RESPONSIVE: MOBILE (≤768px)
+   ======================================== */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 12px 0 72px;
+    height: 60px;
+  }
+
+  .header-left {
+    gap: 10px;
+  }
+
+  .search-box {
+    max-width: 150px;
+  }
+
+  .search-box input {
+    padding: 10px 12px 10px 38px;
+    font-size: 0.85rem;
+  }
+
+  .search-icon {
+    left: 12px;
+    font-size: 0.9rem;
+  }
+
+  .header-right {
+    gap: 8px;
+  }
+
+  .header-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profile-name {
+    display: none;
+  }
+
+  .profile-btn {
+    padding: 0 10px;
+    gap: 0;
+  }
+
+  .dropdown-menu {
+    width: 280px;
+    right: -10px;
+  }
+
+  .notification-btn .badge {
+    width: 16px;
+    height: 16px;
+    font-size: 0.65rem;
+  }
+}
+
+/* ========================================
+   RESPONSIVE: SMALL MOBILE (≤480px)
+   ======================================== */
+@media (max-width: 480px) {
+  .header {
+    padding: 0 10px 0 65px;
+    height: 56px;
+  }
+
+  .header-left {
+    gap: 8px;
+  }
+
+  .search-box {
+    max-width: 140px;
+  }
+
+  .search-box input {
+    padding: 8px 10px 8px 32px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+  }
+
+  .search-icon {
+    left: 10px;
+    font-size: 0.8rem;
+  }
+
+  .header-right {
+    gap: 6px;
+  }
+
+  .header-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .header-btn i {
+    font-size: 0.9rem;
+  }
+
+  .profile-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .dropdown-menu {
+    width: 260px;
+    right: -5px;
+  }
+
+  .dropdown-header {
+    padding: 15px;
+  }
+
+  .dropdown-header h4 {
+    font-size: 1rem;
+  }
+
+  .notification-item {
+    padding: 12px 15px;
+    gap: 10px;
+  }
+
+  .notification-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profile-menu {
+    width: 260px;
+  }
+
+  .profile-info {
+    padding: 20px 15px;
+  }
+
+  .profile-avatar-large {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+}
+
+/* ========================================
+   RESPONSIVE: VERY SMALL (≤320px)
+   ======================================== */
+@media (max-width: 320px) {
+  .header {
+    padding: 0 8px 0 58px;
+    height: 52px;
+  }
+
+  .search-box {
+    display: none;
+  }
+
+  .header-right {
+    gap: 4px;
+  }
+
+  .header-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .dropdown-menu {
+    width: 240px;
+    max-width: calc(100vw - 20px);
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+.header-btn:focus,
+.menu-toggle:focus {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .header,
+  .header-btn,
+  .dropdown-menu {
+    transition: none;
+  }
+}

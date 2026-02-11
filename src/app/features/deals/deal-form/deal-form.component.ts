@@ -55,11 +55,11 @@ export class DealFormComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
-    
+
     // Check if editing
     this.dealId = this.route.snapshot.paramMap.get('id');
     if (this.dealId) {
@@ -76,20 +76,20 @@ export class DealFormComponent implements OnInit {
       contactPerson: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required],
-      
+
       // Deal Details
       elevatorType: ['', Validators.required],
       floors: ['', [Validators.required, Validators.min(1)]],
       quantity: [1, [Validators.required, Validators.min(1)]],
       amount: ['', [Validators.required, Validators.min(0)]],
-      
+
       // Sales Information
       status: ['new', Validators.required],
       probability: [50, [Validators.required, Validators.min(0), Validators.max(100)]],
       expectedCloseDate: ['', Validators.required],
       assignedTo: ['', Validators.required],
       leadSource: ['', Validators.required],
-      
+
       // Additional Information
       address: [''],
       requirements: [''],
@@ -118,30 +118,30 @@ export class DealFormComponent implements OnInit {
       requirements: '8-floor passenger elevator with VFD control',
       notes: 'High priority client, regular follow-ups needed'
     };
-    
+
     this.dealForm.patchValue(mockData);
   }
 
   onSubmit(): void {
     if (this.dealForm.valid) {
       this.isSubmitting = true;
-      
+
       const dealData = this.dealForm.value;
       console.log('Deal Data:', dealData);
-      
+
       // Simulate API call
       setTimeout(() => {
         this.isSubmitting = false;
-        
+
         if (this.isEditMode) {
           alert('Deal updated successfully!');
         } else {
           alert('Deal created successfully!');
         }
-        
+
         this.router.navigate(['/deals']);
       }, 1000);
-      
+
       // TODO: Replace with actual API call
       // if (this.isEditMode) {
       //   this.dealService.updateDeal(this.dealId, dealData).subscribe(...)
@@ -173,7 +173,7 @@ export class DealFormComponent implements OnInit {
 
   getErrorMessage(fieldName: string): string {
     const control = this.dealForm.get(fieldName);
-    
+
     if (control?.hasError('required')) {
       return 'This field is required';
     }
@@ -186,7 +186,7 @@ export class DealFormComponent implements OnInit {
     if (control?.hasError('max')) {
       return `Maximum value is ${control.errors?.['max'].max}`;
     }
-    
+
     return '';
   }
 
@@ -199,11 +199,11 @@ export class DealFormComponent implements OnInit {
     const floors = this.dealForm.get('floors')?.value;
     const elevatorType = this.dealForm.get('elevatorType')?.value;
     const quantity = this.dealForm.get('quantity')?.value || 1;
-    
+
     if (floors && elevatorType) {
       let basePrice = 1000000; // Base price
       let floorMultiplier = floors * 150000;
-      
+
       const typeMultipliers: { [key: string]: number } = {
         'passenger': 1,
         'goods': 1.5,
@@ -211,7 +211,7 @@ export class DealFormComponent implements OnInit {
         'hospital': 1.3,
         'commercial': 1.2
       };
-      
+
       const estimate = (basePrice + floorMultiplier) * (typeMultipliers[elevatorType] || 1) * quantity;
       this.dealForm.patchValue({ amount: Math.round(estimate) });
     }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -28,7 +28,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   currentLogo: string = 'assets/images/logo-light.png';
   collapsed: boolean = false;
   mobileMenuOpen: boolean = false;
-  private resizeHandler = () => this.handleResize();
+  isMobile: boolean = false;
   private destroy$ = new Subject<void>();
 
   menuSections: MenuSection[] = [
@@ -67,84 +67,88 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private toastr: ToastrService
-  ) {
-    console.log('Sidebar: Constructor called');
-  }
+  ) { }
 
   ngOnInit(): void {
-    console.log('Sidebar: ngOnInit called');
-    console.log('Menu sections loaded:', this.menuSections);
-
+    // Subscribe to theme changes
     this.themeService.theme$
       .pipe(takeUntil(this.destroy$))
       .subscribe((theme: 'dark' | 'light') => {
-        console.log('Theme changed to:', theme);
-
         if (theme === 'dark') {
           this.currentLogo = 'assets/images/logo1.png';
-          console.log('   → Using logo1.png (light version)');
         } else {
           this.currentLogo = 'assets/images/capricorn.png';
-          console.log('   → Using capricorn.png (dark version)');
         }
       });
-    this.handleResize();
-    window.addEventListener('resize', this.resizeHandler);
+
+    // Initialize responsive state
+    this.checkScreenSize();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    window.removeEventListener('resize', this.resizeHandler);
+    // Clean up body overflow
+    document.body.style.overflow = '';
   }
 
-  logout(): void {
-    this.authService.logout();
-    this.toastr.success('Logged out successfully', 'Logged out');
+  @HostListener('window:resize', ['$event'])
+  onResize(): void {
+    this.checkScreenSize();
   }
 
-  navigateToRoute(route: string): void {
-    console.log('Navigating to:', route);
-    this.router.navigate([route]);
+  private checkScreenSize(): void {
+    const wasMobile = this.isMobile;
+    this.isMobile = window.innerWidth <= 1024;
+
+    // If transitioning from mobile to desktop, close mobile menu
+    if (wasMobile && !this.isMobile) {
+      this.mobileMenuOpen = false;
+      document.body.style.overflow = '';
+    }
+
+    // If transitioning from desktop to mobile, reset collapsed state
+    if (!wasMobile && this.isMobile) {
+      this.collapsed = false;
+    }
   }
 
-  toggleCollapse(): void {
-    const isMobile = window.innerWidth <= 768;
+  toggleSidebar(): void {
+    // Check screen width directly for reliable DevTools compatibility
+    const isTabletOrMobile = window.innerWidth <= 1024;
 
-    if (isMobile) {
+    if (isTabletOrMobile) {
+      // Mobile/Tablet: toggle overlay menu
       this.mobileMenuOpen = !this.mobileMenuOpen;
-      // Prevent body scroll when menu is open
+      this.isMobile = true; // Ensure isMobile is synced
+
+      // Prevent body scroll when menu is open on mobile
       if (this.mobileMenuOpen) {
         document.body.style.overflow = 'hidden';
       } else {
         document.body.style.overflow = '';
       }
     } else {
+      // Desktop: toggle collapse
       this.collapsed = !this.collapsed;
     }
   }
 
   closeMobileMenu(): void {
-    this.mobileMenuOpen = false;
-    document.body.style.overflow = '';
+    // Check screen width directly for reliable DevTools compatibility
+    if (window.innerWidth <= 1024) {
+      this.mobileMenuOpen = false;
+      document.body.style.overflow = '';
+    }
   }
 
   onMenuItemClick(): void {
     // Close mobile menu when clicking a menu item
-    if (window.innerWidth <= 768) {
-      this.closeMobileMenu();
-    }
+    this.closeMobileMenu();
   }
 
-  private handleResize(): void {
-    const isMobile = window.innerWidth <= 768;
-
-    if (!isMobile) {
-      // Reset mobile menu state on desktop
-      this.mobileMenuOpen = false;
-      document.body.style.overflow = '';
-      // Auto-collapse based on screen size for tablets
-      this.collapsed = window.innerWidth <= 1024 && window.innerWidth > 768;
-    }
+  logout(): void {
+    this.authService.logout();
+    this.toastr.success('Logged out successfully', 'Logged out');
   }
 }

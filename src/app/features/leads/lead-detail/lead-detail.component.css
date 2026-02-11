@@ -227,7 +227,7 @@
 }
 
 .info-value {
-  
+
   font-size: 1rem;
   font-weight: 600;
 }
@@ -360,7 +360,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
- 
+
   font-size: 0.85rem;
 }
 
@@ -386,21 +386,79 @@
   font-size: 1rem;
 }
 
-/* Responsive */
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablets (≤1024px) */
+@media (max-width: 1024px) {
+  .detail-container {
+    max-width: 100%;
+    padding: 0 20px 0 72px;
+    /* Clearance for fixed toggle */
+  }
+
+  .lead-header,
+  .details-section,
+  .timeline-section {
+    padding: 25px;
+  }
+}
+
+/* Mobile (≤768px) */
 @media (max-width: 768px) {
+  .detail-container {
+    padding: 0 15px 0 72px;
+  }
+
   .lead-header {
     flex-direction: column;
     align-items: flex-start;
+    padding: 20px;
+    gap: 15px;
+  }
+
+  .lead-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .lead-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+
+  .lead-title h1 {
+    font-size: 1.5rem;
   }
 
   .header-actions {
     width: 100%;
     justify-content: flex-start;
     flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .status-badge {
+    width: 100%;
+    text-align: center;
+  }
+
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .details-section,
+  .timeline-section {
+    padding: 20px;
   }
 
   .info-grid {
     grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .timeline-header {
@@ -409,7 +467,60 @@
     gap: 15px;
   }
 
+  .timeline {
+    padding-left: 30px;
+  }
+
+  .timeline::before {
+    left: 12px;
+  }
+
+  .timeline-marker {
+    left: -30px;
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
   .activity-header {
     flex-direction: column;
+    gap: 5px;
+  }
+
+  .activity-time {
+    font-size: 0.75rem;
+  }
+}
+
+/* Small Mobile (≤480px) */
+@media (max-width: 480px) {
+  .detail-container {
+    padding: 0 10px 0 65px;
+  }
+
+  .lead-title h1 {
+    font-size: 1.3rem;
+  }
+
+  .info-card {
+    padding: 15px;
+    gap: 12px;
+  }
+
+  .info-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+}
+
+/* Very Small (≤320px) */
+@media (max-width: 320px) {
+  .detail-container {
+    padding: 0 8px 0 58px;
+  }
+
+  .lead-title h1 {
+    font-size: 1.15rem;
   }
 }

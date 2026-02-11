@@ -9,6 +9,14 @@
   min-height: 100vh;
 }
 
+/* Responsive - Tablet hamburger clearance */
+@media (max-width: 1024px) {
+  .dashboard-container {
+    padding-left: 70px;
+  }
+}
+
+
 /* Page Header */
 .page-header {
   margin-bottom: 30px;
@@ -48,8 +56,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-container p {
@@ -66,8 +79,8 @@
 }
 
 .stat-card {
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8), rgba(0, 0, 0, 0.9)) !important;
-  border: 1px solid rgba(212, 179, 71, 0.3) !important;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
   border-radius: 16px;
   padding: 1.75rem;
   display: flex;
@@ -76,6 +89,13 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark theme specific styling */
+:host-context(html:not(.light-theme):not([data-theme="light"])) .stat-card {
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8), rgba(0, 0, 0, 0.9));
+  border: 1px solid rgba(212, 179, 71, 0.3);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -138,8 +158,12 @@
 }
 
 .stat-subtitle {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-tertiary, #9ca3af);
   font-size: 0.8rem;
+}
+
+:host-context(html:not(.light-theme):not([data-theme="light"])) .stat-subtitle {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* Chart Section */
@@ -148,11 +172,17 @@
 }
 
 .chart-card {
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8), rgba(0, 0, 0, 0.9));
-  border: 1px solid rgba(212, 179, 71, 0.3);
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
   border-radius: 16px;
   padding: 2rem;
   transition: all 0.3s ease;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+:host-context(html:not(.light-theme):not([data-theme="light"])) .chart-card {
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8), rgba(0, 0, 0, 0.9));
+  border: 1px solid rgba(212, 179, 71, 0.3);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -182,8 +212,12 @@
 
 .chart-subtitle {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary, #6b7280);
   display: block;
+}
+
+:host-context(html:not(.light-theme):not([data-theme="light"])) .chart-subtitle {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .chart-content {
@@ -224,6 +258,10 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.9rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+:host-context(html:not(.light-theme):not([data-theme="light"])) .legend-item {
   color: rgba(255, 255, 255, 0.7);
 }
 
@@ -236,10 +274,15 @@
 /* Quick Actions */
 .quick-actions {
   margin-top: 2rem;
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8), rgba(0, 0, 0, 0.9));
-  border: 1px solid rgba(212, 179, 71, 0.3);
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
   border-radius: 16px;
   padding: 2rem;
+}
+
+:host-context(html:not(.light-theme):not([data-theme="light"])) .quick-actions {
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8), rgba(0, 0, 0, 0.9));
+  border: 1px solid rgba(212, 179, 71, 0.3);
 }
 
 .quick-actions h3 {
@@ -259,8 +302,8 @@
 }
 
 .action-btn {
-  background: rgba(212, 179, 71, 0.1);
-  border: 1px solid rgba(212, 179, 71, 0.3);
+  background: var(--bg-tertiary, #f9fafb);
+  border: 1px solid var(--border-color, #e5e7eb);
   border-radius: 12px;
   padding: 1.25rem;
   display: flex;
@@ -269,6 +312,12 @@
   gap: 0.75rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  color: var(--text-primary, #1f2937);
+}
+
+:host-context(html:not(.light-theme):not([data-theme="light"])) .action-btn {
+  background: rgba(212, 179, 71, 0.1);
+  border: 1px solid rgba(212, 179, 71, 0.3);
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -295,22 +344,46 @@
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .actions-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .dashboard-container {
     padding: 1.5rem;
   }
 
   .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
   }
-  
+
+  .deal-main-info {
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .deal-right {
+    align-items: stretch;
+    min-width: unset;
+    width: 100%;
+  }
+
+  .deal-amount-section {
+    text-align: left;
+    padding: 20px;
+  }
+
+  .amount-status {
+    justify-content: flex-start;
+  }
+
+  .amount-value {
+    font-size: 1.7rem;
+  }
+
   .chart-container {
     height: 350px;
   }
@@ -361,7 +434,7 @@
     height: 300px;
     padding: 1rem;
   }
-  
+
   .actions-grid {
     grid-template-columns: 1fr;
   }
@@ -376,9 +449,112 @@
   .stat-content {
     text-align: left;
   }
-  
+
   .chart-container {
     height: 250px;
     padding: 0.75rem;
   }
+}
+
+/* ==========================================
+   LIGHT MODE OVERRIDES
+   ========================================== */
+
+:host-context(html.light-theme) .dashboard-container,
+:host-context(html[data-theme="light"]) .dashboard-container {
+  background: #ffffff !important;
+}
+
+:host-context(html.light-theme) .page-header p,
+:host-context(html[data-theme="light"]) .page-header p {
+  color: #6b7280 !important;
+}
+
+:host-context(html.light-theme) .stat-card,
+:host-context(html[data-theme="light"]) .stat-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+:host-context(html.light-theme) .stat-card:hover,
+:host-context(html[data-theme="light"]) .stat-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  border-color: #d4b347 !important;
+}
+
+:host-context(html.light-theme) .stat-card::before,
+:host-context(html[data-theme="light"]) .stat-card::before {
+  display: none !important;
+}
+
+:host-context(html.light-theme) .stat-label,
+:host-context(html[data-theme="light"]) .stat-label {
+  color: #6b7280 !important;
+}
+
+:host-context(html.light-theme) .stat-subtitle,
+:host-context(html[data-theme="light"]) .stat-subtitle {
+  color: #9ca3af !important;
+}
+
+:host-context(html.light-theme) .chart-card,
+:host-context(html[data-theme="light"]) .chart-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+:host-context(html.light-theme) .chart-container,
+:host-context(html[data-theme="light"]) .chart-container {
+  background: #f9fafb !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+:host-context(html.light-theme) .chart-subtitle,
+:host-context(html[data-theme="light"]) .chart-subtitle {
+  color: #6b7280 !important;
+}
+
+:host-context(html.light-theme) .chart-footer,
+:host-context(html[data-theme="light"]) .chart-footer {
+  border-top: 1px solid #e5e7eb !important;
+}
+
+:host-context(html.light-theme) .legend-item,
+:host-context(html[data-theme="light"]) .legend-item {
+  color: #6b7280 !important;
+}
+
+:host-context(html.light-theme) .quick-actions,
+:host-context(html[data-theme="light"]) .quick-actions {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+:host-context(html.light-theme) .action-btn,
+:host-context(html[data-theme="light"]) .action-btn {
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+:host-context(html.light-theme) .action-btn:hover,
+:host-context(html[data-theme="light"]) .action-btn:hover {
+  background: #fef9e7 !important;
+  border-color: #d4b347 !important;
+}
+
+:host-context(html.light-theme) .action-btn span,
+:host-context(html[data-theme="light"]) .action-btn span {
+  color: #1f2937 !important;
+}
+
+:host-context(html.light-theme) .loading-container p,
+:host-context(html[data-theme="light"]) .loading-container p {
+  color: #6b7280 !important;
 }

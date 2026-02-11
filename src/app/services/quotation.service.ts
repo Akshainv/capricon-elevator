@@ -22,14 +22,33 @@ export interface CreateQuotationPayload {
   customerPhone: string;
   companyName?: string;
   address?: string;
-  elevationType: string;
-  numberOfFloors: number;
-  doorConfiguration: string;
-  numberOfElevators: number;
-  speed: string;
-  capacity: string;
-  driveType: string;
-  controlSystem: string;
+  // PDF Page 4 fields
+  model?: string;
+  quantity?: number;
+  noOfStops?: number;
+  elevatorType?: string;
+  ratedLoad?: string;
+  maximumSpeed?: string;
+  capacity?: string;
+  speed?: string;
+  travelHeight?: string;
+  driveSystem?: string;
+  controlSystem?: string;
+  cabinWalls?: string;
+  cabinDoors?: string;
+  doorType?: string;
+  doorOpening?: string;
+  copLopScreen?: string;
+  cabinCeiling?: string;
+  cabinFloor?: string;
+  handrails?: number;
+  // Legacy required fields for backend validation
+  elevationType?: string;
+  numberOfFloors?: number;
+  doorConfiguration?: string;
+  numberOfElevators?: number;
+  driveType?: string;
+  // Legacy optional compatibility fields
   includeInstallation?: boolean;
   includeAMC?: boolean;
   amcYears?: number;
@@ -45,6 +64,23 @@ export interface CreateQuotationPayload {
   termsAndConditions?: string;
   notes?: string;
   status?: string;
+  pricingItems?: any[];
+  bankDetails?: {
+    accountNo: string;
+    ifsc: string;
+    bank: string;
+    gstin: string;
+    accountName: string;
+    accountType: string;
+    branch: string;
+    pan: string;
+  };
+  paymentTerms?: {
+    slNo: number;
+    description: string;
+    rate: string;
+  }[];
+  gstRate?: number;
 }
 
 export interface Quotation {
@@ -56,12 +92,30 @@ export interface Quotation {
   customerPhone: string;
   customerCompany?: string;
   companyName?: string;
+  address?: string;
   quoteDate: string;
   validUntil: string;
-  elevationType: string;
-  numberOfFloors: number;
-  speed: string;
-  capacity: string;
+  // PDF Page 4 fields
+  model?: string;
+  quantity?: number;
+  noOfStops?: number;
+  elevatorType?: string;
+  ratedLoad?: string;
+  maximumSpeed?: string;
+  capacity?: string;
+  speed?: string;
+  travelHeight?: string;
+  driveSystem?: string;
+  controlSystem?: string;
+  cabinWalls?: string;
+  cabinDoors?: string;
+  doorType?: string;
+  doorOpening?: string;
+  copLopScreen?: string;
+  cabinCeiling?: string;
+  cabinFloor?: string;
+  handrails?: number;
+  // Legacy/costs fields
   baseCost: number;
   installationCost: number;
   amcCost: number;
@@ -76,6 +130,13 @@ export interface Quotation {
   notes?: string;
   internalNotes?: string;
   specialRequirements?: string;
+  pricingItems?: any[];
+  bankDetails?: any;
+  paymentTerms?: any[];
+  gstRate?: number;
+  // Additional fields for preview mapping
+  subtotal?: number;
+  totalTax?: number;
 }
 
 export interface QuotationResponse {
@@ -96,7 +157,7 @@ export interface QuotationStats {
   providedIn: 'root'
 })
 export class QuotationService {
-  private apiUrl = 'https://capricon-elevator-api.onrender.com/api/quotation';
+  private apiUrl = 'http://localhost:3000/api/quotation';
 
   constructor(
     private http: HttpClient,
@@ -118,7 +179,7 @@ export class QuotationService {
   createQuotation(quotationData: CreateQuotationPayload): Observable<QuotationResponse> {
     const headers = this.getHeadersWithUser();
     console.log('📤 Creating quotation with payload:', quotationData);
-    console.log('🏗️ elevationType being sent:', quotationData.elevationType);
+    console.log('🏗️ elevatorType being sent:', quotationData.elevatorType);
     return this.http.post<QuotationResponse>(this.apiUrl, quotationData, { headers });
   }
 
@@ -157,14 +218,18 @@ export class QuotationService {
     );
   }
 
-  // NEW METHOD: Send quotation with PDF generation
-  sendQuotationWithPDF(quotationId: string, email: string, quotationData: any): Observable<any> {
+  // NEW METHOD: Send quotation with PDF upload
+  sendQuotationWithPDF(quotationId: string, email: string, quotationData: any, pdfBlob: Blob): Observable<any> {
     const headers = this.getHeadersWithUser();
-    const payload = {
-      email: email,
-      quotationData: quotationData
-    };
-    return this.http.post(`${this.apiUrl}/${quotationId}/send-pdf`, payload, { headers });
+    // Remove Content-Type so the browser sets it automatically with the boundary for FormData
+    const uploadHeaders = headers.delete('Content-Type');
+
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('quotationData', JSON.stringify(quotationData));
+    formData.append('pdf', pdfBlob, `Quotation_${quotationId}.pdf`);
+
+    return this.http.post(`${this.apiUrl}/${quotationId}/send-pdf`, formData, { headers: uploadHeaders });
   }
 
   convertToDeal(quotationId: string): Observable<any> {
@@ -174,25 +239,46 @@ export class QuotationService {
   formatQuotationForBackend(formData: any): CreateQuotationPayload {
     const items = formData.items || [];
 
-    const baseCost = items.reduce((sum: number, item: any) => {
-      return sum + (item.quantity * item.price);
-    }, 0);
+    let baseCost = 0;
+    let totalTax = 0;
+    let totalCost = 0;
 
-    const totalDiscount = items.reduce((sum: number, item: any) => {
-      const itemSubtotal = item.quantity * item.price;
-      return sum + (itemSubtotal * (item.discount / 100));
-    }, 0);
+    if (formData.pricingItems && formData.pricingItems.length > 0) {
+      // Use pricingItems (prioritize Launch Offer for total cost)
+      const launchSubtotal = formData.pricingItems.reduce((sum: number, item: any) => {
+        if (item.isComplimentary || item.isNA) return sum;
+        return sum + (Number(item.launch) || 0);
+      }, 0);
 
-    const taxableAmount = baseCost - totalDiscount;
+      const gstRate = (formData.gstRate || 18) / 100;
+      baseCost = launchSubtotal;
+      totalTax = launchSubtotal * gstRate;
+      totalCost = launchSubtotal * (1 + gstRate);
+    } else {
+      // Fallback to old items logic
+      baseCost = items.reduce((sum: number, item: any) => {
+        return sum + (item.quantity * item.price);
+      }, 0);
 
-    const totalTax = items.reduce((sum: number, item: any) => {
-      const itemSubtotal = item.quantity * item.price;
-      const discountAmount = itemSubtotal * (item.discount / 100);
-      const itemTaxable = itemSubtotal - discountAmount;
-      return sum + (itemTaxable * (item.tax / 100));
-    }, 0);
+      const totalDiscount = items.reduce((sum: number, item: any) => {
+        const itemSubtotal = item.quantity * item.price;
+        const discount = item.discount || 0;
+        return sum + (itemSubtotal * (discount / 100));
+      }, 0);
 
-    const totalCost = taxableAmount + totalTax;
+      const taxableAmount = baseCost - totalDiscount;
+
+      totalTax = items.reduce((sum: number, item: any) => {
+        const itemSubtotal = item.quantity * item.price;
+        const discount = item.discount || 0;
+        const tax = item.tax || 0;
+        const discountAmount = itemSubtotal * (discount / 100);
+        const itemTaxable = itemSubtotal - discountAmount;
+        return sum + (itemTaxable * (tax / 100));
+      }, 0);
+
+      totalCost = taxableAmount + totalTax;
+    }
 
     return {
       customerName: formData.customerName,
@@ -200,73 +286,139 @@ export class QuotationService {
       customerPhone: formData.customerPhone,
       companyName: formData.customerCompany || '',
       address: formData.customerAddress || '',
-      elevationType: this.mapCategoryToElevationType(items[0]?.product?.category),
-      numberOfFloors: formData.floors || 1,
+      // PDF Page 4 fields
+      model: formData.model || '',
+      quantity: Number(formData.quantity) || 1,
+      noOfStops: Number(formData.noOfStops) || 2,
+      elevatorType: formData.elevatorType || '',
+      ratedLoad: formData.ratedLoad || '',
+      maximumSpeed: formData.maximumSpeed || '',
+      // Backend schema expects `capacity` and `speed` fields (required). Map from
+      // existing frontend fields `ratedLoad` and `maximumSpeed` for compatibility.
+      capacity: formData.capacity || formData.ratedLoad || '408 kg / 6 Pax',
+      speed: formData.speed || formData.maximumSpeed || 'Upto 1 m/s',
+      travelHeight: formData.travelHeight || '',
+      driveSystem: formData.driveSystem || '',
+      controlSystem: formData.controlSystem || 'Microprocessor-based fully automatic control',
+      cabinWalls: formData.cabinWalls || '',
+      cabinDoors: formData.cabinDoors || '',
+      doorType: formData.doorType || '',
+      doorOpening: formData.doorOpening || '',
+      copLopScreen: formData.copLopScreen || '',
+      cabinCeiling: formData.cabinCeiling || '',
+      cabinFloor: formData.cabinFloor || '',
+      handrails: Number(formData.handrails) || 0,
+      // ⚠️ LEGACY REQUIRED FIELDS - Backend still validates these
+      elevationType: this.mapCategoryToElevationType(items[0]?.productCategory || items[0]?.product?.category),
+      numberOfFloors: Number(formData.noOfStops) || 2,
       doorConfiguration: '1 door',
-      numberOfElevators: 1,
-      speed: '1.0 m/s',
-      capacity: '8',
-      driveType: 'variable frequency drive',
-      controlSystem: 'microprocessor based',
+      numberOfElevators: Number(formData.quantity) || 1,
+      driveType: 'gearless drive',
+      // Legacy optional fields for compatibility
       includeInstallation: formData.includeInstallation || false,
       includeAMC: formData.includeAMC || false,
-      amcYears: formData.amcYears || 1,
+      amcYears: Number(formData.amcYears) || 1,
       specialRequirements: formData.notes || '',
       internalNotes: formData.termsAndConditions || '',
-      baseCost: baseCost,
-      installationCost: formData.installationCost || 0,
-      amcCost: formData.amcCost || 0,
-      cgst: totalTax / 2,
-      sgst: totalTax / 2,
-      totalCost: totalCost,
-      items: items,
+      baseCost: Number(baseCost),
+      installationCost: Number(formData.installationCost) || 0,
+      amcCost: Number(formData.amcCost) || 0,
+      cgst: Number(totalTax / 2),
+      sgst: Number(totalTax / 2),
+      totalCost: Number(totalCost),
+      items: items.map((item: any) => ({
+        product: item.product || {
+          name: item.productName || 'Unknown Product',
+          category: item.productCategory || 'General'
+        },
+        quantity: Number(item.quantity) || 1,
+        price: Number(item.price) || 0,
+        discount: Number(item.discount) || 0,
+        tax: Number(item.tax) || 0,
+        total: Number(item.total) || 0
+      })),
       termsAndConditions: formData.termsAndConditions,
-      notes: formData.notes
+      notes: formData.notes,
+      pricingItems: formData.pricingItems,
+      bankDetails: formData.bankDetails,
+      paymentTerms: (formData.paymentTerms || []).map((term: any) => ({
+        slNo: Number(term.slNo),
+        description: term.description,
+        rate: term.rate
+      })),
+      gstRate: Number(formData.gstRate) || 18
     };
   }
 
   formatQuotationForFrontend(backendData: any): Quotation {
     return {
       id: backendData._id || backendData.id,
-      _id: backendData._id,
+      _id: backendData._id || backendData.id,
       quoteNumber: backendData.quoteNumber,
       customerName: backendData.customerName,
       customerEmail: backendData.customerEmail,
       customerPhone: backendData.customerPhone,
       customerCompany: backendData.companyName,
       companyName: backendData.companyName,
+      address: backendData.address,
       quoteDate: backendData.createdAt || new Date().toISOString(),
       validUntil: backendData.validUntil,
-      elevationType: backendData.elevationType,
-      numberOfFloors: backendData.numberOfFloors,
-      speed: backendData.speed,
-      capacity: backendData.capacity,
+      // PDF Page 4 fields
+      model: backendData.model,
+      quantity: backendData.quantity,
+      noOfStops: backendData.noOfStops,
+      elevatorType: backendData.elevatorType,
+      ratedLoad: backendData.ratedLoad || backendData.capacity,
+      maximumSpeed: backendData.maximumSpeed || backendData.speed,
+      // Provide compatibility fields expected by PDF generator and other views
+      capacity: backendData.capacity || backendData.ratedLoad,
+      speed: backendData.speed || backendData.maximumSpeed,
+      travelHeight: backendData.travelHeight,
+      driveSystem: backendData.driveSystem,
+      controlSystem: backendData.controlSystem,
+      cabinWalls: backendData.cabinWalls,
+      cabinDoors: backendData.cabinDoors,
+      doorType: backendData.doorType,
+      doorOpening: backendData.doorOpening,
+      copLopScreen: backendData.copLopScreen,
+      cabinCeiling: backendData.cabinCeiling,
+      cabinFloor: backendData.cabinFloor,
+      handrails: backendData.handrails,
+      // Legacy/costs
       baseCost: backendData.baseCost,
       installationCost: backendData.installationCost || 0,
       amcCost: backendData.amcCost || 0,
       totalCost: backendData.totalCost,
       totalAmount: backendData.totalCost,
       status: backendData.status,
+      createdAt: backendData.createdAt,
       createdDate: backendData.createdAt ? new Date(backendData.createdAt) : new Date(),
       createdBy: backendData.createdBy,
       items: backendData.items,
       termsAndConditions: backendData.internalNotes,
-      notes: backendData.specialRequirements
+      notes: backendData.specialRequirements,
+      pricingItems: backendData.pricingItems,
+      bankDetails: backendData.bankDetails,
+      paymentTerms: backendData.paymentTerms,
+      gstRate: backendData.gstRate
     };
   }
 
   // ✅ FIXED: Returns values matching backend enum exactly
   private mapCategoryToElevationType(category: string | undefined): any {
-    if (!category) return 'home';
+    if (!category) return 'passenger';
 
     const cat = category.toLowerCase().trim();
 
-    // Using mapping mentioned in testing guide/backend requirements
-    if (cat.includes('home')) return 'home';
-    if (cat.includes('passenger') || cat.includes('commercial') || cat.includes('hospital')) return 'commercial';
-    if (cat.includes('goods') || cat.includes('shaft')) return 'shaft-with';
-    if (cat.includes('service')) return 'commercial';
+    // Map to exact values allowed by backend QuotationSchema enum
+    if (cat.includes('home')) return 'home lift';
+    if (cat.includes('hospital')) return 'hospital';
+    if (cat.includes('passenger')) return 'passenger';
+    if (cat.includes('goods')) return 'goods';
+    if (cat.includes('service')) return 'service';
+    if (cat.includes('shaft')) return 'elevator with shaft';
+    if (cat.includes('commercial')) return 'commercial elevator';
 
-    return 'home';
+    return 'passenger';
   }
 }

@@ -12,9 +12,11 @@ export interface Lead {
   phoneNumber: string;
   companyName?: string;
   leadSource: 'Walk-in' | 'Website' | 'Reference' | 'Phone Call' | 'Email' | 'Social Media' | 'Other';
-  status: 'Seeded Lead' | 'Meeting Fixed' | 'Meeting Completed' | 'CS Executed';
+  status: 'Seeded Lead' | 'Qualified' | 'Meeting Fixed' | 'Meeting Completed' | 'CS Executive Assigned' | 'CS Executed' | 'Junk Lead';
+  priority?: 'low' | 'medium' | 'high';
   assignedTo: string;
   createdBy: string;
+  createdBySalesName?: string;
   notes?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -30,6 +32,7 @@ export interface CreateLead {
   assignedTo: string;
   createdBy: string;
   notes?: string;
+  priority?: 'low' | 'medium' | 'high';
 }
 
 export interface UpdateLead {
@@ -38,11 +41,12 @@ export interface UpdateLead {
   phoneNumber?: string;
   companyName?: string;
   leadSource?: 'Walk-in' | 'Website' | 'Reference' | 'Phone Call' | 'Email' | 'Social Media' | 'Other';
-  status?: 'Seeded Lead' | 'Meeting Fixed' | 'Meeting Completed' | 'CS Executed';
+  status?: 'Seeded Lead' | 'Qualified' | 'Meeting Fixed' | 'Meeting Completed' | 'CS Executive Assigned' | 'CS Executed' | 'Junk Lead';
   assignedTo?: string;
   createdBy?: string;
   notes?: string;
   isConverted?: boolean;
+  priority?: 'low' | 'medium' | 'high';
 }
 
 export interface AssignLead {
@@ -70,7 +74,7 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class LeadsService {
-  private apiUrl = 'https://capricon-elevator-api.onrender.com/lead';  // ✅ CORRECT
+  private apiUrl = 'http://localhost:3000/lead';  // ✅ CORRECT
   public leadsUpdated = new Subject<void>();
   public leadsUpdated$ = this.leadsUpdated.asObservable();
 

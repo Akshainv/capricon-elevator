@@ -22,7 +22,7 @@
 }
 
 .header-left p {
- 
+
   font-size: .9rem;
   margin: 0;
 }
@@ -127,7 +127,7 @@
 }
 
 .user-role {
- 
+
   font-size: 0.8rem;
   margin: 0;
 }
@@ -147,7 +147,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 15px;
- 
+
   text-decoration: none;
   border-radius: 10px;
   transition: all 0.3s ease;
@@ -205,6 +205,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -497,12 +498,12 @@
   border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background: linear-gradient(135deg, #d4b347, #f0d482);
   border-color: #d4b347;
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(24px);
   background: var(--bg-secondary);
 }
@@ -561,13 +562,13 @@ input:checked + .slider:before {
   .profile-layout {
     grid-template-columns: 1fr;
   }
-  
+
   .profile-sidebar {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
   }
-  
+
   .profile-nav {
     grid-column: 1 / -1;
   }
@@ -578,19 +579,19 @@ input:checked + .slider:before {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .profile-content {
     padding: 25px;
   }
-  
+
   .profile-sidebar {
     grid-template-columns: 1fr;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .preferences-content {
     grid-template-columns: 1fr;
   }
@@ -600,25 +601,26 @@ input:checked + .slider:before {
   .header-left h1 {
     font-size: 1.8rem;
   }
-  
+
   .profile-content {
     padding: 20px;
   }
-  
+
   .section-header h2 {
     font-size: 1.5rem;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .btn-primary,
   .btn-cancel {
     width: 100%;
     justify-content: center;
   }
 }
+
 /* Loading Overlay */
 .loading-overlay {
   position: fixed;
@@ -645,8 +647,13 @@ input:checked + .slider:before {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Alert Messages */
@@ -678,6 +685,7 @@ input:checked + .slider:before {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

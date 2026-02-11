@@ -37,7 +37,7 @@ interface Lead {
 export class LeadDetailComponent implements OnInit {
   leadId: string | null = null;
   lead: Lead | null = null;
-  
+
   activities: Activity[] = [
     {
       id: '1',
@@ -88,7 +88,7 @@ export class LeadDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.leadId = this.route.snapshot.paramMap.get('id');
@@ -163,7 +163,7 @@ export class LeadDetailComponent implements OnInit {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
+
     if (days === 0) {
       const hours = Math.floor(diff / (1000 * 60 * 60));
       if (hours === 0) {
@@ -176,10 +176,10 @@ export class LeadDetailComponent implements OnInit {
     } else if (days < 7) {
       return `${days} days ago`;
     } else {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
       });
     }
   }

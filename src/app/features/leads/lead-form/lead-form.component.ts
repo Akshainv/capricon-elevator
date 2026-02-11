@@ -15,7 +15,7 @@ export class LeadFormComponent implements OnInit {
   leadForm!: FormGroup;
   isEditMode = false;
   leadId: string | null = null;
-  
+
   sources = ['Walk-in', 'Website', 'Reference', 'Phone Call', 'Email', 'Social Media'];
   salesPersons = ['Rajesh Kumar', 'Amit Shah', 'Priya Sharma', 'Vikram Singh'];
 
@@ -23,11 +23,11 @@ export class LeadFormComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
-    
+
     // Check if editing
     this.leadId = this.route.snapshot.paramMap.get('id');
     if (this.leadId) {
@@ -59,7 +59,7 @@ export class LeadFormComponent implements OnInit {
       assignedTo: 'Rajesh Kumar',
       notes: 'Interested in 8-floor passenger elevator'
     };
-    
+
     this.leadForm.patchValue(mockData);
   }
 
@@ -67,14 +67,14 @@ export class LeadFormComponent implements OnInit {
     if (this.leadForm.valid) {
       const formData = this.leadForm.value;
       console.log('Form Data:', formData);
-      
+
       // Implement save logic here
       if (this.isEditMode) {
         console.log('Updating lead:', this.leadId);
       } else {
         console.log('Creating new lead');
       }
-      
+
       // Navigate back to leads list
       this.router.navigate(['/leads']);
     } else {
@@ -100,7 +100,7 @@ export class LeadFormComponent implements OnInit {
 
   getErrorMessage(fieldName: string): string {
     const field = this.leadForm.get(fieldName);
-    
+
     if (field?.hasError('required')) {
       return 'This field is required';
     }
@@ -113,7 +113,7 @@ export class LeadFormComponent implements OnInit {
     if (field?.hasError('pattern')) {
       return 'Please enter a valid phone number';
     }
-    
+
     return '';
   }
 }

@@ -133,7 +133,7 @@
 
           <div class="form-row">
             <div class="form-group full-width">
-              <label>Address</label>
+              <label>Address <span class="required">*</span></label>
               <input type="text" [(ngModel)]="customerAddress" placeholder="Enter address" class="form-input" />
             </div>
           </div>
@@ -166,67 +166,309 @@
         </div>
       </div>
 
-      <!-- Products & Services Card -->
+      <!-- Elevator Specifications Card (PDF Page 4) -->
       <div class="form-card">
         <div class="card-header">
-          <h3><i class="fas fa-boxes"></i> Products & Services</h3>
-          <button class="btn-add-item" (click)="addItem()">
-            <i class="fas fa-plus"></i> Add Item
+          <h3><i class="fas fa-cog"></i> Elevator Specifications (Page 4)</h3>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label>Model <span class="required">*</span></label>
+              <input type="text" [(ngModel)]="model" placeholder="e.g., Capricorn Grandeur Signature"
+                class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Quantity</label>
+              <input type="number" [(ngModel)]="quantity" min="1" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>No of Stops</label>
+              <input type="number" [(ngModel)]="noOfStops" min="1" placeholder="e.g., 2" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Elevator Type</label>
+              <select [(ngModel)]="elevatorType" class="form-input">
+                <option value="MRL Gearless - Rope Driven">MRL Gearless - Rope Driven</option>
+                <option value="MRL Gearless - Belt Driven">MRL Gearless - Belt Driven</option>
+                <option value="Geared Traction">Geared Traction</option>
+                <option value="Hydraulic">Hydraulic</option>
+                <option value="Screw Drive">Screw Drive</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Rated Load</label>
+              <input type="text" [(ngModel)]="ratedLoad" placeholder="e.g., 408 kg / 6 Pax" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Maximum Speed</label>
+              <input type="text" [(ngModel)]="maximumSpeed" placeholder="e.g., Upto 1 m/s" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Travel Height</label>
+              <input type="text" [(ngModel)]="travelHeight" placeholder="e.g., 3000 mm" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Drive System</label>
+              <select [(ngModel)]="driveSystem" class="form-input">
+                <option value="AC VVVF (Variable Voltage Variable Frequency)">AC VVVF (Variable Voltage Variable
+                  Frequency)</option>
+                <option value="AC Single Speed">AC Single Speed</option>
+                <option value="AC Two Speed">AC Two Speed</option>
+                <option value="Hydraulic">Hydraulic</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Control System</label>
+              <select [(ngModel)]="controlSystem" class="form-input">
+                <option value="Microprocessor-based fully automatic control">Microprocessor-based fully automatic
+                  control</option>
+                <option value="PLC based control">PLC based control</option>
+                <option value="IoT enabled smart control">IoT enabled smart control</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label>Cabin Walls</label>
+              <textarea [(ngModel)]="cabinWalls" rows="2"
+                placeholder="e.g., Stainless Steel SS 304 Rose Gold Glossy with 2 Sides of plain toughened glass..."
+                class="form-input"></textarea>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cabin Doors</label>
+              <input type="text" [(ngModel)]="cabinDoors" placeholder="e.g., SS 304 Rose Gold Full Vision Tinted Glass"
+                class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Door Type</label>
+              <select [(ngModel)]="doorType" class="form-input">
+                <option value="Automatic, Sliding, Side Opening">Automatic, Sliding, Side Opening</option>
+                <option value="Automatic, Sliding, Center Opening">Automatic, Sliding, Center Opening</option>
+                <option value="Automatic, Telescopic">Automatic, Telescopic</option>
+                <option value="Manual, Swing">Manual, Swing</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Door Opening (W x H)</label>
+              <input type="text" [(ngModel)]="doorOpening" placeholder="e.g., 700 mm x 2000 mm" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>COP & LOP Screen</label>
+              <input type="text" [(ngModel)]="copLopScreen" placeholder="e.g., With feather Touch Type"
+                class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cabin Ceiling</label>
+              <input type="text" [(ngModel)]="cabinCeiling"
+                placeholder="e.g., SS 304 frame false ceiling with Acrylic Lighting & Blower" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Cabin Floor</label>
+              <input type="text" [(ngModel)]="cabinFloor" placeholder="e.g., Provision for Marble/Granite (by client)."
+                class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Handrails</label>
+              <input type="number" [(ngModel)]="handrails" min="0" placeholder="e.g., 1" class="form-input" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Products & Services Card -->
+      <!-- Elevator Pricing Components Card -->
+      <div class="form-card">
+        <div class="card-header">
+          <h3><i class="fas fa-calculator"></i> Pricing Components</h3>
+        </div>
+        <div class="card-body">
+          <div class="pricing-table-wrapper">
+            <style>
+              .pricing-input-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+              }
+
+              .pricing-input-table th,
+              .pricing-input-table td {
+                padding: 12px;
+                border: 1px solid #eee;
+                text-align: left;
+              }
+
+              .pricing-input-table th {
+                background: #f8f9fa;
+                font-weight: 600;
+                color: #333;
+              }
+
+              .form-input.compact {
+                padding: 8px;
+                font-size: 13px;
+              }
+
+              .checkbox-label {
+                display: block;
+                font-size: 12px;
+                color: #666;
+                margin-top: 5px;
+                cursor: pointer;
+              }
+
+              .item-label {
+                font-weight: 500;
+                color: #444;
+                width: 40%;
+              }
+            </style>
+            <table class="pricing-input-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Standard Price (₹)</th>
+                  <th>Launch Offer Price (₹)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of pricingItems">
+                  <td class="item-label">{{ item.label }}</td>
+                  <td>
+                    <input type="number" [(ngModel)]="item.standard" class="form-input compact"
+                      [disabled]="item.isNA" />
+                  </td>
+                  <td>
+                    <input type="number" [(ngModel)]="item.launch" class="form-input compact"
+                      [disabled]="item.isComplimentary || item.isNA" />
+                  </td>
+                  <td class="status-cell">
+                    <label class="checkbox-label"
+                      *ngIf="item.label.includes('Cabin') || item.label.includes('Ceiling') || item.label.includes('Door') || item.label.includes('Size') || item.label.includes('Transportation') || item.label.includes('LOP')">
+                      <input type="checkbox" [(ngModel)]="item.isComplimentary" /> Complimentary
+                    </label>
+                    <label class="checkbox-label" *ngIf="item.label.includes('Door') || item.label.includes('Travel')">
+                      <input type="checkbox" [(ngModel)]="item.isNA" /> N/A
+                    </label>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- GST Rate Setting -->
+          <div class="form-row" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+            <div class="form-group" style="max-width: 150px;">
+              <label>GST Rate (%)</label>
+              <input type="number" [(ngModel)]="gstRate" class="form-input" min="0" max="100" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bank Details Card -->
+      <div class="form-card">
+        <div class="card-header">
+          <h3><i class="fas fa-university"></i> Bank Details for Quotation</h3>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Bank Name</label>
+              <input type="text" [(ngModel)]="bankDetails.bank" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Account No.</label>
+              <input type="text" [(ngModel)]="bankDetails.accountNo" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>IFSC Code</label>
+              <input type="text" [(ngModel)]="bankDetails.ifsc" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>GSTIN</label>
+              <input type="text" [(ngModel)]="bankDetails.gstin" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Account Name</label>
+              <input type="text" [(ngModel)]="bankDetails.accountName" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Branch</label>
+              <input type="text" [(ngModel)]="bankDetails.branch" class="form-input" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Terms Card -->
+      <div class="form-card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <h3><i class="fas fa-file-invoice-dollar"></i> Payment Terms</h3>
+          <button type="button" class="btn btn-primary btn-sm" (click)="addPaymentTerm()">
+            <i class="fas fa-plus"></i> Add Term
           </button>
         </div>
         <div class="card-body">
-          <div class="items-container">
-            <div *ngFor="let item of quotationItems; let i = index" class="quotation-item">
-              <div class="item-header">
-                <span class="item-number">Item {{ i + 1 }}</span>
-                <button *ngIf="quotationItems.length > 1" class="btn-remove-item" (click)="removeItem(i)"
-                  title="Remove Item">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-
-              <div class="item-form">
-                <div class="form-row">
-                  <div class="form-group full-width">
-                    <label>Product/Service <span class="required">*</span></label>
-                    <select [(ngModel)]="item.product" (ngModelChange)="onProductChange(i)" class="form-select">
-                      <option [ngValue]="null">Select Product/Service</option>
-                      <option *ngFor="let product of availableProducts" [ngValue]="product">
-                        {{ product.name }} - {{ formatCurrency(product.price) }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>Quantity</label>
-                    <input type="number" [(ngModel)]="item.quantity" (ngModelChange)="calculateItemTotal(i)" min="1"
-                      class="form-input" />
-                  </div>
-                  <div class="form-group">
-                    <label>Price (₹)</label>
-                    <input type="number" [(ngModel)]="item.price" (ngModelChange)="calculateItemTotal(i)"
-                      class="form-input" />
-                  </div>
-                  <div class="form-group">
-                    <label>Discount (%)</label>
-                    <input type="number" [(ngModel)]="item.discount" (ngModelChange)="calculateItemTotal(i)" min="0"
-                      max="100" class="form-input" />
-                  </div>
-                  <div class="form-group">
-                    <label>Tax (%)</label>
-                    <input type="number" [(ngModel)]="item.tax" (ngModelChange)="calculateItemTotal(i)"
-                      class="form-input" />
-                  </div>
-                </div>
-
-                <div class="item-total">
-                  <span class="total-label">Item Total:</span>
-                  <span class="total-value">{{ formatCurrency(item.total) }}</span>
-                </div>
-              </div>
-            </div>
+          <div class="pricing-table-wrapper">
+            <table class="pricing-input-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">Sl.No</th>
+                  <th>Description</th>
+                  <th style="width: 150px;">Rate (%)</th>
+                  <th style="width: 60px;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let term of paymentTerms; let i = index">
+                  <td>{{term.slNo}}</td>
+                  <td>
+                    <input type="text" [(ngModel)]="term.description" class="form-input compact"
+                      placeholder="e.g. On Order Signing" />
+                  </td>
+                  <td>
+                    <input type="text" [(ngModel)]="term.rate" class="form-input compact" placeholder="e.g. 30%" />
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-danger btn-sm" (click)="removePaymentTerm(i)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -275,29 +517,97 @@
 
           <div class="summary-divider"></div>
 
-          <div class="summary-row">
-            <span class="summary-label">Subtotal:</span>
-            <span class="summary-value">{{ formatCurrency(subtotal) }}</span>
+          <div class="summary-comparison">
+            <div class="summary-col standard">
+              <div class="column-title">Standard</div>
+              <div class="summary-row">
+                <span class="summary-label">Subtotal:</span>
+                <span class="summary-value">{{ formatCurrency(standardSubtotal) }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">GST (18%):</span>
+                <span class="summary-value">{{ formatCurrency(standardSubtotal * 0.18) }}</span>
+              </div>
+              <div class="summary-divider"></div>
+              <div class="summary-row grand-total">
+                <span class="summary-label">Total:</span>
+                <span class="summary-value">{{ formatCurrency(standardGrandTotal) }}</span>
+              </div>
+            </div>
+
+            <div class="summary-col launch">
+              <div class="column-title">Launch Offer</div>
+              <div class="summary-row">
+                <span class="summary-label">Subtotal:</span>
+                <span class="summary-value">{{ formatCurrency(launchSubtotal) }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">GST (18%):</span>
+                <span class="summary-value">{{ formatCurrency(launchSubtotal * 0.18) }}</span>
+              </div>
+              <div class="summary-divider"></div>
+              <div class="summary-row grand-total">
+                <span class="summary-label">Total:</span>
+                <span class="summary-value">{{ formatCurrency(grandTotal) }}</span>
+              </div>
+            </div>
           </div>
 
-          <div class="summary-row discount">
-            <span class="summary-label">Total Discount:</span>
-            <span class="summary-value">- {{ formatCurrency(totalDiscount) }}</span>
-          </div>
+          <style>
+            .summary-comparison {
+              display: flex;
+              flex-direction: column;
+              gap: 20px;
+            }
 
-          <div class="summary-row">
-            <span class="summary-label">Total Tax:</span>
-            <span class="summary-value">+ {{ formatCurrency(totalTax) }}</span>
-          </div>
+            .summary-col {
+              background: #fdfdfd;
+              padding: 15px;
+              border-radius: 8px;
+              border: 1px solid #eee;
+            }
 
-          <div class="summary-divider"></div>
+            .summary-col.launch {
+              background: #fffcf5;
+              border-color: #ffeeb3;
+            }
 
-          <div class="summary-row grand-total">
-            <span class="summary-label">Grand Total:</span>
-            <span class="summary-value">{{ formatCurrency(grandTotal) }}</span>
-          </div>
+            .column-title {
+              font-weight: 700;
+              margin-bottom: 10px;
+              color: #333;
+              font-size: 14px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+
+            .summary-col.launch .column-title {
+              color: #856404;
+            }
+
+            .summary-row {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 8px;
+              font-size: 13px;
+            }
+
+            .grand-total {
+              font-weight: 700;
+              margin-top: 8px;
+              font-size: 15px;
+            }
+
+            .summary-col.launch .grand-total {
+              color: #d97706;
+            }
+          </style>
 
           <div class="summary-actions">
+            <button class="btn-action btn-preview" (click)="preview()" [disabled]="loading">
+              <i class="fas fa-eye"></i>
+              <span>Preview PDF</span>
+            </button>
             <button class="btn-action btn-add" (click)="addQuotation()" [disabled]="loading">
               <i class="fas" [ngClass]="loading ? 'fa-spinner fa-spin' : 'fa-plus'"></i>
               <span>{{ loading ? 'Adding...' : 'Add Quotation' }}</span>

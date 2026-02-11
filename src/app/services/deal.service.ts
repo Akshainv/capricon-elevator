@@ -37,7 +37,7 @@ export interface Deal {
   createdBy?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  
+
   // Frontend compatibility aliases
   title?: string;
   company?: string;
@@ -58,12 +58,12 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class DealService {
-  private apiUrl = 'https://capricon-elevator-api.onrender.com/deal';
+  private apiUrl = 'http://localhost:3000/deal';
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   private getHeaders() {
     return {
@@ -74,10 +74,10 @@ export class DealService {
   // ✅ FIXED: Create deal from quotation with proper user ID extraction
   createDealFromQuotation(quotationData: any): Observable<Deal> {
     const currentUser = this.authService.currentUserValue;
-    
+
     // ✅ FIX: Extract userId from the User object, casting to any to access additional properties
     const userId = currentUser?.userId || (currentUser as any)?.sub || (currentUser as any)?.id;
-    
+
     if (!currentUser || !userId) {
       console.error('Authentication error - currentUser:', currentUser);
       throw new Error('User not authenticated');
@@ -218,7 +218,7 @@ export class DealService {
   updateDealStatus(id: string, status: string): Observable<Deal> {
     const currentUser = this.authService.currentUserValue;
     const userId = currentUser?.userId || (currentUser as any)?.sub || (currentUser as any)?.id || '';
-    
+
     return this.http.patch<ApiResponse<Deal>>(
       `${this.apiUrl}/${id}/status`,
       { status, updatedBy: userId },
@@ -232,7 +232,7 @@ export class DealService {
   markAsConverted(dealId: string, projectId: string): Observable<Deal> {
     const currentUser = this.authService.currentUserValue;
     const userId = currentUser?.userId || (currentUser as any)?.sub || (currentUser as any)?.id || '';
-    
+
     return this.http.patch<ApiResponse<Deal>>(
       `${this.apiUrl}/${dealId}/convert`,
       { projectId, convertedBy: userId },
@@ -254,10 +254,10 @@ export class DealService {
 
   // Get deal statistics
   getDealStatistics(salesExecutiveId?: string): Observable<any> {
-    const url = salesExecutiveId 
+    const url = salesExecutiveId
       ? `${this.apiUrl}/statistics?salesExecutive=${salesExecutiveId}`
       : `${this.apiUrl}/statistics`;
-    
+
     return this.http.get<ApiResponse<any>>(url, this.getHeaders()).pipe(
       map(response => response.data)
     );

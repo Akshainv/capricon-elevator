@@ -8,6 +8,42 @@
         </div>
     </div>
 
+    <!-- Stats Summary -->
+    <div class="stats-grid">
+        <div class="stat-card clickable" [class.active-filter]="selectedFilter === 'All'"
+            (click)="setFilterStatus('All')">
+            <div class="stat-icon total-quotes">
+                <i class="fas fa-file-invoice"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Total Quotations</div>
+                <div class="stat-value">{{ totalQuotations }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card clickable" [class.active-filter]="selectedFilter === 'Approved'"
+            (click)="setFilterStatus('Approved')">
+            <div class="stat-icon approved">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Approved Quotations</div>
+                <div class="stat-value">{{ approvedCount }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card clickable" [class.active-filter]="selectedFilter === 'Rejected'"
+            (click)="setFilterStatus('Rejected')">
+            <div class="stat-icon rejected">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Rejected Quotations</div>
+                <div class="stat-value">{{ rejectedCount }}</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Search Section -->
     <div class="filters-section">
         <div class="search-box">
@@ -16,32 +52,28 @@
                 [(ngModel)]="searchTerm" (input)="applyFiltersAndSort()" />
         </div>
 
-        <!-- Filter & Counts Section -->
+        <!-- Filter Controls -->
         <div class="filter-controls">
-            <!-- Filter Dropdown -->
             <div class="filter-group">
                 <label>Filter Status:</label>
                 <select [(ngModel)]="selectedFilter" (change)="applyFiltersAndSort()" class="filter-select">
+                    <option value="All">All Quotations</option>
                     <option value="Pending">Pending</option>
                     <option value="Approved">Approved</option>
                     <option value="Rejected">Rejected</option>
                 </select>
             </div>
 
-            <!-- Counts Summary -->
-            <div class="counts-summary">
-                <div class="count-badge badge-pending">
-                    <span class="count-label">Pending</span>
-                    <span class="count-value">{{ pendingCount }}</span>
-                </div>
-                <div class="count-badge badge-approved">
-                    <span class="count-label">Approved</span>
-                    <span class="count-value">{{ approvedCount }}</span>
-                </div>
-                <div class="count-badge badge-rejected">
-                    <span class="count-label">Rejected</span>
-                    <span class="count-value">{{ rejectedCount }}</span>
-                </div>
+            <div class="filter-group">
+                <label>Filter Date:</label>
+                <input type="date" [(ngModel)]="dateFilter" (change)="applyFiltersAndSort()" class="date-input" />
+            </div>
+
+            <div class="filter-group" *ngIf="searchTerm || selectedFilter !== 'All' || dateFilter">
+                <button class="btn-clear-filter" (click)="clearFilters()">
+                    <i class="fas fa-times"></i>
+                    <span>Clear Filters</span>
+                </button>
             </div>
         </div>
     </div>
@@ -93,8 +125,8 @@
                         </td>
                         <td>
                             <div class="elevator-info">
-                                <span class="elevator-icon">{{ getElevatorTypeIcon(quote.elevationType) }}</span>
-                                {{ quote.elevationType || 'N/A' }}
+                                <span class="elevator-icon">{{ getElevatorTypeIcon(quote.elevatorType || '') }}</span>
+                                {{ quote.elevatorType || 'N/A' }}
                             </div>
                         </td>
                         <td>

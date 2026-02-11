@@ -42,7 +42,7 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://capricon-elevator-api.onrender.com';
+  private apiUrl = 'http://localhost:3000';
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
 
@@ -96,7 +96,7 @@ export class AuthService {
     // DO NOT set Content-Type header - browser will set it automatically with boundary
     // DO NOT set Authorization header - this is a public registration endpoint
     return this.http.post<ApiResponse<any>>(
-      `${this.apiUrl}/employee/register`, 
+      `${this.apiUrl}/employee/register`,
       formData,
       {
         // Empty headers object - let browser handle Content-Type for FormData
@@ -123,8 +123,8 @@ export class AuthService {
   }
 
   resetPassword(token: string, newPassword: string): Observable<any> {
-    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/password/reset-password/${token}`, { 
-      newPassword 
+    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/password/reset-password/${token}`, {
+      newPassword
     }).pipe(map(response => response));
   }
 
@@ -169,7 +169,7 @@ export class AuthService {
   autoLogin(): void {
     const token = this.getToken();
     const storedUser = localStorage.getItem('currentUser');
-    
+
     if (token && storedUser) {
       const user: User = JSON.parse(storedUser);
       this.currentUserSubject.next(user);

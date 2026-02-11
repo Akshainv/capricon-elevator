@@ -42,7 +42,7 @@ export class DealDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private dealService: DealService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.dealId = this.route.snapshot.paramMap.get('id');
@@ -99,7 +99,7 @@ export class DealDetailComponent implements OnInit {
         id: '1',
         type: 'note',
         title: deal.createdFrom === 'quotation' ? 'Deal Created from Quotation' : 'Lead Created',
-        description: deal.createdFrom === 'quotation' 
+        description: deal.createdFrom === 'quotation'
           ? `Deal created from quotation ${deal.quoteNumber || ''}. Customer: ${deal.contactPerson}.`
           : `New lead captured from ${deal.leadSource}. Initial contact established with ${deal.contactPerson}.`,
         timestamp: deal.createdAt ? new Date(deal.createdAt).toISOString() : new Date().toISOString(),

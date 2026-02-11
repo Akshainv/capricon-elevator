@@ -42,6 +42,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -699,17 +700,41 @@
   transform: translateY(-2px);
 }
 
-/* Responsive */
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablets (≤1024px) */
+@media (max-width: 1024px) {
+  .import-leads-container {
+    max-width: 100%;
+    padding: 0 20px 0 72px;
+    /* Clearance for fixed toggle */
+  }
+
+  .upload-card,
+  .result-card {
+    padding: 30px;
+  }
+}
+
+/* Mobile (≤768px) */
 @media (max-width: 768px) {
+  .import-leads-container {
+    padding: 0 15px 0 72px;
+  }
+
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
+    margin-bottom: 25px;
   }
 
   .header-actions {
     width: 100%;
     flex-wrap: wrap;
+    gap: 10px;
   }
 
   .upload-card,
@@ -721,13 +746,22 @@
     padding: 40px 20px;
   }
 
+  .upload-icon {
+    font-size: 3rem;
+  }
+
   .preview-info {
     flex-direction: column;
     gap: 10px;
   }
 
+  .preview-info .info-item {
+    flex: 1 1 100%;
+  }
+
   .result-stats {
     grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .instructions-grid {
@@ -737,16 +771,65 @@
 
   .result-actions {
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-cancel,
+  .btn-import {
+    width: 100%;
+    justify-content: center;
   }
 
   .preview-table-container {
     max-height: 300px;
+    margin: 0 -10px;
   }
 
   .error-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
+  }
+
+  .btn-export-errors {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Small Mobile (≤480px) */
+@media (max-width: 480px) {
+  .import-leads-container {
+    padding: 0 10px 0 65px;
+  }
+
+  .header-left h1 {
+    font-size: 1.35rem;
+  }
+
+  .stat-box {
+    padding: 15px;
+  }
+
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .stat-info h3 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Very Small (≤320px) */
+@media (max-width: 320px) {
+  .import-leads-container {
+    padding: 0 8px 0 58px;
+  }
+
+  .header-left h1 {
+    font-size: 1.2rem;
   }
 }

@@ -56,7 +56,7 @@ export class SalesReportsComponent implements OnInit {
   currentUserName: string = '';
 
   stats: ReportStat[] = [];
-  analysisType: 'monthly' | 'total' = 'monthly';
+  analysisType: 'daily' | 'monthly' | 'total' = 'monthly';
 
   public revenueChartData: ChartData<'bar'> = {
     labels: [],
@@ -133,16 +133,20 @@ export class SalesReportsComponent implements OnInit {
     this.loading = true;
 
     Promise.all([
-      this.leadsService.getLeadsAssignedToMe().toPromise(),
+      this.leadsService.getAllLeads().toPromise(),
       this.quotationService.getAllQuotations().toPromise(),
       this.projectService.getProjectsBySalesExecutive(this.currentUserId).toPromise()
-    ]).then(([leads, quotesResponse, projects]) => {
+    ]).then(([allLeads, quotesResponse, projects]) => {
+      const myLeads = (allLeads || []).filter(l =>
+        l.assignedTo === this.currentUserId || l.createdBy === this.currentUserId
+      );
+
       const allQuotes = quotesResponse?.data || [];
       const myQuotes = Array.isArray(allQuotes)
         ? allQuotes.filter((q: any) => q.createdBy === this.currentUserId || q.userId === this.currentUserId)
         : [];
 
-      this.processSalesReportData(leads || [], myQuotes, projects || []);
+      this.processSalesReportData(myLeads, myQuotes, projects || []);
       this.loading = false;
     }).catch(error => {
       console.error('❌ Error loading sales reports:', error);
@@ -150,7 +154,7 @@ export class SalesReportsComponent implements OnInit {
     });
   }
 
-  setAnalysisType(type: 'monthly' | 'total'): void {
+  setAnalysisType(type: 'daily' | 'monthly' | 'total'): void {
     this.analysisType = type;
     this.loadReportsData();
   }
@@ -161,46 +165,76 @@ export class SalesReportsComponent implements OnInit {
     let filteredProjects = [...projects];
 
     // Period filtering for Stat Cards
-    if (this.analysisType === 'monthly') {
-      const now = new Date();
-      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const now = new Date();
+    const todayISO = now.toISOString().split('T')[0];
 
-      filteredLeads = filteredLeads.filter(l => new Date(l.createdAt!) >= firstDayOfMonth);
-      filteredQuotes = filteredQuotes.filter(q => new Date(q.createdAt || q.date) >= firstDayOfMonth);
-      filteredProjects = filteredProjects.filter(p => new Date(p.createdAt || p.startDate) >= firstDayOfMonth);
+    if (this.analysisType === 'daily') {
+      filteredLeads = filteredLeads.filter(l => {
+        const date = l.createdAt ? new Date(l.createdAt).toISOString().split('T')[0] : null;
+        return date === todayISO;
+      });
+      filteredQuotes = filteredQuotes.filter(q => {
+        const dateObj = q.createdAt ? new Date(q.createdAt) : (q.quoteDate ? new Date(q.quoteDate) : null);
+        const date = dateObj ? dateObj.toISOString().split('T')[0] : null;
+        return date === todayISO;
+      });
+      filteredProjects = filteredProjects.filter(p => {
+        const dateObj = p.createdAt ? new Date(p.createdAt) : (p.startDate ? new Date(p.startDate) : null);
+        const date = dateObj ? dateObj.toISOString().split('T')[0] : null;
+        return date === todayISO;
+      });
+    } else if (this.analysisType === 'monthly') {
+      // ✅ 30-DAY ROLLING WINDOW: Show records from the last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(now.getDate() - 30);
+
+      filteredLeads = filteredLeads.filter(l => {
+        const date = l.createdAt ? new Date(l.createdAt) : null;
+        return date && date >= thirtyDaysAgo;
+      });
+      filteredQuotes = filteredQuotes.filter(q => {
+        const date = q.createdAt ? new Date(q.createdAt) : (q.date ? new Date(q.date) : null);
+        return date && date >= thirtyDaysAgo;
+      });
+      filteredProjects = filteredProjects.filter(p => {
+        const date = p.createdAt ? new Date(p.createdAt) : (p.startDate ? new Date(p.startDate) : null);
+        return date && date >= thirtyDaysAgo;
+      });
     }
 
     const completedProjects = filteredProjects.filter(p => p.projectStatus === 'completed');
     const totalRevenue = completedProjects.reduce((sum, p) => sum + (p.projectValue || 0), 0);
 
+    const labelPrefix = this.analysisType === 'daily' ? 'Daily' : (this.analysisType === 'monthly' ? 'Monthly' : 'Total');
+
     this.stats = [
       {
-        label: this.analysisType === 'monthly' ? 'Monthly Revenue' : 'Total Revenue',
+        label: `${labelPrefix} Revenue`,
         value: this.formatCurrency(totalRevenue),
         icon: 'fa-rupee-sign',
         color: '#22c55e',
         subtitle: `${completedProjects.length} projects completed`
       },
       {
-        label: this.analysisType === 'monthly' ? 'New Leads' : 'Total Leads',
+        label: `${labelPrefix} Leads`,
         value: filteredLeads.length,
         icon: 'fa-users',
         color: '#3b82f6',
         subtitle: `${filteredLeads.filter(l => l.status === 'CS Executed').length} executed`
       },
       {
-        label: this.analysisType === 'monthly' ? 'Quotations' : 'Total Quotations',
+        label: `${labelPrefix} Quotations`,
         value: filteredQuotes.length,
         icon: 'fa-file-invoice',
         color: '#d4b347',
-        subtitle: `${filteredQuotes.filter(q => q.status === 'Approved').length} approved`
+        subtitle: `${filteredQuotes.filter(q => q.status === 'approved' || q.status === 'Approved').length} approved`
       },
       {
-        label: this.analysisType === 'monthly' ? 'Project Load' : 'Total Projects',
+        label: `${labelPrefix} Projects`,
         value: filteredProjects.length,
         icon: 'fa-project-diagram',
         color: '#94a3b8',
-        subtitle: `${filteredProjects.filter(p => p.projectStatus === 'ongoing').length} ongoing`
+        subtitle: `${filteredProjects.filter(p => p.projectStatus === 'ongoing' || p.projectStatus === 'not_started' || p.projectStatus === 'in_progress').length} ongoing`
       }
     ];
 
@@ -214,22 +248,27 @@ export class SalesReportsComponent implements OnInit {
   }
 
   private processRevenueTrend(completedProjects: any[], allProjects: any[]): void {
-    const months = this.getTrendMonths(allProjects);
-    const revenueByMonth = months.map(month => {
-      const monthProjects = completedProjects.filter(p => {
-        // Use createdAt for revenue tracking as per Admin logic
+    const intervals = this.getTrendIntervals(allProjects);
+    const revenueByInterval = intervals.map(interval => {
+      const intervalProjects = completedProjects.filter(p => {
         const date = new Date(p.createdAt || p.startDate);
-        return date.getMonth() === month.index &&
-          date.getFullYear() === month.year;
+        if (this.analysisType === 'daily') {
+          return date.getDate() === interval.day &&
+            date.getMonth() === interval.index &&
+            date.getFullYear() === interval.year;
+        } else {
+          return date.getMonth() === interval.index &&
+            date.getFullYear() === interval.year;
+        }
       });
-      return monthProjects.reduce((sum, p) => sum + (p.projectValue || 0), 0);
+      return intervalProjects.reduce((sum, p) => sum + (p.projectValue || 0), 0);
     });
 
     this.revenueChartData = {
-      labels: months.map(m => m.label),
+      labels: intervals.map(m => m.label),
       datasets: [{
-        data: revenueByMonth.map(r => parseFloat((r / 100000).toFixed(1))),
-        label: this.analysisType === 'total' ? 'Total Revenue Growth (₹L)' : 'Monthly Revenue (₹L)',
+        data: revenueByInterval.map(r => parseFloat((r / 100000).toFixed(1))),
+        label: this.analysisType === 'total' ? 'Total Revenue Growth (₹L)' : (this.analysisType === 'daily' ? 'Daily Revenue (₹L)' : 'Monthly Revenue (₹L)'),
         backgroundColor: '#d4b347',
         hoverBackgroundColor: '#c9a642',
         borderRadius: 6,
@@ -238,12 +277,24 @@ export class SalesReportsComponent implements OnInit {
     };
   }
 
-  private getTrendMonths(projects: any[] = []): { label: string; index: number; year: number }[] {
-    const months = [];
+  private getTrendIntervals(projects: any[] = []): { label: string; index: number; year: number; day?: number }[] {
+    const intervals = [];
     const now = new Date();
 
-    let count = 6;
+    if (this.analysisType === 'daily') {
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        intervals.push({
+          label: date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }),
+          index: date.getMonth(),
+          year: date.getFullYear(),
+          day: date.getDate()
+        });
+      }
+      return intervals;
+    }
 
+    let count = 6;
     if (this.analysisType === 'total' && projects.length > 0) {
       const earliestProjectDate = projects.reduce((earliest, p) => {
         const date = new Date(p.createdAt || p.startDate);
@@ -259,14 +310,14 @@ export class SalesReportsComponent implements OnInit {
 
     for (let i = count - 1; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      months.push({
+      intervals.push({
         label: date.toLocaleString('en-US', { month: 'short' }) +
           (count > 6 ? ` ${date.getFullYear().toString().slice(-2)}` : ''),
         index: date.getMonth(),
         year: date.getFullYear()
       });
     }
-    return months;
+    return intervals;
   }
 
   formatCurrency(amount: number): string {

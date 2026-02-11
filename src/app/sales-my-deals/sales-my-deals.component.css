@@ -428,47 +428,64 @@
   background: rgba(212, 179, 71, 0.5);
 }
 
-/* Responsive */
-@media (max-width: 1600px) {
-  .pipeline-board {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  .column-body {
-    max-height: calc(100vh - 450px);
-  }
-}
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
 
-@media (max-width: 1400px) {
+/* Tablets (≤1024px) */
+@media (max-width: 1024px) {
+  .deals-container {
+    padding: 20px 20px 20px 72px;
+    /* Clearance for fixed toggle */
+    max-width: 100%;
+  }
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-}
 
-@media (max-width: 1200px) {
   .pipeline-board {
     grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .column-body {
+    max-height: 400px;
   }
 }
 
+/* Mobile (≤768px) */
 @media (max-width: 768px) {
   .deals-container {
-    padding: 15px;
+    padding: 15px 15px 15px 72px;
+    height: auto;
   }
 
   .page-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
   }
 
   .stats-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .filters-section {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
 
   .filter-input {
@@ -477,9 +494,51 @@
 
   .pipeline-board {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
-  
+
   .column-body {
     max-height: 350px;
+  }
+
+  .deal-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .btn-convert {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Small Mobile (≤480px) */
+@media (max-width: 480px) {
+  .deals-container {
+    padding: 10px 10px 10px 65px;
+  }
+
+  .header-left h1 {
+    font-size: 1.3rem;
+  }
+
+  .stat-card {
+    padding: 15px;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+}
+
+/* Very Small (≤320px) */
+@media (max-width: 320px) {
+  .deals-container {
+    padding: 8px 8px 8px 58px;
+  }
+
+  .header-left h1 {
+    font-size: 1.15rem;
   }
 }

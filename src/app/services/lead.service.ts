@@ -6,10 +6,10 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 
 // ✅ All possible status values
-export type LeadStatus = 
-  | 'Seeded Lead' 
-  | 'Meeting Fixed' 
-  | 'Meeting Completed' 
+export type LeadStatus =
+  | 'Seeded Lead'
+  | 'Meeting Fixed'
+  | 'Meeting Completed'
   | 'CS Executed'
   | 'New'
   | 'Contacted'
@@ -20,7 +20,8 @@ export type LeadStatus =
   | 'Won'
   | 'Lost'
   | 'Pending'
-  | 'Follow-Up';
+  | 'Follow-Up'
+  | 'Junk Lead';
 
 export interface Lead {
   _id: string;
@@ -87,14 +88,14 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class LeadsService {
-  private apiUrl = 'https://capricon-elevator-api.onrender.com/lead';
+  private apiUrl = 'http://localhost:3000/lead';
   public leadsUpdated = new Subject<void>();
   public leadsUpdated$ = this.leadsUpdated.asObservable();
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   private getHeaders() {
     return {
@@ -130,9 +131,9 @@ export class LeadsService {
       console.error('User not logged in or userId not found');
       return throwError(() => new Error('User not logged in'));
     }
-    
+
     const userId = String(currentUser.userId).trim().toLowerCase();
-    
+
     return this.getAllLeads().pipe(
       map(allLeads => {
         const createdLeads = allLeads.filter(lead => {
@@ -141,7 +142,7 @@ export class LeadsService {
           const notConverted = !lead.isConverted;
           return isCreatedByMe && notConverted;
         });
-        
+
         return createdLeads;
       }),
       catchError(this.handleError)
@@ -154,25 +155,25 @@ export class LeadsService {
       console.error('User not logged in or userId not found');
       return throwError(() => new Error('User not logged in'));
     }
-    
+
     const userId = String(currentUser.userId).trim().toLowerCase().replace(/[\s\u200B-\u200D\uFEFF]/g, '');
-    
+
     return this.getAllLeads().pipe(
       map(allLeads => {
         const assignedLeads = allLeads.filter(lead => {
           const leadAssignedTo = String(lead.assignedTo || '').trim().toLowerCase().replace(/[\s\u200B-\u200D\uFEFF]/g, '');
-          const isAssignedToMe = 
-            leadAssignedTo === userId || 
-            leadAssignedTo.includes(userId) || 
-            userId.includes(leadAssignedTo) || 
+          const isAssignedToMe =
+            leadAssignedTo === userId ||
+            leadAssignedTo.includes(userId) ||
+            userId.includes(leadAssignedTo) ||
             this.compareIds(leadAssignedTo, userId);
-          
+
           const notConverted = !lead.isConverted;
           const hasAssignedTo = leadAssignedTo && leadAssignedTo.length > 0;
 
           return isAssignedToMe && notConverted && hasAssignedTo;
         });
-        
+
         return assignedLeads;
       }),
       catchError(this.handleError)
@@ -181,23 +182,23 @@ export class LeadsService {
 
   private compareIds(id1: string, id2: string): boolean {
     if (!id1 || !id2) return false;
-    
+
     const norm1 = id1.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
     const norm2 = id2.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-    
+
     if (norm1.length >= 20 && norm2.length >= 20) {
       const end1 = norm1.slice(-12);
       const end2 = norm2.slice(-12);
       return end1 === end2;
     }
-    
+
     return norm1 === norm2;
   }
 
   getUnassignedAndUnconvertedLeads(): Observable<Lead[]> {
     return this.getAllLeads().pipe(
-      map(leads => leads.filter(lead => 
-        !lead.isConverted && 
+      map(leads => leads.filter(lead =>
+        !lead.isConverted &&
         (lead.status === 'Seeded Lead' || lead.status === 'New') &&
         (!lead.assignedTo || lead.assignedTo === '')
       ))
@@ -206,7 +207,7 @@ export class LeadsService {
 
   updateLead(id: string, lead: UpdateLead): Observable<Lead> {
     console.log('Frontend: Sending update request for lead:', id);
-    
+
     return this.http.put<ApiResponse<Lead>>(`${this.apiUrl}/${id}`, lead, this.getHeaders()).pipe(
       map(response => {
         console.log('Frontend: Received update response:', response.data);
@@ -227,8 +228,8 @@ export class LeadsService {
     console.log('==============================================');
 
     return this.http.patch<ApiResponse<Lead>>(
-      `${this.apiUrl}/${leadId}/status`, 
-      { status: newStatus }, 
+      `${this.apiUrl}/${leadId}/status`,
+      { status: newStatus },
       this.getHeaders()
     ).pipe(
       map(response => {
@@ -305,7 +306,7 @@ export class LeadsService {
 
   getNewLeads(): Observable<Lead[]> {
     return this.getAllLeads().pipe(
-      map(leads => leads.filter(lead => 
+      map(leads => leads.filter(lead =>
         lead.status === 'Seeded Lead' || lead.status === 'New'
       ))
     );
@@ -313,8 +314,8 @@ export class LeadsService {
 
   getUnassignedLeads(): Observable<Lead[]> {
     return this.getAllLeads().pipe(
-      map(leads => leads.filter(lead => 
-        (lead.status === 'Seeded Lead' || lead.status === 'New') && 
+      map(leads => leads.filter(lead =>
+        (lead.status === 'Seeded Lead' || lead.status === 'New') &&
         (!lead.assignedTo || lead.assignedTo === '')
       ))
     );
@@ -325,11 +326,11 @@ export class LeadsService {
     if (!currentUser || !currentUser.userId) {
       return throwError(() => new Error('User not logged in'));
     }
-    
+
     const userId = currentUser.userId;
-    
+
     return this.getAllLeads().pipe(
-      map(leads => leads.filter(lead => 
+      map(leads => leads.filter(lead =>
         lead.assignedTo === userId && lead.createdBy !== userId
       ))
     );
@@ -338,7 +339,7 @@ export class LeadsService {
   searchLeads(searchTerm: string): Observable<Lead[]> {
     const term = searchTerm.toLowerCase().trim();
     return this.getAllLeads().pipe(
-      map(leads => leads.filter(lead => 
+      map(leads => leads.filter(lead =>
         lead.fullName.toLowerCase().includes(term) ||
         lead.email.toLowerCase().includes(term) ||
         lead.phoneNumber.includes(term) ||
@@ -365,10 +366,10 @@ export class LeadsService {
   }
 
   bulkUpdateStatus(leadIds: string[], status: LeadStatus): Observable<Lead[]> {
-    const updates = leadIds.map(id => 
+    const updates = leadIds.map(id =>
       this.updateLead(id, { status }).toPromise()
     );
-    
+
     return new Observable(observer => {
       Promise.all(updates)
         .then(results => {
@@ -381,7 +382,7 @@ export class LeadsService {
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
-    
+
     if (error.error instanceof ErrorEvent) {
       errorMessage = `Client Error: ${error.error.message}`;
     } else {
@@ -391,7 +392,7 @@ export class LeadsService {
         errorMessage = `Server Error: ${error.status} - ${error.message}`;
       }
     }
-    
+
     console.error('Lead Service Error:', errorMessage, error);
     return throwError(() => new Error(errorMessage));
   }

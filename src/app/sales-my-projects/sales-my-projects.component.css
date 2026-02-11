@@ -593,10 +593,27 @@
   font-weight: 700;
 }
 
-/* Responsive */
-@media (max-width: 1400px) {
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablets (≤1024px) */
+@media (max-width: 1024px) {
+  .projects-container {
+    padding: 25px 25px 25px 72px;
+    /* Clearance for fixed toggle */
+    max-width: 100%;
+  }
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .controls-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
   }
 
   .project-details {
@@ -604,53 +621,10 @@
   }
 }
 
+/* Mobile (≤768px) */
 @media (max-width: 768px) {
   .projects-container {
-    padding: 15px;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .project-row {
-    grid-template-columns: 1fr;
-    padding: 20px;
-  }
-
-  .project-details {
-    grid-template-columns: 1fr;
-  }
-
-  .project-title-section {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .controls-section {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .filter-buttons {
-    overflow-x: auto;
-    padding-bottom: 5px;
-  }
-
-  .view-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .pagination {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .pagination-numbers {
-    order: 3;
-    width: 100%;
-    justify-content: center;
+    padding: 15px 15px 15px 72px;
   }
 
   .page-header {
@@ -659,36 +633,60 @@
     gap: 15px;
   }
 
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-row {
+    padding: 20px;
+  }
+
+  .project-title-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .project-details {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
   .btn-refresh {
     width: 100%;
     justify-content: center;
   }
 }
 
+/* Small Mobile (≤480px) */
 @media (max-width: 480px) {
+  .projects-container {
+    padding: 15px 10px 15px 68px;
+  }
+
   .header-left h1 {
     font-size: 1.4rem;
   }
 
   .project-name {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
   }
 
-  .stat-value {
-    font-size: 1.5rem;
-  }
-
-  .filter-btn span {
-    display: none;
+  .filter-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
   }
 
   .filter-btn {
-    padding: 12px 16px;
+    justify-content: center;
+    padding: 10px;
   }
+}
 
-  .empty-icon {
-    width: 80px;
-    height: 80px;
-    font-size: 2.5rem;
+/* Very Small (≤320px) */
+@media (max-width: 320px) {
+  .projects-container {
+    padding: 15px 8px 15px 62px;
   }
 }

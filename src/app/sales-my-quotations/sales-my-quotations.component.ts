@@ -33,6 +33,7 @@ export class SalesMyQuotationsComponent implements OnInit {
 
   // Filter
   selectedStatus: string = 'Pending';
+  dateFilter: string = '';
 
   constructor(
     private router: Router,
@@ -77,13 +78,12 @@ export class SalesMyQuotationsComponent implements OnInit {
     return this.quotations.length;
   }
 
-  get totalValue(): number {
-    return this.quotations.reduce((sum, q) => sum + (q.totalAmount || q.totalCost || 0), 0);
+  get approvedCount(): number {
+    return this.quotations.filter(q => (q as any).status?.toLowerCase() === 'approved').length;
   }
 
-  get averageValue(): number {
-    if (this.quotations.length === 0) return 0;
-    return this.totalValue / this.quotations.length;
+  get rejectedCount(): number {
+    return this.quotations.filter(q => (q as any).status?.toLowerCase() === 'rejected').length;
   }
 
   setFilterStatus(status: string): void {
@@ -99,13 +99,12 @@ export class SalesMyQuotationsComponent implements OnInit {
       // Status Filter
       let matchesStatus = false;
       if (this.selectedStatus === 'Pending') {
-        // Show if explicitly pending/draft/sent OR if NOT Approved/Rejected
-        matchesStatus = ['pending', 'draft', 'sent'].includes(normalizedStatus) ||
-          (status !== 'Approved' && status !== 'Rejected');
+        // Show if explicitly 'sent' (lowercase or TitleCase) or 'draft'
+        matchesStatus = ['pending', 'draft', 'sent'].includes(normalizedStatus);
       } else if (this.selectedStatus === 'Approved') {
-        matchesStatus = status === 'Approved';
+        matchesStatus = normalizedStatus === 'approved';
       } else if (this.selectedStatus === 'Rejected') {
-        matchesStatus = status === 'Rejected';
+        matchesStatus = normalizedStatus === 'rejected';
       }
 
       // Search Filter
@@ -115,7 +114,15 @@ export class SalesMyQuotationsComponent implements OnInit {
         (quote.customerEmail || '').toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         (quote.customerCompany || quote.companyName || '').toLowerCase().includes(this.searchTerm.toLowerCase());
 
-      return matchesStatus && matchesSearch;
+      // Date Filter
+      let matchesDate = true;
+      if (this.dateFilter) {
+        const quoteDateObj = quote.createdDate || (quote.createdAt ? new Date(quote.createdAt) : null);
+        const quoteDateStr = quoteDateObj ? new Date(quoteDateObj).toISOString().split('T')[0] : null;
+        matchesDate = quoteDateStr === this.dateFilter;
+      }
+
+      return matchesStatus && matchesSearch && matchesDate;
     });
 
     this.filteredQuotations.sort((a, b) => {
@@ -124,8 +131,14 @@ export class SalesMyQuotationsComponent implements OnInit {
       return dateB.getTime() - dateA.getTime();
     });
 
-    this.currentPage = 1;
     this.updatePagination();
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedStatus = 'Pending';
+    this.dateFilter = '';
+    this.applyFiltersAndSort();
   }
 
   updatePagination(): void {
@@ -219,6 +232,7 @@ export class SalesMyQuotationsComponent implements OnInit {
     const grandTotal = q.totalAmount || q.totalCost || (subtotal - totalDiscount + totalTax);
 
     return {
+      id: q._id || q.id || (q as any)._id || (q as any).id,
       quoteNumber: q.quoteNumber || '',
       quoteDate: q.quoteDate || q.createdAt || q.createdDate || '',
       validUntil: q.validUntil || '',
@@ -227,15 +241,44 @@ export class SalesMyQuotationsComponent implements OnInit {
         company: q.customerCompany || q.companyName || '',
         email: q.customerEmail || '',
         phone: q.customerPhone || '',
-        address: ''
+        address: q.address || (q as any).customerAddress || ''
       },
       items,
-      subtotal,
+      subtotal: q.subtotal || q.totalCost || subtotal,
       totalDiscount,
-      totalTax,
-      grandTotal,
+      totalTax: q.totalTax || 0,
+      grandTotal: q.totalAmount || q.totalCost || grandTotal,
       termsAndConditions: q.termsAndConditions || q.internalNotes || '',
-      notes: q.notes || q.specialRequirements || ''
+      notes: q.notes || q.specialRequirements || '',
+
+      // PDF Page 4 Technical Specs
+      model: q.model || '',
+      quantity: q.quantity || 1,
+      noOfStops: q.noOfStops || 2,
+      elevatorType: q.elevatorType || 'MRL Gearless - Rope Driven',
+      ratedLoad: q.ratedLoad || '',
+      maximumSpeed: q.maximumSpeed || '',
+      travelHeight: q.travelHeight || '',
+      driveSystem: q.driveSystem || '',
+      controlSystem: q.controlSystem || '',
+      cabinWalls: q.cabinWalls || '',
+      cabinDoors: q.cabinDoors || '',
+      doorType: q.doorType || '',
+      doorOpening: q.doorOpening || '',
+      copLopScreen: q.copLopScreen || '',
+      cabinCeiling: q.cabinCeiling || '',
+      cabinFloor: q.cabinFloor || '',
+      handrails: q.handrails || 1,
+
+      // Pricing Summary
+      pricingItems: (q as any).pricingItems || [],
+      standardSubtotal: (q as any).standardSubtotal || q.totalAmount || 0,
+      launchSubtotal: (q as any).launchSubtotal || q.totalAmount || 0,
+      standardTax: (q as any).standardTax || 0,
+      launchTax: (q as any).launchTax || 0,
+      standardGrandTotal: (q as any).standardGrandTotal || q.totalAmount || 0,
+      launchGrandTotal: (q as any).launchGrandTotal || q.totalAmount || 0,
+      launchGrandTotalInWords: (q as any).launchGrandTotalInWords || ''
     };
   }
 
@@ -308,30 +351,20 @@ export class SalesMyQuotationsComponent implements OnInit {
   }
 
   private proceedSendToClient(quote: Quotation): void {
-    this.loading = true;
     const quotationId = (quote._id || quote.id) as string;
-    const email = quote.customerEmail;
 
-    // Use existing buildPreview logic as it matches the PDF data structure
-    const quotationData = this.buildPreviewFromQuotation(quote);
+    // Instead of sending from here, we navigate to the preview page
+    // where the actual 13-page PDF is generated and sent.
+    const previewData = this.buildPreviewFromQuotation(quote);
+    try { localStorage.setItem('quotationPreview', JSON.stringify(previewData)); } catch (e) { }
 
-    console.log('📧 Sending email to client...');
-
-    this.quotationService.sendQuotationWithPDF(quotationId, email, quotationData).subscribe({
-      next: (response) => {
-        this.loading = false;
-        console.log('✅ Email sent successfully!', response);
-        this.showToast(`Quotation sent to ${email} successfully!`, 'success');
-
-        // Optionally update status to 'Sent' if it was 'Approved'
-        // But prompt says "Visible only for Approved", typically it might stay approved or change to sent.
-        // I'll leave status update optional or separate. The prompt says "Reuse existing logic".
+    console.log('🚀 Navigating to preview for auto-send...');
+    this.router.navigate(['/quotations/preview'], {
+      state: {
+        quotationData: previewData,
+        autoSend: true
       },
-      error: (error) => {
-        this.loading = false;
-        console.error('❌ Error sending email:', error);
-        this.showToast('Failed to send email. Please try again.', 'error');
-      }
+      queryParams: { autoSend: 'true' }
     });
   }
 
@@ -416,7 +449,7 @@ export class SalesMyQuotationsComponent implements OnInit {
         customerEmail: quotation.customerEmail || 'contact@example.com',
         customerPhone: quotation.customerPhone || '+91 0000000000',
         totalAmount: quotation.totalAmount || quotation.totalCost || 0,
-        elevationType: quotation.elevationType || 'Home Lift',
+        elevatorType: quotation.elevatorType || 'Home Lift',
         customerAddress: (quotation as any).customerAddress || '',
         termsAndConditions: quotation.termsAndConditions || quotation.internalNotes || '',
         notes: quotation.notes || '',

@@ -424,31 +424,66 @@
   transition: width 0.5s ease;
 }
 
-/* Responsive */
-@media (max-width: 1400px) {
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablets (≤1024px) */
+@media (max-width: 1024px) {
+  .performance-container {
+    max-width: 100%;
+    padding: 25px 25px 25px 72px;
+    /* Clearance for fixed toggle */
+  }
+
   .targets-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
   }
 
   .two-column-grid,
   .bottom-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .trend-chart {
+    height: 200px;
   }
 }
 
+/* Mobile (≤768px) */
 @media (max-width: 768px) {
   .performance-container {
-    padding: 15px;
+    padding: 15px 15px 15px 72px;
   }
 
   .page-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 25px;
   }
 
   .achievement-badge {
     width: 100%;
     align-items: center;
+    padding: 15px;
+  }
+
+  .badge-value {
+    font-size: 1.5rem;
+  }
+
+  .section-card {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 
   .targets-grid {
@@ -457,31 +492,63 @@
 
   .activity-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .trend-chart {
     height: 180px;
+    padding: 10px 0;
+  }
+
+  .trend-bar-label {
+    font-size: 0.75rem;
+  }
+
+  .client-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .client-revenue {
+    width: 100%;
+    text-align: right;
+    margin-top: 5px;
+  }
+
+  .breakdown-stats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
   }
 }
 
+/* Small Mobile (≤480px) */
 @media (max-width: 480px) {
+  .performance-container {
+    padding: 15px 10px 15px 65px;
+  }
+
   .header-left h1 {
     font-size: 1.4rem;
   }
 
-  .badge-value {
-    font-size: 1.6rem;
-  }
-
   .target-percentage {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
   }
 
   .activity-count {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+  }
+}
+
+/* Very Small (≤320px) */
+@media (max-width: 320px) {
+  .performance-container {
+    padding: 15px 8px 15px 58px;
   }
 
-  .trend-bar-value {
-    font-size: 0.65rem;
+  .header-left h1 {
+    font-size: 1.2rem;
   }
 }

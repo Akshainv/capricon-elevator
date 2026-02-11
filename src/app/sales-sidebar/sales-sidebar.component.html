@@ -1,13 +1,23 @@
-<div class="sidebar" [class.collapsed]="collapsed" [class.mobile-open]="mobileMenuOpen">
+<!-- Mobile Toggle Button (always visible on tablets/mobile) -->
+<button class="sidebar-toggle mobile-toggle" (click)="toggleCollapse()" aria-label="Toggle sidebar">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="sidebar" [class.collapsed]="collapsed && !mobileMenuOpen" [class.mobile-open]="mobileMenuOpen">
   <div class="sidebar-header">
-    <div class="logo-container">
-      <img [src]="currentLogo" alt="Capricorn CRM Logo" class="sidebar-logo"
-        (error)="currentLogo = 'assets/images/logo1.png'">
+    <div class="logo-area">
+      <div class="logo-container">
+        <img [src]="currentLogo" alt="Capricorn CRM Logo" class="sidebar-logo"
+          (error)="currentLogo = 'assets/images/logo1.png'">
+      </div>
+      <h3 class="brand-name" *ngIf="!collapsed || mobileMenuOpen">Capricorn CRM</h3>
+      <p class="brand-subtitle" *ngIf="!collapsed || mobileMenuOpen">Sales Dashboard</p>
     </div>
-    <h3 class="brand-name">Capricorn CRM</h3>
-    <p class="brand-subtitle">Sales Dashboard</p>
-    <button class="sidebar-toggle" (click)="toggleCollapse()" aria-label="Toggle sidebar">
-      <i class="fas fa-bars"></i>
+
+    <!-- Desktop Toggle Button -->
+    <button class="sidebar-toggle desktop-toggle" (click)="toggleCollapse()" *ngIf="!mobileMenuOpen"
+      aria-label="Toggle sidebar">
+      <i class="fas" [ngClass]="collapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
     </button>
   </div>
   <nav class="sidebar-nav">
@@ -18,7 +28,6 @@
         [attr.data-tooltip]="item.label" (click)="onMenuItemClick()">
         <i class="fas {{ item.icon }} nav-icon"></i>
         <span class="nav-label">{{ item.label }}</span>
-        <span *ngIf="item.badge" class="nav-badge">{{ item.badge }}</span>
       </a>
     </div>
   </nav>

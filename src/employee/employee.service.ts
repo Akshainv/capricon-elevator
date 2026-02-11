@@ -8,7 +8,7 @@ import { AuthService } from '../app/services/auth.service';
 export interface Employee {
   _id: string;
   employeeId: string;
-  fullName: string; 
+  fullName: string;
   email: string;
   phoneNumber: string;
   photo?: string;
@@ -35,12 +35,12 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class EmployeeService {
-  private apiUrl = 'https://capricon-elevator-api.onrender.com/employee';
+  private apiUrl = 'http://localhost:3000/employee';
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   /**
    * Get authorization headers
@@ -203,7 +203,7 @@ export class EmployeeService {
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
-    
+
     if (error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Client Error: ${error.error.message}`;
@@ -215,7 +215,7 @@ export class EmployeeService {
         errorMessage = `Server Error: ${error.status} - ${error.message}`;
       }
     }
-    
+
     console.error('Employee Service Error:', errorMessage, error);
     return throwError(() => new Error(errorMessage));
   }

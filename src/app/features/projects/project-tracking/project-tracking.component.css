@@ -606,9 +606,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
   }
+
   50% {
     box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
   }
@@ -879,30 +882,51 @@
   margin: 0;
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
-  .content-grid {
-    grid-template-columns: 1fr;
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablets (≤1024px) */
+@media (max-width: 1024px) {
+  .tracking-container {
+    max-width: 100%;
+    padding: 25px 25px 25px 72px;
+    /* Clearance for fixed toggle */
   }
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 }
 
+/* Mobile (≤768px) */
 @media (max-width: 768px) {
   .tracking-container {
-    padding: 15px;
+    padding: 15px 15px 15px 72px;
   }
 
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
+    margin-bottom: 25px;
   }
 
   .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .btn-back {
     width: 100%;
+    height: 45px;
   }
 
   .header-right {
@@ -910,21 +934,36 @@
     justify-content: flex-start;
   }
 
+  .status-badge {
+    padding: 8px 15px;
+    font-size: 0.85rem;
+  }
+
   .stats-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .progress-circle {
+    width: 120px;
+    height: 120px;
+  }
+
+  .progress-percentage {
+    font-size: 1.5rem;
   }
 
   .detail-grid {
     grid-template-columns: 1fr;
   }
 
-  .progress-circle {
-    width: 140px;
-    height: 140px;
-  }
-
-  .progress-percentage {
-    font-size: 1.8rem;
+  .milestone-header {
+    flex-direction: column;
+    gap: 5px;
   }
 
   .history-header {
@@ -932,45 +971,58 @@
     align-items: flex-start;
   }
 
-  .history-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .history-progress {
-    flex-wrap: wrap;
+  .history-status {
+    align-self: flex-start;
   }
 }
 
+/* Small Mobile (≤480px) */
 @media (max-width: 480px) {
+  .tracking-container {
+    padding: 15px 10px 15px 65px;
+  }
+
   .header-left h1 {
-    font-size: 1.3rem;
+    font-size: 1.35rem;
+  }
+
+  .progress-card,
+  .details-card,
+  .team-card,
+  .financial-card,
+  .milestones-card,
+  .progress-history-card {
+    padding: 20px 15px;
   }
 
   .stat-value {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
-  .card-title {
-    font-size: 1rem;
-  }
-
-  .milestone-title {
-    font-size: 0.95rem;
+  .member-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
   }
 
   .milestone-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
+    width: 38px;
+    height: 38px;
+    font-size: 0.9rem;
   }
 
   .milestone-connector {
     left: 19px;
   }
+}
 
-  .financial-value {
-    font-size: 1.1rem;
+/* Very Small (≤320px) */
+@media (max-width: 320px) {
+  .tracking-container {
+    padding: 15px 8px 15px 58px;
+  }
+
+  .header-left h1 {
+    font-size: 1.2rem;
   }
 }

@@ -61,7 +61,7 @@ export class SalesImportLeadsComponent implements OnInit {
     private router: Router,
     private leadsService: LeadsService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadCurrentUser();
@@ -80,7 +80,7 @@ export class SalesImportLeadsComponent implements OnInit {
 
   onFileSelect(event: any): void {
     const file = event.target.files[0];
-    
+
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         this.showToast('File size should not exceed 5MB', 'error');
@@ -102,16 +102,16 @@ export class SalesImportLeadsComponent implements OnInit {
     reader.onload = (e: any) => {
       try {
         const data = e.target.result;
-        const workbook = XLSX.read(data, { 
-          type: file.name.endsWith('.csv') ? 'string' : 'array' 
+        const workbook = XLSX.read(data, {
+          type: file.name.endsWith('.csv') ? 'string' : 'array'
         });
 
         const firstSheet = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheet];
 
-        const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { 
-          defval: '', 
-          raw: false 
+        const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {
+          defval: '',
+          raw: false
         });
 
         this.processParsedData(jsonData);
@@ -427,10 +427,10 @@ export class SalesImportLeadsComponent implements OnInit {
 
   showToast(message: string, type: 'success' | 'error' | 'info' = 'info') {
     if (typeof Toastify !== 'undefined') {
-      const backgroundColor = 
+      const backgroundColor =
         type === 'success' ? 'linear-gradient(to right, #00b09b, #96c93d)' :
-        type === 'error' ? 'linear-gradient(to right, #ff5f6d, #ffc371)' :
-        'linear-gradient(to right, #667eea, #764ba2)';
+          type === 'error' ? 'linear-gradient(to right, #ff5f6d, #ffc371)' :
+            'linear-gradient(to right, #667eea, #764ba2)';
 
       Toastify({
         text: message,

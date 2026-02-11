@@ -95,12 +95,20 @@ app-root {
    TYPOGRAPHY
    ========================================== */
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--accent-gold);
   font-family: 'Playfair Display', serif;
 }
 
-p, span, label, div {
+p,
+span,
+label,
+div {
   color: var(--text-primary);
 }
 
@@ -1073,6 +1081,7 @@ html.light-theme .toast,
 html[data-theme="light"] .toast {
   color: #ffffff !important;
 }
+
 /* ==========================================
    SALES LEADS FILTERS SECTION - LIGHT MODE FIX
    ========================================== */
@@ -1084,6 +1093,7 @@ html[data-theme="light"] .filters-section {
   border: 1px solid #e5e7eb !important;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
 }
+
 /* ==========================================
    ADD LEAD - BACK BUTTON - LIGHT MODE FIX
    ========================================== */
@@ -1100,6 +1110,7 @@ html[data-theme="light"] .btn-back:hover {
   background: #f9fafb !important;
   border-color: #d4b347 !important;
 }
+
 /* ==========================================
    SALES CREATE QUOTATION PAGE - LIGHT MODE FIX
    ========================================== */
@@ -1287,6 +1298,7 @@ html[data-theme="light"] .form-input:-webkit-autofill:focus {
   -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
   -webkit-text-fill-color: #1f2937 !important;
 }
+
 /* ==========================================
    QUICK ACTIONS SECTION - LIGHT MODE FIX
    Complete Override for Light Theme
@@ -1397,6 +1409,7 @@ html[data-theme="light"] .action-btn span {
 
 /* Responsive adjustments for light mode */
 @media (max-width: 1200px) {
+
   html.light-theme .actions-grid,
   html[data-theme="light"] .actions-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1404,11 +1417,12 @@ html[data-theme="light"] .action-btn span {
 }
 
 @media (max-width: 768px) {
+
   html.light-theme .actions-grid,
   html[data-theme="light"] .actions-grid {
     grid-template-columns: 1fr;
   }
-  
+
   html.light-theme .quick-actions,
   html[data-theme="light"] .quick-actions {
     padding: 1.5rem;
@@ -1429,6 +1443,7 @@ html[data-theme="light"] .action-btn[style] {
   background-color: #f9fafb !important;
   background-image: none !important;
 }
+
 /* ==========================================
    BACK TO LEADS LIST BUTTON - LIGHT MODE FIX
    ========================================== */
@@ -1604,6 +1619,7 @@ html[data-theme="light"] .login-page .password-input {
   -webkit-box-shadow: none !important;
   -moz-box-shadow: none !important;
 }
+
 /* ==========================================
    SALES DASHBOARD CHART - LIGHT MODE FIX
    ========================================== */
@@ -1619,6 +1635,7 @@ html[data-theme="light"] .chart-card {
   --chart-text-color: #1f2937;
   --chart-grid-color: rgba(0, 0, 0, 0.1);
 }
+
 /* ==========================================
    SALES DASHBOARD STAT CARDS - LIGHT MODE TEXT FIX
    ========================================== */
@@ -1652,6 +1669,7 @@ html.light-theme .stat-card .stat-change.trend-neutral,
 html[data-theme="light"] .stat-card .stat-change.trend-neutral {
   color: #fbbf24 !important;
 }
+
 /* ==========================================
    SALES REPORTS STAT CARDS - LIGHT MODE ICON FIX (ENHANCED)
    ========================================== */
@@ -1720,6 +1738,7 @@ html.light-theme .stat-card .stat-icon[style] i,
 html[data-theme="light"] .stat-card .stat-icon[style] i {
   color: inherit !important;
 }
+
 /* ==========================================
    ADMIN DASHBOARD & REPORTS - PRESERVE INLINE COLORS
    MUST BE AT THE END TO OVERRIDE ALL RULES
@@ -1756,4 +1775,797 @@ html[data-theme="light"] .stat-card [style*="color"],
 html[data-theme="light"] .stat-card [style*="background"] {
   color: inherit !important;
   background: inherit !important;
+}
+
+/* ==========================================
+   ADMIN DASHBOARD PAGES - COMPREHENSIVE LIGHT MODE FIX
+   (Ultra-high specificity to override component !important styles)
+   ========================================== */
+
+/* Dashboard Container */
+html.light-theme .dashboard-container,
+html.light-theme body .dashboard-container,
+html[data-theme="light"] .dashboard-container,
+html[data-theme="light"] body .dashboard-container {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+/* Reports Container */
+html.light-theme .reports-container,
+html.light-theme body .reports-container,
+html[data-theme="light"] .reports-container,
+html[data-theme="light"] body .reports-container {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+/* Quotations Container */
+html.light-theme .quotations-container,
+html[data-theme="light"] .quotations-container {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+}
+
+/* Page Header Text */
+html.light-theme .page-header p,
+html.light-theme .dashboard-container .page-header p,
+html.light-theme .reports-container .page-header p,
+html.light-theme .quotations-container .page-header p,
+html[data-theme="light"] .page-header p,
+html[data-theme="light"] .dashboard-container .page-header p,
+html[data-theme="light"] .reports-container .page-header p,
+html[data-theme="light"] .quotations-container .page-header p {
+  color: #6b7280 !important;
+}
+
+/* ==========================================
+   STAT CARDS - FORCE WHITE BACKGROUND IN LIGHT MODE
+   (Override component !important with even higher specificity)
+   ========================================== */
+
+html.light-theme .stats-grid .stat-card,
+html.light-theme body .stats-grid .stat-card,
+html.light-theme .dashboard-container .stats-grid .stat-card,
+html.light-theme .reports-container .stats-grid .stat-card,
+html.light-theme .quotations-container .stats-grid .stat-card,
+html[data-theme="light"] .stats-grid .stat-card,
+html[data-theme="light"] body .stats-grid .stat-card,
+html[data-theme="light"] .dashboard-container .stats-grid .stat-card,
+html[data-theme="light"] .reports-container .stats-grid .stat-card,
+html[data-theme="light"] .quotations-container .stats-grid .stat-card {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+html.light-theme .stats-grid .stat-card:hover,
+html.light-theme body .stats-grid .stat-card:hover,
+html[data-theme="light"] .stats-grid .stat-card:hover,
+html[data-theme="light"] body .stats-grid .stat-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  border-color: #d4b347 !important;
+}
+
+/* Remove pseudo-element overlays in light mode */
+html.light-theme .stat-card::before,
+html.light-theme .stat-card::after,
+html.light-theme .stats-grid .stat-card::before,
+html.light-theme .stats-grid .stat-card::after,
+html[data-theme="light"] .stat-card::before,
+html[data-theme="light"] .stat-card::after,
+html[data-theme="light"] .stats-grid .stat-card::before,
+html[data-theme="light"] .stats-grid .stat-card::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+/* Stat Label - Light Mode */
+html.light-theme .dashboard-container .stat-label,
+html.light-theme .reports-container .stat-label,
+html.light-theme .quotations-container .stat-label,
+html.light-theme .stat-label,
+html[data-theme="light"] .dashboard-container .stat-label,
+html[data-theme="light"] .reports-container .stat-label,
+html[data-theme="light"] .quotations-container .stat-label,
+html[data-theme="light"] .stat-label {
+  color: #6b7280 !important;
+}
+
+/* Stat Value - Light Mode */
+html.light-theme .dashboard-container .stat-value,
+html.light-theme .reports-container .stat-value,
+html.light-theme .quotations-container .stat-value,
+html[data-theme="light"] .dashboard-container .stat-value,
+html[data-theme="light"] .reports-container .stat-value,
+html[data-theme="light"] .quotations-container .stat-value {
+  color: #d4b347 !important;
+}
+
+/* Stat Subtitle - Light Mode */
+html.light-theme .dashboard-container .stat-subtitle,
+html.light-theme .reports-container .stat-subtitle,
+html.light-theme .stat-subtitle,
+html[data-theme="light"] .dashboard-container .stat-subtitle,
+html[data-theme="light"] .reports-container .stat-subtitle,
+html[data-theme="light"] .stat-subtitle {
+  color: #9ca3af !important;
+}
+
+/* Chart Cards - Light Mode */
+html.light-theme .chart-card,
+html.light-theme .dashboard-container .chart-card,
+html.light-theme .reports-container .chart-card,
+html[data-theme="light"] .chart-card,
+html[data-theme="light"] .dashboard-container .chart-card,
+html[data-theme="light"] .reports-container .chart-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Chart Container - Light Mode */
+html.light-theme .chart-container,
+html.light-theme .dashboard-container .chart-container,
+html.light-theme .reports-container .chart-container,
+html[data-theme="light"] .chart-container,
+html[data-theme="light"] .dashboard-container .chart-container,
+html[data-theme="light"] .reports-container .chart-container {
+  background: #f9fafb !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Chart Subtitle - Light Mode */
+html.light-theme .chart-subtitle,
+html.light-theme .dashboard-container .chart-subtitle,
+html.light-theme .reports-container .chart-subtitle,
+html[data-theme="light"] .chart-subtitle,
+html[data-theme="light"] .dashboard-container .chart-subtitle,
+html[data-theme="light"] .reports-container .chart-subtitle {
+  color: #6b7280 !important;
+}
+
+/* Chart Footer Border - Light Mode */
+html.light-theme .chart-footer,
+html[data-theme="light"] .chart-footer {
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* Chart Legend - Light Mode */
+html.light-theme .legend-item,
+html.light-theme .chart-legend,
+html[data-theme="light"] .legend-item,
+html[data-theme="light"] .chart-legend {
+  color: #6b7280 !important;
+}
+
+/* Loading Container - Light Mode */
+html.light-theme .loading-container p,
+html[data-theme="light"] .loading-container p {
+  color: #6b7280 !important;
+}
+
+/* Glass Card - Light Mode (for admin reports) */
+html.light-theme .glass-card,
+html.light-theme .glass,
+html[data-theme="light"] .glass-card,
+html[data-theme="light"] .glass {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Glass Dropdown - Light Mode */
+html.light-theme .glass-dropdown,
+html[data-theme="light"] .glass-dropdown {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dropdown Item - Light Mode */
+html.light-theme .glass-dropdown .dropdown-item,
+html[data-theme="light"] .glass-dropdown .dropdown-item {
+  color: #1f2937 !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .glass-dropdown .dropdown-item:hover,
+html[data-theme="light"] .glass-dropdown .dropdown-item:hover {
+  background: #fef9e7 !important;
+}
+
+/* Employee Info in Dropdown - Light Mode */
+html.light-theme .emp-name,
+html[data-theme="light"] .emp-name {
+  color: #1f2937 !important;
+}
+
+html.light-theme .emp-email,
+html[data-theme="light"] .emp-email {
+  color: #6b7280 !important;
+}
+
+/* Glass Toggle - Light Mode */
+html.light-theme .glass-toggle,
+html[data-theme="light"] .glass-toggle {
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .glass-toggle button,
+html[data-theme="light"] .glass-toggle button {
+  color: #6b7280 !important;
+}
+
+html.light-theme .glass-toggle button.active,
+html[data-theme="light"] .glass-toggle button.active {
+  background: #d4b347 !important;
+  color: #000000 !important;
+}
+
+/* Dashboard Header Title - Light Mode */
+html.light-theme .dashboard-header .title-group h1,
+html.light-theme .header-main h1,
+html[data-theme="light"] .dashboard-header .title-group h1,
+html[data-theme="light"] .header-main h1 {
+  color: #d4b347 !important;
+}
+
+html.light-theme .dashboard-header .subtitle,
+html.light-theme .header-main .subtitle,
+html[data-theme="light"] .dashboard-header .subtitle,
+html[data-theme="light"] .header-main .subtitle {
+  color: #6b7280 !important;
+}
+
+/* Search Box - Light Mode */
+html.light-theme .search-box,
+html[data-theme="light"] .search-box {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .search-box input,
+html[data-theme="light"] .search-box input {
+  color: #1f2937 !important;
+}
+
+html.light-theme .search-box input::placeholder,
+html[data-theme="light"] .search-box input::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Table Styling - Light Mode (for Admin Reports) */
+html.light-theme .glass-table th,
+html[data-theme="light"] .glass-table th {
+  color: #6b7280 !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .employee-row td,
+html[data-theme="light"] .employee-row td {
+  background: #f9fafb !important;
+  color: #1f2937 !important;
+}
+
+html.light-theme .employee-row:hover td,
+html[data-theme="light"] .employee-row:hover td {
+  background: #fef9e7 !important;
+  color: #1f2937 !important;
+}
+
+html.light-theme .emp-meta .name,
+html[data-theme="light"] .emp-meta .name {
+  color: #1f2937 !important;
+}
+
+html.light-theme .emp-meta .email,
+html[data-theme="light"] .emp-meta .email {
+  color: #6b7280 !important;
+}
+
+/* Badge - Light Mode */
+html.light-theme .badge,
+html[data-theme="light"] .badge {
+  background: #f3f4f6 !important;
+  color: #6b7280 !important;
+}
+
+html.light-theme .badge.has-value,
+html[data-theme="light"] .badge.has-value {
+  background: rgba(212, 179, 71, 0.15) !important;
+  color: #d4b347 !important;
+  border: 1px solid rgba(212, 179, 71, 0.3) !important;
+}
+
+/* Revenue Value - Light Mode */
+html.light-theme .revenue-value,
+html[data-theme="light"] .revenue-value {
+  color: #9ca3af !important;
+}
+
+html.light-theme .revenue-value.has-value,
+html[data-theme="light"] .revenue-value.has-value {
+  color: #22c55e !important;
+}
+
+/* Empty State - Light Mode */
+html.light-theme .empty-state,
+html[data-theme="light"] .empty-state {
+  color: #6b7280 !important;
+}
+
+html.light-theme .empty-state i,
+html[data-theme="light"] .empty-state i {
+  color: #9ca3af !important;
+}
+
+html.light-theme .empty-state p,
+html[data-theme="light"] .empty-state p {
+  color: #6b7280 !important;
+}
+
+/* Pulse Container Section Header - Light Mode */
+html.light-theme .pulse-container,
+html[data-theme="light"] .pulse-container {
+  background: #ffffff !important;
+}
+
+html.light-theme .pulse-container .card-header h3,
+html.light-theme .header-title h3,
+html[data-theme="light"] .pulse-container .card-header h3,
+html[data-theme="light"] .header-title h3 {
+  color: #d4b347 !important;
+}
+
+/* Chart Wrapper - Light Mode */
+html.light-theme .chart-wrapper,
+html[data-theme="light"] .chart-wrapper {
+  background: transparent !important;
+}
+
+/* Table Card - Light Mode */
+html.light-theme .table-card,
+html[data-theme="light"] .table-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Quotations Table - Light Mode */
+html.light-theme .quotations-table thead,
+html[data-theme="light"] .quotations-table thead {
+  background: #f9fafb !important;
+}
+
+html.light-theme .quotations-table th,
+html[data-theme="light"] .quotations-table th {
+  color: #d4b347 !important;
+}
+
+html.light-theme .quotations-table td,
+html[data-theme="light"] .quotations-table td {
+  color: #6b7280 !important;
+  border-color: #e5e7eb !important;
+}
+
+html.light-theme .quotations-table tbody tr:hover,
+html[data-theme="light"] .quotations-table tbody tr:hover {
+  background: #f9fafb !important;
+}
+
+/* Quote Number - Light Mode */
+html.light-theme .quote-number,
+html[data-theme="light"] .quote-number {
+  color: #d4b347 !important;
+}
+
+/* Customer Name - Light Mode */
+html.light-theme .customer-name,
+html[data-theme="light"] .customer-name {
+  color: #1f2937 !important;
+}
+
+html.light-theme .customer-contact,
+html[data-theme="light"] .customer-contact {
+  color: #9ca3af !important;
+}
+
+/* Elevator Info - Light Mode */
+html.light-theme .elevator-info,
+html[data-theme="light"] .elevator-info {
+  color: #1f2937 !important;
+}
+
+/* Employee Info - Light Mode */
+html.light-theme .employee-info,
+html[data-theme="light"] .employee-info {
+  color: #1f2937 !important;
+}
+
+/* Pagination - Light Mode */
+html.light-theme .pagination-controls,
+html[data-theme="light"] .pagination-controls {
+  background: #ffffff !important;
+  border-top: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .pagination-btn,
+html[data-theme="light"] .pagination-btn {
+  background: #fef9e7 !important;
+  color: #d4b347 !important;
+  border: 1px solid #d4b347 !important;
+}
+
+html.light-theme .pagination-btn:disabled,
+html[data-theme="light"] .pagination-btn:disabled {
+  background: #f3f4f6 !important;
+  color: #9ca3af !important;
+  border-color: #e5e7eb !important;
+}
+
+html.light-theme .page-info,
+html[data-theme="light"] .page-info {
+  color: #1f2937 !important;
+}
+
+/* Filters Section - Light Mode */
+html.light-theme .filters-section,
+html.light-theme .quotations-container .filters-section,
+html[data-theme="light"] .filters-section,
+html[data-theme="light"] .quotations-container .filters-section {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Filter Controls - Light Mode */
+html.light-theme .filter-controls,
+html[data-theme="light"] .filter-controls {
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* Filter Labels - Light Mode */
+html.light-theme .filter-group label,
+html[data-theme="light"] .filter-group label {
+  color: #6b7280 !important;
+}
+
+/* Filter Select - Light Mode */
+html.light-theme .filter-select,
+html[data-theme="light"] .filter-select {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+html.light-theme .filter-select option,
+html[data-theme="light"] .filter-select option {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* Count Badge - Light Mode */
+html.light-theme .count-badge,
+html[data-theme="light"] .count-badge {
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .count-label,
+html[data-theme="light"] .count-label {
+  color: #6b7280 !important;
+}
+
+html.light-theme .count-value,
+html[data-theme="light"] .count-value {
+  color: #1f2937 !important;
+}
+
+/* Notifications Container - Light Mode */
+html.light-theme .notifications-container,
+html[data-theme="light"] .notifications-container {
+  background: #ffffff !important;
+}
+
+/* Notifications Header - Light Mode */
+html.light-theme .notifications-header,
+html[data-theme="light"] .notifications-header {
+  border-bottom: 2px solid #e5e7eb !important;
+}
+
+html.light-theme .page-title,
+html[data-theme="light"] .page-title {
+  color: #d4b347 !important;
+}
+
+/* Notifications Filters - Light Mode */
+html.light-theme .notifications-filters,
+html[data-theme="light"] .notifications-filters {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .filter-btn,
+html[data-theme="light"] .filter-btn {
+  background: transparent !important;
+  border: 1px solid #e5e7eb !important;
+  color: #6b7280 !important;
+}
+
+html.light-theme .filter-btn:hover,
+html[data-theme="light"] .filter-btn:hover {
+  background: #f9fafb !important;
+  border-color: #d4b347 !important;
+  color: #d4b347 !important;
+}
+
+html.light-theme .filter-btn.active,
+html[data-theme="light"] .filter-btn.active {
+  background: #d4b347 !important;
+  color: #ffffff !important;
+  border-color: #d4b347 !important;
+}
+
+/* Notification Card - Light Mode */
+html.light-theme .notification-card,
+html[data-theme="light"] .notification-card {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+html.light-theme .notification-card:hover,
+html[data-theme="light"] .notification-card:hover {
+  border-color: #d4b347 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light-theme .notification-card.unread,
+html[data-theme="light"] .notification-card.unread {
+  background: linear-gradient(to right, #ffffff 0%, rgba(212, 179, 71, 0.05) 100%) !important;
+  border-left: 4px solid #d4b347 !important;
+}
+
+html.light-theme .notification-title,
+html[data-theme="light"] .notification-title {
+  color: #1f2937 !important;
+}
+
+html.light-theme .notification-message,
+html[data-theme="light"] .notification-message {
+  color: #6b7280 !important;
+}
+
+html.light-theme .notification-time,
+html[data-theme="light"] .notification-time {
+  color: #9ca3af !important;
+}
+
+/* Force all light mode text inside admin pages to be readable */
+html.light-theme .dashboard-container *,
+html.light-theme .reports-container *,
+html.light-theme .quotations-container *,
+html.light-theme .notifications-container *,
+html[data-theme="light"] .dashboard-container *,
+html[data-theme="light"] .reports-container *,
+html[data-theme="light"] .quotations-container *,
+html[data-theme="light"] .notifications-container * {
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --border-color: #e5e7eb;
+  --bg-card: #ffffff;
+  --bg-tertiary: #f9fafb;
+  --input-bg: #ffffff;
+}
+
+/* ==========================================
+   PRESERVE COLORFUL STAT ICONS IN LIGHT MODE
+   (Same colors as dark mode)
+   ========================================== */
+
+/* Total Quotes - Purple */
+html.light-theme .stat-icon.total-quotes,
+html[data-theme="light"] .stat-icon.total-quotes {
+  background: rgba(139, 92, 246, 0.2) !important;
+  color: #a78bfa !important;
+}
+
+/* Approved - Green */
+html.light-theme .stat-icon.approved,
+html[data-theme="light"] .stat-icon.approved {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #4ade80 !important;
+}
+
+/* Rejected - Red */
+html.light-theme .stat-icon.rejected,
+html[data-theme="light"] .stat-icon.rejected {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+}
+
+/* Average/Success - Green */
+html.light-theme .stat-icon.average,
+html[data-theme="light"] .stat-icon.average {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #4ade80 !important;
+}
+
+/* Total - Gold */
+html.light-theme .stat-icon.total,
+html[data-theme="light"] .stat-icon.total {
+  background: linear-gradient(135deg, rgba(212, 179, 71, 0.2), rgba(240, 212, 130, 0.1)) !important;
+  color: #d4b347 !important;
+}
+
+/* Stat Created - Blue */
+html.light-theme .stat-created .stat-icon,
+html[data-theme="light"] .stat-created .stat-icon {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #3b82f6 !important;
+}
+
+/* Stat Assigned - Green */
+html.light-theme .stat-assigned .stat-icon,
+html[data-theme="light"] .stat-assigned .stat-icon {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #22c55e !important;
+}
+
+/* Stat Total - Gold */
+html.light-theme .stat-total .stat-icon,
+html[data-theme="light"] .stat-total .stat-icon {
+  background: rgba(212, 179, 71, 0.2) !important;
+  color: #d4b347 !important;
+}
+
+/* Ensure stat icons preserve inline style colors */
+html.light-theme .stat-icon[style*="background"],
+html.light-theme .stat-icon[style*="color"],
+html[data-theme="light"] .stat-icon[style*="background"],
+html[data-theme="light"] .stat-icon[style*="color"] {
+  background: inherit !important;
+  color: inherit !important;
+}
+
+/* Ensure icons inside stat-icons inherit color */
+html.light-theme .stat-icon i,
+html[data-theme="light"] .stat-icon i {
+  color: inherit !important;
+}
+
+/* ==========================================
+   ACTION BUTTONS - PRESERVE COLORS IN LIGHT MODE
+   ========================================== */
+
+/* View Button - Blue */
+html.light-theme .btn-view,
+html.light-theme .action-btn.btn-view,
+html[data-theme="light"] .btn-view,
+html[data-theme="light"] .action-btn.btn-view {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #60a5fa !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+html.light-theme .btn-view:hover,
+html[data-theme="light"] .btn-view:hover {
+  background: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Delete Button - Red */
+html.light-theme .btn-delete,
+html.light-theme .action-btn.btn-delete,
+html[data-theme="light"] .btn-delete,
+html[data-theme="light"] .action-btn.btn-delete {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+html.light-theme .btn-delete:hover,
+html[data-theme="light"] .btn-delete:hover {
+  background: rgba(239, 68, 68, 0.3) !important;
+}
+
+/* Deal/Success Button - Green */
+html.light-theme .btn-deal,
+html[data-theme="light"] .btn-deal {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #4ade80 !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+}
+
+html.light-theme .btn-deal:hover,
+html[data-theme="light"] .btn-deal:hover {
+  background: rgba(34, 197, 94, 0.3) !important;
+}
+
+/* Send to Client Button - Purple */
+html.light-theme .btn-send-client,
+html[data-theme="light"] .btn-send-client {
+  background: rgba(139, 92, 246, 0.2) !important;
+  color: #a78bfa !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+}
+
+html.light-theme .btn-send-client:hover,
+html[data-theme="light"] .btn-send-client:hover {
+  background: rgba(139, 92, 246, 0.3) !important;
+}
+
+/* ==========================================
+   STATUS BADGES - PRESERVE COLORS IN LIGHT MODE
+   ========================================== */
+
+html.light-theme .status-approved,
+html[data-theme="light"] .status-approved {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #4ade80 !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+html.light-theme .status-rejected,
+html.light-theme .status-not-approved,
+html[data-theme="light"] .status-rejected,
+html[data-theme="light"] .status-not-approved {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+html.light-theme .status-pending,
+html[data-theme="light"] .status-pending {
+  background: rgba(234, 179, 8, 0.2) !important;
+  color: #facc15 !important;
+  border-color: rgba(234, 179, 8, 0.3) !important;
+}
+
+/* ==========================================
+   COUNT BADGES - PRESERVE COLORS IN LIGHT MODE
+   ========================================== */
+
+html.light-theme .badge-pending .count-value,
+html[data-theme="light"] .badge-pending .count-value {
+  color: #facc15 !important;
+}
+
+html.light-theme .badge-approved .count-value,
+html[data-theme="light"] .badge-approved .count-value {
+  color: #4ade80 !important;
+}
+
+html.light-theme .badge-rejected .count-value,
+html[data-theme="light"] .badge-rejected .count-value {
+  color: #f87171 !important;
+}
+
+html.light-theme .badge-pending,
+html[data-theme="light"] .badge-pending {
+  border-color: rgba(234, 179, 8, 0.2) !important;
+  background: rgba(234, 179, 8, 0.05) !important;
+}
+
+html.light-theme .badge-approved,
+html[data-theme="light"] .badge-approved {
+  border-color: rgba(34, 197, 94, 0.2) !important;
+  background: rgba(34, 197, 94, 0.05) !important;
+}
+
+html.light-theme .badge-rejected,
+html[data-theme="light"] .badge-rejected {
+  border-color: rgba(239, 68, 68, 0.2) !important;
+  background: rgba(239, 68, 68, 0.05) !important;
 }

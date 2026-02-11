@@ -58,12 +58,12 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class ProjectService {
-  private apiUrl = 'https://capricon-elevator-api.onrender.com/project';
+  private apiUrl = 'http://localhost:3000/project';
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   private getHeaders() {
     return {
@@ -74,14 +74,14 @@ export class ProjectService {
   // ✅ FIXED: Create project from deal - use createdBy ID for assignedTo
   createProjectFromDeal(dealData: any): Observable<Project> {
     const currentUser = this.authService.currentUserValue;
-    
+
     console.log('Creating project from deal:', dealData);
     console.log('Deal assignedTo:', dealData.assignedTo);
     console.log('Deal createdBy:', dealData.createdBy);
-    
+
     // ✅ CRITICAL FIX: Use createdBy (employee ID) for assignedTo, not the name
     const assignedToId = dealData.createdBy || dealData.assignedTo || currentUser?.userId || '';
-    
+
     const projectData = {
       projectName: dealData.title || dealData.dealTitle,
       projectCode: `PRJ-${Date.now()}`,
@@ -259,18 +259,18 @@ export class ProjectService {
   getProjectStatistics(salesExecutiveId?: string, projectManagerId?: string): Observable<any> {
     let url = `${this.apiUrl}/statistics`;
     const params: string[] = [];
-    
+
     if (salesExecutiveId) {
       params.push(`salesExecutive=${salesExecutiveId}`);
     }
     if (projectManagerId) {
       params.push(`projectManager=${projectManagerId}`);
     }
-    
+
     if (params.length > 0) {
       url += '?' + params.join('&');
     }
-    
+
     return this.http.get<ApiResponse<any>>(url, this.getHeaders()).pipe(
       map(response => response.data)
     );

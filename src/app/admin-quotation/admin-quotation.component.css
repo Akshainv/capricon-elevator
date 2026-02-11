@@ -93,6 +93,33 @@
     box-shadow: 0 6px 20px rgba(212, 179, 71, 0.2);
 }
 
+.stat-card.clickable {
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.stat-card.clickable:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-gold);
+    box-shadow: 0 10px 25px rgba(212, 179, 71, 0.25);
+}
+
+.stat-card.active-filter {
+    border-color: var(--accent-gold);
+    background: rgba(212, 179, 71, 0.05);
+    box-shadow: 0 0 15px rgba(212, 179, 71, 0.15);
+}
+
+.stat-card.active-filter::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--accent-gold);
+}
+
 .stat-icon {
     width: 50px;
     height: 50px;
@@ -117,6 +144,16 @@
 .stat-icon.average {
     background: rgba(34, 197, 94, 0.2);
     color: #4ade80;
+}
+
+.stat-icon.approved {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+}
+
+.stat-icon.rejected {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
 }
 
 .stat-content {
@@ -189,6 +226,50 @@
 .filter-select:focus {
     border-color: var(--accent-gold);
     box-shadow: 0 0 0 3px rgba(212, 179, 71, 0.1);
+}
+
+.date-input {
+    background: var(--input-bg);
+    color: #ffffff !important;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.5);
+    cursor: pointer;
+}
+
+.date-input:focus {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 3px rgba(212, 179, 71, 0.1);
+}
+
+.btn-clear-filter {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-clear-filter:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #f87171;
+    transform: translateY(-1px);
 }
 
 .filter-select option {
@@ -361,6 +442,74 @@
 .col-approval .approval-actions,
 .col-actions .action-buttons {
     justify-content: center;
+}
+
+/* Approval Actions Styling */
+.approval-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+
+.approval-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-size: 1rem;
+    padding: 0;
+}
+
+.btn-approve {
+    color: #22c55e;
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.btn-approve:hover:not(:disabled) {
+    color: #ffffff;
+    background: #22c55e;
+    border-color: #22c55e;
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+}
+
+.btn-approve.active {
+    color: #ffffff;
+    background: #22c55e;
+    border-color: #22c55e;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+}
+
+.btn-reject {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.btn-reject:hover:not(:disabled) {
+    color: #ffffff;
+    background: #ef4444;
+    border-color: #ef4444;
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+.btn-reject.active {
+    color: #ffffff;
+    background: #ef4444;
+    border-color: #ef4444;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+}
+
+.approval-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 /* Quote Number */
@@ -550,7 +699,7 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .quotations-container {
         padding: 12px;
     }
@@ -566,9 +715,22 @@
         justify-content: center;
     }
 
+    .header-left {
+        padding-left: 60px;
+    }
+
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 12px;
+    }
+
+    .filters-section {
+        padding: 12px;
+    }
+
+    .filter-controls {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .table-container {
@@ -579,85 +741,68 @@
     .quotations-table {
         min-width: 900px;
     }
+}
 
-    .action-buttons {
-        flex-direction: column;
-        gap: 4px;
+@media (max-width: 768px) {
+    .quotations-container {
+        padding: 12px;
     }
 }
 
-/* Approval Actions */
-.approval-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+/* Very Small Mobile (≤480px) */
+@media (max-width: 480px) {
+    .quotations-container {
+        padding: 10px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .header-left h1 {
+        font-size: 1.3rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .stat-value {
+        font-size: 1.4rem;
+    }
 }
 
-.approval-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 2px solid;
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    font-size: 0.9rem;
-    padding: 0;
-}
+/* iPhone SE and very small screens (≤320px) */
+@media (max-width: 320px) {
+    .quotations-container {
+        padding: 8px;
+    }
 
-/* Approve Button (Green Tick) */
-.btn-approve {
-    color: #22c55e;
-    /* Always Green */
-    border-color: #22c55e;
-    background: transparent;
-}
+    .header-left {
+        padding-left: 50px;
+    }
 
-.btn-approve:hover:not(:disabled) {
-    color: #16a34a;
-    border-color: #16a34a;
-    background: rgba(34, 197, 94, 0.1);
-}
+    .header-left h1 {
+        font-size: 1.2rem;
+    }
 
-.btn-approve.active {
-    color: #ffffff;
-    background: #22c55e;
-    border-color: #22c55e;
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
-}
+    .stat-card {
+        padding: 12px;
+        border-radius: 10px;
+    }
 
-/* Reject Button (Red Cross) */
-.btn-reject {
-    color: #ef4444;
-    /* Always Red */
-    border-color: #ef4444;
-    background: transparent;
-}
+    .stat-value {
+        font-size: 1.2rem;
+    }
 
-.btn-reject:hover:not(:disabled) {
-    color: #dc2626;
-    border-color: #dc2626;
-    background: rgba(239, 68, 68, 0.1);
-}
-
-.btn-reject.active {
-    color: #ffffff;
-    background: #ef4444;
-    border-color: #ef4444;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
-}
-
-/* Disabled state for active or disabled buttons */
-.approval-btn:disabled {
-    cursor: default;
-    opacity: 1;
-    /* Keep active state visible */
-}
-
-/* Hover effects for non-active buttons */
-.approval-btn:not(.active):not(:disabled):hover {
-    transform: scale(1.1);
+    .btn-primary {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
 }

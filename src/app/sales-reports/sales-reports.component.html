@@ -17,6 +17,9 @@
       <!-- Analysis Toggles -->
       <div class="header-controls">
         <div class="analysis-toggle">
+          <button [class.active]="analysisType === 'daily'" (click)='setAnalysisType("daily")'>
+            Daily Status
+          </button>
           <button [class.active]="analysisType === 'monthly'" (click)="setAnalysisType('monthly')">
             Monthly Status
           </button>

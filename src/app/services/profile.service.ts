@@ -71,8 +71,8 @@ export interface ApiResponse<T = any> {
 })
 export class ProfileService {
   // Direct API URL - Change this to match your backend
-  private apiUrl = 'https://capricon-elevator-api.onrender.com/profile-settings';
-  
+  private apiUrl = 'http://localhost:3000/profile-settings';
+
   // BehaviorSubject to share user data across components
   private userSubject = new BehaviorSubject<User | null>(null);
   public user$ = this.userSubject.asObservable();
@@ -81,7 +81,7 @@ export class ProfileService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   public loading$ = this.loadingSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // ============================================
   // HELPER: Get HTTP Headers with JWT Token
@@ -90,7 +90,7 @@ export class ProfileService {
     // Use access_token from AuthService (localStorage)
     const token = localStorage.getItem('access_token');
     const userId = this.getUserIdFromStorage();
-    
+
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': token ? `Bearer ${token}` : '',
@@ -119,9 +119,9 @@ export class ProfileService {
   // ============================================
   getProfile(): Observable<User> {
     this.loadingSubject.next(true);
-    
-    return this.http.get<User>(`${this.apiUrl}/me`, { 
-      headers: this.getHeaders() 
+
+    return this.http.get<User>(`${this.apiUrl}/me`, {
+      headers: this.getHeaders()
     }).pipe(
       tap((user: User) => {
         this.userSubject.next(user);
@@ -141,7 +141,7 @@ export class ProfileService {
   // ============================================
   updateProfile(profileData: UpdateProfileDto): Observable<ApiResponse<User>> {
     this.loadingSubject.next(true);
-    
+
     return this.http.patch<ApiResponse<User>>(
       `${this.apiUrl}/profile`,
       profileData,
@@ -167,7 +167,7 @@ export class ProfileService {
   // ============================================
   changePassword(passwordData: ChangePasswordDto): Observable<ApiResponse> {
     this.loadingSubject.next(true);
-    
+
     return this.http.post<ApiResponse>(
       `${this.apiUrl}/change-password`,
       passwordData,
@@ -190,13 +190,13 @@ export class ProfileService {
   // ============================================
   uploadAvatar(file: File): Observable<ApiResponse> {
     this.loadingSubject.next(true);
-    
+
     const formData = new FormData();
     formData.append('file', file);
 
     const token = localStorage.getItem('access_token');
     const userId = this.getUserIdFromStorage();
-    
+
     const headers = new HttpHeaders({
       'Authorization': token ? `Bearer ${token}` : '',
       'x-user-id': userId || ''
@@ -230,7 +230,7 @@ export class ProfileService {
   // ============================================
   updateNotificationSettings(preferences: NotificationPreferences): Observable<ApiResponse> {
     this.loadingSubject.next(true);
-    
+
     return this.http.patch<ApiResponse>(
       `${this.apiUrl}/notifications`,
       preferences,

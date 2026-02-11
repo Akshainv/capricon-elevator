@@ -30,114 +30,66 @@
     <span>Draft saved at {{ lastSaved | date:'short' }}</span>
   </div>
 
-  <!-- Progress Stepper -->
-  <div class="stepper-container">
-    <div class="stepper">
-      <div class="step" [ngClass]="getStepClass(1)" (click)="goToStep(1)">
-        <div class="step-number">
-          <i *ngIf="currentStep > 1" class="fas fa-check"></i>
-          <span *ngIf="currentStep <= 1">1</span>
-        </div>
-        <div class="step-label">Basic Info</div>
-      </div>
-
-      <div class="step-line" [ngClass]="{'completed': currentStep > 1}"></div>
-
-      <div class="step" [ngClass]="getStepClass(2)" (click)="goToStep(2)">
-        <div class="step-number">
-          <i *ngIf="currentStep > 2" class="fas fa-check"></i>
-          <span *ngIf="currentStep <= 2">2</span>
-        </div>
-        <div class="step-label">Contact Details</div>
-      </div>
-
-      <div class="step-line" [ngClass]="{'completed': currentStep > 2}"></div>
-
-      <div class="step" [ngClass]="getStepClass(3)" (click)="goToStep(3)">
-        <div class="step-number">
-          <i *ngIf="currentStep > 3" class="fas fa-check"></i>
-          <span *ngIf="currentStep <= 3">3</span>
-        </div>
-        <div class="step-label">Requirements</div>
-      </div>
-    </div>
-  </div>
-
   <!-- Form Container -->
   <div class="form-card">
-    <!-- Step 1: Basic Info -->
-    <div *ngIf="currentStep === 1" class="form-step">
+    <div class="form-step">
       <h2 class="step-title">
         <i class="fas fa-user-circle"></i>
-        Basic Information
+        Lead Details
       </h2>
 
       <div class="form-grid">
+        <!-- Lead Name -->
         <div class="form-group">
           <label class="required">Lead Name</label>
-          <input 
-            type="text" 
-            [(ngModel)]="leadDraft.basicInfo.name"
-            placeholder="Enter full name"
-            [ngClass]="{'error': errors.basicInfo.name}"
-          />
-          <span *ngIf="errors.basicInfo.name" class="error-message">
-            {{ errors.basicInfo.name }}
+          <input type="text" [(ngModel)]="leadDraft.name" placeholder="Enter full name"
+            [ngClass]="{'error': errors.name}" />
+          <span *ngIf="errors.name" class="error-message">
+            {{ errors.name }}
           </span>
         </div>
 
+        <!-- Email Address -->
         <div class="form-group">
-          <label class="required">Company Name</label>
-          <input 
-            type="text" 
-            [(ngModel)]="leadDraft.basicInfo.company"
-            placeholder="Enter company name"
-            [ngClass]="{'error': errors.basicInfo.company}"
-          />
-          <span *ngIf="errors.basicInfo.company" class="error-message">
-            {{ errors.basicInfo.company }}
+          <label class="required">Email Address</label>
+          <input type="email" [(ngModel)]="leadDraft.email" placeholder="email@example.com"
+            [ngClass]="{'error': errors.email}" />
+          <span *ngIf="errors.email" class="error-message">
+            {{ errors.email }}
           </span>
         </div>
 
+        <!-- Phone Number -->
         <div class="form-group">
-          <label>Designation</label>
-          <input 
-            type="text" 
-            [(ngModel)]="leadDraft.basicInfo.designation"
-            placeholder="e.g. Purchase Manager"
-          />
+          <label class="required">Phone Number</label>
+          <input type="tel" [(ngModel)]="leadDraft.phone" placeholder="+91 9876543210"
+            [ngClass]="{'error': errors.phone}" />
+          <span *ngIf="errors.phone" class="error-message">
+            {{ errors.phone }}
+          </span>
         </div>
 
+        <!-- Lead Source -->
         <div class="form-group">
           <label class="required">Lead Source</label>
-          <select 
-            [(ngModel)]="leadDraft.basicInfo.source"
-            [ngClass]="{'error': errors.basicInfo.source}"
-          >
+          <select [(ngModel)]="leadDraft.source" [ngClass]="{'error': errors.source}">
             <option value="">Select source</option>
             <option *ngFor="let source of sourceOptions" [value]="source">
               {{ source }}
             </option>
           </select>
-          <span *ngIf="errors.basicInfo.source" class="error-message">
-            {{ errors.basicInfo.source }}
+          <span *ngIf="errors.source" class="error-message">
+            {{ errors.source }}
           </span>
         </div>
 
+        <!-- Priority Level -->
         <div class="form-group full-width">
           <label>Priority Level</label>
           <div class="priority-options">
-            <label 
-              *ngFor="let option of priorityOptions" 
-              class="priority-option"
-              [ngClass]="'priority-' + option.value"
-            >
-              <input 
-                type="radio" 
-                name="priority" 
-                [value]="option.value"
-                [(ngModel)]="leadDraft.basicInfo.priority"
-              />
+            <label *ngFor="let option of priorityOptions" class="priority-option"
+              [ngClass]="'priority-' + option.value">
+              <input type="radio" name="priority" [value]="option.value" [(ngModel)]="leadDraft.priority" />
               <span class="priority-label">
                 <i class="fas fa-flag"></i>
                 {{ option.label }}
@@ -148,176 +100,11 @@
       </div>
     </div>
 
-    <!-- Step 2: Contact Details -->
-    <div *ngIf="currentStep === 2" class="form-step">
-      <h2 class="step-title">
-        <i class="fas fa-address-card"></i>
-        Contact Details
-      </h2>
-
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="required">Email Address</label>
-          <input 
-            type="email" 
-            [(ngModel)]="leadDraft.contactDetails.email"
-            placeholder="email@example.com"
-            [ngClass]="{'error': errors.contactDetails.email}"
-          />
-          <span *ngIf="errors.contactDetails.email" class="error-message">
-            {{ errors.contactDetails.email }}
-          </span>
-        </div>
-
-        <div class="form-group">
-          <label class="required">Phone Number</label>
-          <input 
-            type="tel" 
-            [(ngModel)]="leadDraft.contactDetails.phone"
-            placeholder="+91 9876543210"
-            [ngClass]="{'error': errors.contactDetails.phone}"
-          />
-          <span *ngIf="errors.contactDetails.phone" class="error-message">
-            {{ errors.contactDetails.phone }}
-          </span>
-        </div>
-
-        <div class="form-group">
-          <label>Alternate Phone</label>
-          <input 
-            type="tel" 
-            [(ngModel)]="leadDraft.contactDetails.alternatePhone"
-            placeholder="+91 9876543211"
-          />
-        </div>
-
-        <div class="form-group full-width">
-          <label>Address</label>
-          <input 
-            type="text" 
-            [(ngModel)]="leadDraft.contactDetails.address"
-            placeholder="Street address"
-          />
-        </div>
-
-        <div class="form-group">
-          <label>City</label>
-          <input 
-            type="text" 
-            [(ngModel)]="leadDraft.contactDetails.city"
-            placeholder="City name"
-          />
-        </div>
-
-        <div class="form-group">
-          <label>State</label>
-          <select [(ngModel)]="leadDraft.contactDetails.state">
-            <option value="">Select state</option>
-            <option *ngFor="let state of stateOptions" [value]="state">
-              {{ state }}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Pincode</label>
-          <input 
-            type="text" 
-            [(ngModel)]="leadDraft.contactDetails.pincode"
-            placeholder="682001"
-            maxlength="6"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 3: Requirements -->
-    <div *ngIf="currentStep === 3" class="form-step">
-      <h2 class="step-title">
-        <i class="fas fa-clipboard-list"></i>
-        Requirements & Budget
-      </h2>
-
-      <div class="form-grid">
-        <div class="form-group full-width">
-          <label class="required">Product/Service Interest</label>
-          <input 
-            type="text" 
-            [(ngModel)]="leadDraft.requirements.productInterest"
-            placeholder="What are they interested in?"
-            [ngClass]="{'error': errors.requirements.productInterest}"
-          />
-          <span *ngIf="errors.requirements.productInterest" class="error-message">
-            {{ errors.requirements.productInterest }}
-          </span>
-        </div>
-
-        <div class="form-group">
-          <label>Estimated Budget (₹)</label>
-          <input 
-            type="number" 
-            [(ngModel)]="leadDraft.requirements.budget"
-            placeholder="0"
-            min="0"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="required">Purchase Timeline</label>
-          <select 
-            [(ngModel)]="leadDraft.requirements.timeline"
-            [ngClass]="{'error': errors.requirements.timeline}"
-          >
-            <option value="">Select timeline</option>
-            <option *ngFor="let timeline of timelineOptions" [value]="timeline">
-              {{ timeline }}
-            </option>
-          </select>
-          <span *ngIf="errors.requirements.timeline" class="error-message">
-            {{ errors.requirements.timeline }}
-          </span>
-        </div>
-
-        <div class="form-group">
-          <label>Quantity</label>
-          <input 
-            type="number" 
-            [(ngModel)]="leadDraft.requirements.quantity"
-            placeholder="0"
-            min="1"
-          />
-        </div>
-      </div>
-    </div>
-
     <!-- Navigation Buttons -->
     <div class="form-actions">
-      <button 
-        *ngIf="currentStep > 1" 
-        class="btn-secondary" 
-        (click)="prevStep()"
-      >
-        <i class="fas fa-arrow-left"></i>
-        Previous
-      </button>
-
       <div class="spacer"></div>
 
-      <button 
-        *ngIf="currentStep < totalSteps" 
-        class="btn-primary" 
-        (click)="nextStep()"
-      >
-        Next
-        <i class="fas fa-arrow-right"></i>
-      </button>
-
-      <button 
-        *ngIf="currentStep === totalSteps" 
-        class="btn-success" 
-        (click)="saveLead()"
-        [disabled]="isSaving"
-      >
+      <button class="btn-success" (click)="saveLead()" [disabled]="isSaving">
         <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-save'"></i>
         {{ isSaving ? 'Saving...' : (isEditMode ? 'Update Lead' : 'Create Lead') }}
       </button>

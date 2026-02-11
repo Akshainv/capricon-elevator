@@ -291,9 +291,17 @@
   background: rgba(212, 179, 71, 0.05);
 }
 
-.employee-row.pending { border-left: 4px solid #f59e0b; }
-.employee-row.approved { border-left: 4px solid #22c55e; }
-.employee-row.rejected { border-left: 4px solid #ef4444; }
+.employee-row.pending {
+  border-left: 4px solid #f59e0b;
+}
+
+.employee-row.approved {
+  border-left: 4px solid #22c55e;
+}
+
+.employee-row.rejected {
+  border-left: 4px solid #ef4444;
+}
 
 .employee-row:last-child {
   border-bottom: none;
@@ -381,28 +389,36 @@
   color: #3b82f6;
 }
 
-.btn-view-sm:hover { background: rgba(59, 130, 246, 0.3); }
+.btn-view-sm:hover {
+  background: rgba(59, 130, 246, 0.3);
+}
 
 .btn-approve-sm {
   background: rgba(34, 197, 94, 0.15);
   color: #22c55e;
 }
 
-.btn-approve-sm:hover { background: rgba(34, 197, 94, 0.3); }
+.btn-approve-sm:hover {
+  background: rgba(34, 197, 94, 0.3);
+}
 
 .btn-reject-sm {
   background: rgba(239, 68, 68, 0.15);
   color: #ef4444;
 }
 
-.btn-reject-sm:hover { background: rgba(239, 68, 68, 0.3); }
+.btn-reject-sm:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
 
 .btn-delete-sm {
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
 }
 
-.btn-delete-sm:hover { background: rgba(239, 68, 68, 0.2); }
+.btn-delete-sm:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
 
 /* Pagination Styles */
 .pagination-container {
@@ -740,6 +756,7 @@
 
 /* Responsive Design */
 @media (max-width: 1400px) {
+
   .list-header,
   .employee-row {
     grid-template-columns: 70px 180px 220px 160px 120px 1fr;
@@ -773,192 +790,165 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .approvals-container {
     padding: 20px;
+    padding-left: 70px;
   }
-  
-  .page-header {
-    padding: 24px;
+
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
-  
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
+
+  .employees-list-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  
-  .title-section h1 {
-    font-size: 1.5rem;
+
+  .employee-row {
+    min-width: 800px;
   }
-  
+}
+
+@media (max-width: 768px) {
+  .approvals-container {
+    padding: 15px;
+  }
+
   .stats-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
-  
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
   .list-header {
     display: none;
   }
 
   .employee-row {
-    grid-template-columns: 60px 1fr;
+    grid-template-columns: 50px 1fr 100px;
     gap: 12px;
-    padding: 16px;
-    border-left: none;
-    border-bottom: 1px solid var(--border-color);
+    padding: 15px;
+    min-width: unset;
   }
-
-  .employee-row:hover {
-    background: rgba(212, 179, 71, 0.08);
-  }
-
-  .col-avatar { grid-column: 1; grid-row: 1 / 4; align-self: start; }
-  .col-name { grid-column: 2; grid-row: 1; }
-  .col-status { grid-column: 2; grid-row: 2; }
-  .col-actions { grid-column: 2; grid-row: 3; justify-self: start; margin-top: 8px; }
 
   .col-contact,
-  .col-dates { display: none; }
-
-  .pagination-container {
-    flex-direction: column;
-    align-items: stretch;
+  .col-dates {
+    display: none;
   }
 
-  .pagination-info {
-    text-align: center;
+  .col-status {
+    justify-content: flex-end;
   }
 
-  .pagination-controls {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .detail-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .modal-footer {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .modal-footer .btn-close,
-  .modal-footer .btn-delete {
-    width: 100%;
-  }
-  
-  .modal-footer .action-buttons {
-    width: 100%;
-  }
-
-  .action-buttons button {
-    flex: 1;
+  .action-buttons {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
   }
 }
 
 @media (max-width: 480px) {
   .approvals-container {
-    padding: 16px;
+    padding: 12px 10px;
   }
 
-  .page-header {
-    padding: 20px;
-  }
-
-  .title-section h1 {
-    font-size: 1.25rem;
-    gap: 10px;
-  }
-
-  .subtitle {
-    font-size: 0.875rem;
-  }
-
-  .stat-card {
-    padding: 20px;
-  }
-
-  .stat-icon {
-    width: 52px;
-    height: 52px;
-    font-size: 1.25rem;
-  }
-
-  .stat-value {
+  .page-title {
     font-size: 1.5rem;
   }
 
-  .filters-section {
-    padding: 20px;
-  }
-
-  .employees-section {
-    padding: 20px;
-  }
-
-  .section-header h3 {
-    font-size: 1.25rem;
-    flex-wrap: wrap;
-  }
-
   .employee-row {
+    grid-template-columns: 45px 1fr;
+    gap: 10px;
     padding: 12px;
   }
 
+  .col-status {
+    grid-column: 2;
+    justify-content: flex-start;
+    margin-top: 4px;
+  }
+
+  .action-buttons {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .page-title {
+    font-size: 1.3rem;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+  }
+
   .employee-avatar-small {
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
   }
+}
 
-  .avatar-placeholder-small {
-    font-size: 0.875rem;
-  }
+.col-name .name {
+  font-size: 0.875rem;
+}
 
-  .col-name .name {
-    font-size: 0.875rem;
-  }
+.col-name .employee-id {
+  font-size: 0.75rem;
+}
 
-  .col-name .employee-id {
-    font-size: 0.75rem;
-  }
+.btn-view-sm,
+.btn-approve-sm,
+.btn-reject-sm,
+.btn-delete-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 0.75rem;
+}
 
-  .btn-view-sm,
-  .btn-approve-sm,
-  .btn-reject-sm,
-  .btn-delete-sm {
-    width: 32px;
-    height: 32px;
-    font-size: 0.75rem;
-  }
+.col-actions {
+  gap: 6px;
+}
 
-  .col-actions {
-    gap: 6px;
-  }
+.pagination-btn {
+  min-width: 32px;
+  height: 32px;
+  font-size: 0.8125rem;
+}
 
-  .pagination-btn {
-    min-width: 32px;
-    height: 32px;
-    font-size: 0.8125rem;
-  }
+.modal-header {
+  padding: 20px;
+}
 
-  .modal-header {
-    padding: 20px;
-  }
+.modal-header h2 {
+  font-size: 1.25rem;
+}
 
-  .modal-header h2 {
-    font-size: 1.25rem;
-  }
+.modal-body {
+  padding: 20px;
+}
 
-  .modal-body {
-    padding: 20px;
-  }
+.photo-container {
+  width: 120px;
+  height: 120px;
+}
 
-  .photo-container {
-    width: 120px;
-    height: 120px;
-  }
-
-  .photo-placeholder {
-    font-size: 2.5rem;
-  }
+.photo-placeholder {
+  font-size: 2.5rem;
 }

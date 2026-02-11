@@ -151,7 +151,7 @@ export const routes: Routes = [
       { path: 'admin/calendar', component: SalesCalendarComponent },
 
       // Admin Quotations
-      { path: 'admin/quotations', component: QuotationListComponent }, // Keep existing just in case, but unused by sidebar
+      { path: 'admin/quotations', redirectTo: 'admin/admin-quotations', pathMatch: 'full' },
       { path: 'admin/admin-quotations', component: AdminQuotationComponent }, // NEW ROUTE
       { path: 'admin/quotations/create', component: QuotationBuilderComponent },
       { path: 'admin/quotations/preview', component: QuotationPreviewComponent },

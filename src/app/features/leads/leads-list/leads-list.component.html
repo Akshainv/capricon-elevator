@@ -34,6 +34,22 @@
         <option value="Other">Other</option>
       </select>
 
+      <select [(ngModel)]="statusFilter" (change)="applyFiltersAndSort()" class="filter-select">
+        <option value="">All Status</option>
+        <option value="Seeded Lead">Seeded Lead</option>
+        <option value="Qualified">Qualified</option>
+        <option value="Meeting Fixed">Meeting Fixed</option>
+        <option value="Meeting Completed">Meeting Completed</option>
+        <option value="Junk Lead">Junk Lead</option>
+      </select>
+
+      <div class="date-filter-group" style="display: flex; align-items: center; gap: 8px;">
+        <label for="adminDateFilter" style="font-size: 14px; color: var(--text-secondary); white-space: nowrap;">Created
+          On:</label>
+        <input type="date" id="adminDateFilter" [(ngModel)]="dateFilter" (change)="applyFiltersAndSort()"
+          class="filter-select" style="padding: 8px; border-radius: 6px;" />
+      </div>
+
       <div class="name-filter-group">
         <input type="text" placeholder="Filter by name..." [(ngModel)]="nameFilter" (input)="filterByName()"
           class="name-filter-input" />
@@ -75,6 +91,7 @@
             <th>Name & Company</th>
             <th>Contact</th>
             <th>Status</th>
+            <th>Salesperson</th>
             <th>Source</th>
             <th class="col-actions">Actions</th>
           </tr>
@@ -99,10 +116,28 @@
               </div>
             </td>
             <td>
-              <span class="status-badge" [ngClass]="getStatusClass(lead.status)">
-                <i class="fas" [ngClass]="getStatusIcon(lead.status)"></i>
-                {{ lead.status }}
-              </span>
+              <select (click)="$event.stopPropagation()"
+                (change)="updateLeadStatus(lead, $any($event.target).value, $event)" [value]="lead.status"
+                class="status-dropdown" [ngClass]="getStatusClass(lead.status)">
+                <option value="Seeded Lead">Seeded Lead</option>
+                <option value="Qualified">Qualified</option>
+                <option value="Meeting Fixed">Meeting Fixed</option>
+                <option value="Meeting Completed">Meeting Completed</option>
+                <option value="Junk Lead">Junk Lead</option>
+                <!-- Allow viewing other statuses but not selecting them if they aren't in the list? -->
+                <!-- If the current status is NOT one of the above, we should show it as an option so it's visible -->
+                <option
+                  *ngIf="!['Seeded Lead', 'Qualified', 'Meeting Fixed', 'Meeting Completed', 'Junk Lead'].includes(lead.status)"
+                  [value]="lead.status">
+                  {{ lead.status }}
+                </option>
+              </select>
+            </td>
+            <td>
+              <div class="salesperson-cell">
+                <i class="fas fa-user-tie"></i>
+                {{ lead.createdByName }}
+              </div>
             </td>
             <td>
               <span class="source-badge">{{ lead.source }}</span>
@@ -164,7 +199,6 @@
         </div>
         <div class="lead-main-info">
           <h3>{{ selectedLead.fullName }}</h3>
-          <p class="company-name">{{ selectedLead.companyName || 'N/A' }}</p>
           <div class="badges-row">
             <span class="status-badge" [ngClass]="getStatusClass(selectedLead.status)">
               <i class="fas" [ngClass]="getStatusIcon(selectedLead.status)"></i>
@@ -174,120 +208,50 @@
               <i class="fas fa-tag"></i>
               {{ selectedLead.leadSource }}
             </span>
-            <span class="priority-badge" [ngClass]="getPriorityClass(getPriority())">
-              <i class="fas" [ngClass]="getPriorityIcon(getPriority())"></i>
-              {{ getPriority() | titlecase }} Priority
+            <span class="priority-badge" [ngClass]="getPriorityClass(selectedLead.priority)">
+              <i class="fas" [ngClass]="getPriorityIcon(selectedLead.priority)"></i>
+              {{ selectedLead.priority | titlecase }} Priority
             </span>
           </div>
         </div>
       </div>
 
-      <!-- Basic Information -->
+      <!-- Lead Information -->
       <div class="detail-section">
-        <h4><i class="fas fa-info-circle"></i> Basic Information</h4>
+        <h4><i class="fas fa-info-circle"></i> Lead Information</h4>
         <div class="detail-grid">
           <div class="detail-item">
             <label><i class="fas fa-user"></i> Full Name</label>
             <p>{{ selectedLead.fullName }}</p>
           </div>
           <div class="detail-item">
-            <label><i class="fas fa-building"></i> Company Name</label>
-            <p>{{ selectedLead.companyName || 'N/A' }}</p>
+            <label><i class="fas fa-envelope"></i> Email Address</label>
+            <p><a [href]="'mailto:' + selectedLead.email">{{ selectedLead.email }}</a></p>
           </div>
           <div class="detail-item">
-            <label><i class="fas fa-id-badge"></i> Designation</label>
-            <p>{{ getDesignation() }}</p>
+            <label><i class="fas fa-phone"></i> Phone Number</label>
+            <p><a [href]="'tel:' + selectedLead.phoneNumber">{{ selectedLead.phoneNumber }}</a></p>
           </div>
           <div class="detail-item">
             <label><i class="fas fa-tag"></i> Lead Source</label>
             <p><span class="source-badge">{{ selectedLead.leadSource }}</span></p>
           </div>
-        </div>
-      </div>
-
-      <!-- Contact Details -->
-      <div class="detail-section">
-        <h4><i class="fas fa-address-card"></i> Contact Details</h4>
-        <div class="detail-grid">
           <div class="detail-item">
-            <label><i class="fas fa-envelope"></i> Email Address</label>
-            <p><a [href]="'mailto:' + selectedLead.email">{{ selectedLead.email }}</a></p>
-          </div>
-          <div class="detail-item">
-            <label><i class="fas fa-phone"></i> Primary Phone</label>
-            <p><a [href]="'tel:' + selectedLead.phoneNumber">{{ selectedLead.phoneNumber }}</a></p>
-          </div>
-          <div class="detail-item">
-            <label><i class="fas fa-phone-alt"></i> Alternate Phone</label>
-            <p>{{ getAlternatePhone() }}</p>
-          </div>
-          <div class="detail-item full-width">
-            <label><i class="fas fa-map-marker-alt"></i> Address</label>
-            <p>{{ getAddress() }}</p>
-          </div>
-          <div class="detail-item">
-            <label><i class="fas fa-city"></i> City</label>
-            <p>{{ getCity() }}</p>
-          </div>
-          <div class="detail-item">
-            <label><i class="fas fa-map"></i> State</label>
-            <p>{{ getState() }}</p>
-          </div>
-          <div class="detail-item">
-            <label><i class="fas fa-map-pin"></i> Pincode</label>
-            <p>{{ getPincode() }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Requirements & Budget -->
-      <div class="detail-section">
-        <h4><i class="fas fa-clipboard-list"></i> Requirements & Budget</h4>
-        <div class="detail-grid">
-          <div class="detail-item full-width">
-            <label><i class="fas fa-shopping-cart"></i> Product/Service Interest</label>
-            <p>{{ getProductInterest() }}</p>
-          </div>
-          <div class="detail-item">
-            <label><i class="fas fa-rupee-sign"></i> Estimated Budget</label>
-            <p class="budget-value">{{ getBudget() }}</p>
-          </div>
-          <div class="detail-item">
-            <label><i class="fas fa-calendar-alt"></i> Purchase Timeline</label>
-            <p>{{ getTimeline() }}</p>
-          </div>
-          <div class="detail-item">
-            <label><i class="fas fa-boxes"></i> Quantity</label>
-            <p>{{ getQuantity() }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Lead Status Information -->
-      <div class="detail-section">
-        <h4><i class="fas fa-chart-line"></i> Lead Status Information</h4>
-        <div class="detail-grid">
-          <div class="detail-item">
-            <label><i class="fas fa-signal"></i> Current Status</label>
-            <p>
-              <span class="status-badge" [ngClass]="getStatusClass(selectedLead.status)">
-                <i class="fas" [ngClass]="getStatusIcon(selectedLead.status)"></i>
-                {{ selectedLead.status }}
-              </span>
-            </p>
+            <label><i class="fas fa-flag"></i> Priority</label>
+            <p>{{ selectedLead.priority | titlecase }}</p>
           </div>
           <div class="detail-item">
             <label><i class="fas fa-calendar-plus"></i> Created Date</label>
             <p>{{ formatDate(selectedLead.createdAt) }}</p>
           </div>
           <div class="detail-item">
-            <label><i class="fas fa-calendar-check"></i> Last Updated</label>
-            <p>{{ formatDate(selectedLead.updatedAt) }}</p>
+            <label><i class="fas fa-user-edit"></i> Created By</label>
+            <p>{{ selectedLead.createdBySalesName || 'System' }}</p>
           </div>
         </div>
       </div>
 
-      <!-- Additional Notes (if any leftover notes exist) -->
+      <!-- Additional Notes -->
       <div class="detail-section" *ngIf="selectedLead.notes && selectedLead.notes.length > 0">
         <h4><i class="fas fa-sticky-note"></i> Additional Notes</h4>
         <div class="notes-display">

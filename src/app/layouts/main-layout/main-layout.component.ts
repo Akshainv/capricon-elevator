@@ -13,9 +13,9 @@ import { filter } from 'rxjs/operators';
   selector: 'app-main-layout',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
-    SidebarComponent, 
+    CommonModule,
+    RouterModule,
+    SidebarComponent,
     SalesSidebarComponent,
     HeaderComponent,
     SalesHeaderComponent
@@ -25,7 +25,7 @@ import { filter } from 'rxjs/operators';
 })
 export class MainLayoutComponent implements OnInit {
   isAdminRoute: boolean = false;
-  
+
   constructor(
     public themeService: ThemeService,
     private router: Router
@@ -35,7 +35,7 @@ export class MainLayoutComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('✅ Main Layout: Initialized with theme:', this.themeService.getCurrentTheme());
-    
+
     // Check initial route
     this.checkRoute();
 

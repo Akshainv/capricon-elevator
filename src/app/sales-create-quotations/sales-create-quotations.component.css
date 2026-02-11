@@ -782,10 +782,21 @@ input[type="date"].form-input::-webkit-calendar-picker-indicator:hover {
   box-shadow: 0 5px 18px rgba(212, 179, 71, 0.4);
 }
 
-/* Responsive */
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablets (≤1024px) */
 @media (max-width: 1024px) {
+  .create-quotation-container {
+    max-width: 100%;
+    padding: 15px 20px 15px 72px;
+    /* Clearance for fixed toggle */
+  }
+
   .form-layout {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .summary-card.sticky {
@@ -793,22 +804,23 @@ input[type="date"].form-input::-webkit-calendar-picker-indicator:hover {
   }
 }
 
+/* Mobile (≤768px) */
 @media (max-width: 768px) {
   .create-quotation-container {
-    padding: 12px;
+    padding: 12px 15px 12px 72px;
   }
 
   .page-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 15px;
+    margin-bottom: 20px;
   }
 
   .header-left {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    width: 100%;
+    gap: 12px;
   }
 
   .btn-back-nav {
@@ -825,12 +837,31 @@ input[type="date"].form-input::-webkit-calendar-picker-indicator:hover {
     justify-content: center;
   }
 
-  .form-row {
-    grid-template-columns: 1fr;
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 
-  .form-group.full-width {
-    grid-column: 1;
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .btn-remove-item {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .item-total {
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   .lead-dropdown {
@@ -839,5 +870,46 @@ input[type="date"].form-input::-webkit-calendar-picker-indicator:hover {
 
   .lead-results {
     max-height: 240px;
+  }
+}
+
+/* Small Mobile (≤480px) */
+@media (max-width: 480px) {
+  .create-quotation-container {
+    padding: 12px 10px 12px 65px;
+  }
+
+  .header-left h1 {
+    font-size: 1.25rem;
+  }
+
+  .form-card,
+  .summary-card {
+    border-radius: 8px;
+  }
+
+  .card-body {
+    padding: 15px;
+  }
+
+  .summary-row.grand-total .summary-value {
+    font-size: 1.15rem;
+  }
+
+  .btn-action {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+  }
+}
+
+/* Very Small (≤320px) */
+@media (max-width: 320px) {
+  .create-quotation-container {
+    padding: 12px 8px 12px 58px;
+  }
+
+  .header-left h1 {
+    font-size: 1.1rem;
   }
 }

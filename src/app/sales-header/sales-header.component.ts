@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { ThemeService } from '../core/services/theme.service';
+import { NotificationService, Notification } from '../services/notification.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -15,6 +16,7 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class SalesHeaderComponent implements OnInit, OnDestroy {
   showProfile = false;
+  showNotifications = false;
   currentTheme: 'dark' | 'light' = 'dark';
   private destroy$ = new Subject<void>();
 
@@ -27,16 +29,17 @@ export class SalesHeaderComponent implements OnInit, OnDestroy {
     public themeService: ThemeService,
     private router: Router,
     private authService: AuthService,
-    private toastr: ToastrService
-  ) {}
+    private toastr: ToastrService,
+    public notificationService: NotificationService
+  ) { }
 
   ngOnInit(): void {
     this.loadUserInfo();
-    
+
     this.themeService.theme$
       .pipe(takeUntil(this.destroy$))
       .subscribe(theme => {
-        this.currentTheme = theme;
+        this.currentTheme = theme as 'dark' | 'light';
       });
   }
 
@@ -66,6 +69,12 @@ export class SalesHeaderComponent implements OnInit, OnDestroy {
 
   toggleProfile(): void {
     this.showProfile = !this.showProfile;
+    this.showNotifications = false;
+  }
+
+  toggleNotifications(): void {
+    this.showNotifications = !this.showNotifications;
+    this.showProfile = false;
   }
 
   toggleTheme(): void {
@@ -84,6 +93,30 @@ export class SalesHeaderComponent implements OnInit, OnDestroy {
   navigateTo(route: string): void {
     this.router.navigate([route]);
     this.showProfile = false;
+    this.showNotifications = false;
+  }
+
+  markAsRead(id: string, event: Event): void {
+    event.stopPropagation();
+    this.notificationService.markAsRead(id).subscribe();
+  }
+
+  markAllAsRead(event: Event): void {
+    event.stopPropagation();
+    this.notificationService.markAllAsRead().subscribe();
+  }
+
+  handleNotificationClick(notification: Notification): void {
+    this.notificationService.markAsRead(notification._id).subscribe();
+    this.showNotifications = false;
+    if (notification.actionLink) {
+      this.router.navigate([notification.actionLink]);
+    }
+  }
+
+  formatTime(time: string): string {
+    const date = new Date(time);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + date.toLocaleDateString();
   }
 
   logout(): void {

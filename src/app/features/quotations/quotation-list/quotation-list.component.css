@@ -274,14 +274,46 @@
 }
 
 /* Fixed Column Widths - UPDATED FOR ADMIN VIEW */
-.quotations-table th:nth-child(1) { width: 9%; }   /* Quote # */
-.quotations-table th:nth-child(2) { width: 18%; }  /* Customer - increased */
-.quotations-table th:nth-child(3) { width: 10%; }  /* Date */
-.quotations-table th:nth-child(4) { width: 16%; }  /* Elevator Type - increased */
-.quotations-table th:nth-child(5) { width: 12%; }  /* Amount - increased */
-.quotations-table th:nth-child(6) { width: 11%; }  /* Status */
-.quotations-table th:nth-child(7) { width: 11%; }  /* Valid Until */
-.quotations-table th:nth-child(8) { width: 13%; }  /* Actions - reduced for 2 buttons only */
+.quotations-table th:nth-child(1) {
+  width: 9%;
+}
+
+/* Quote # */
+.quotations-table th:nth-child(2) {
+  width: 18%;
+}
+
+/* Customer - increased */
+.quotations-table th:nth-child(3) {
+  width: 10%;
+}
+
+/* Date */
+.quotations-table th:nth-child(4) {
+  width: 16%;
+}
+
+/* Elevator Type - increased */
+.quotations-table th:nth-child(5) {
+  width: 12%;
+}
+
+/* Amount - increased */
+.quotations-table th:nth-child(6) {
+  width: 11%;
+}
+
+/* Status */
+.quotations-table th:nth-child(7) {
+  width: 11%;
+}
+
+/* Valid Until */
+.quotations-table th:nth-child(8) {
+  width: 13%;
+}
+
+/* Actions - reduced for 2 buttons only */
 
 .quotations-table tbody tr {
   border-bottom: 1px solid rgba(212, 179, 71, 0.1);
@@ -514,10 +546,15 @@
 }
 
 @media (max-width: 1024px) {
+  .quotations-container {
+    padding-left: 70px;
+  }
+
   .stats-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
 
 @media (max-width: 768px) {
   .quotations-container {

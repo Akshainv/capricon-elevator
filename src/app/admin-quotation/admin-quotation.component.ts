@@ -22,6 +22,7 @@ export class AdminQuotationComponent implements OnInit {
     paginatedQuotations: Quotation[] = [];
     loading: boolean = false;
     error: string = '';
+    dateFilter: string = '';
 
     // Pagination - 7 items per page
     currentPage: number = 1;
@@ -93,8 +94,12 @@ export class AdminQuotationComponent implements OnInit {
                         const formatted = this.quotationService.formatQuotationForFrontend(q);
 
                         // Normalize status for Admin View
-                        const currentStatus = (formatted as any).status;
-                        if (currentStatus !== 'Approved' && currentStatus !== 'Rejected') {
+                        const currentStatus = (formatted as any).status?.toLowerCase();
+                        if (currentStatus === 'approved') {
+                            (formatted as any).status = 'Approved';
+                        } else if (currentStatus === 'rejected') {
+                            (formatted as any).status = 'Rejected';
+                        } else {
                             (formatted as any).status = 'Pending';
                         }
                         return formatted;
@@ -125,10 +130,15 @@ export class AdminQuotationComponent implements OnInit {
         return this.totalValue / this.quotations.length;
     }
 
-    selectedFilter: string = 'Pending';
+    selectedFilter: string = 'All';
     pendingCount: number = 0;
     approvedCount: number = 0;
     rejectedCount: number = 0;
+
+    setFilterStatus(status: string): void {
+        this.selectedFilter = status;
+        this.applyFiltersAndSort();
+    }
 
     applyFiltersAndSort(): void {
         // First Apply Search
@@ -140,16 +150,31 @@ export class AdminQuotationComponent implements OnInit {
                 (quote.customerCompany || quote.companyName || '').toLowerCase().includes(this.searchTerm.toLowerCase()) ||
                 ((quote.createdBy || '').toLowerCase().includes(this.searchTerm.toLowerCase())); // Search by employee too
 
-            return matchesSearch;
+            let matchesDate = true;
+            if (this.dateFilter) {
+                const quoteDateObj = quote.createdDate || (quote.createdAt ? new Date(quote.createdAt) : null);
+                const quoteDateStr = quoteDateObj ? new Date(quoteDateObj).toISOString().split('T')[0] : null;
+                matchesDate = quoteDateStr === this.dateFilter;
+            }
+
+            return matchesSearch && matchesDate;
         });
 
         // Calculate Counts based on Search Results (before status filter)
-        this.pendingCount = tempQuotations.filter(q => (q as any).status === 'Pending').length;
-        this.approvedCount = tempQuotations.filter(q => (q as any).status === 'Approved').length;
-        this.rejectedCount = tempQuotations.filter(q => (q as any).status === 'Rejected').length;
+        this.pendingCount = tempQuotations.filter(q => {
+            const s = (q as any).status?.toLowerCase();
+            return s !== 'approved' && s !== 'rejected';
+        }).length;
+        this.approvedCount = tempQuotations.filter(q => (q as any).status?.toLowerCase() === 'approved').length;
+        this.rejectedCount = tempQuotations.filter(q => (q as any).status?.toLowerCase() === 'rejected').length;
 
         // Apply Status Filter
-        tempQuotations = tempQuotations.filter(quote => (quote as any).status === this.selectedFilter);
+        tempQuotations = tempQuotations.filter(quote => {
+            if (this.selectedFilter === 'All') return true;
+            const s = (quote as any).status?.toLowerCase();
+            if (this.selectedFilter === 'Pending') return s !== 'approved' && s !== 'rejected';
+            return s === this.selectedFilter.toLowerCase();
+        });
 
         this.filteredQuotations = tempQuotations;
 
@@ -161,6 +186,13 @@ export class AdminQuotationComponent implements OnInit {
 
         this.currentPage = 1;
         this.updatePagination();
+    }
+
+    clearFilters(): void {
+        this.searchTerm = '';
+        this.selectedFilter = 'All';
+        this.dateFilter = '';
+        this.applyFiltersAndSort();
     }
 
     updatePagination(): void {
@@ -250,6 +282,7 @@ export class AdminQuotationComponent implements OnInit {
         const grandTotal = q.totalAmount || q.totalCost || (subtotal - totalDiscount + totalTax);
 
         return {
+            id: q._id || q.id || (q as any)._id || (q as any).id,
             quoteNumber: q.quoteNumber || '',
             quoteDate: q.quoteDate || q.createdAt || q.createdDate || '',
             validUntil: q.validUntil || '',
@@ -258,15 +291,44 @@ export class AdminQuotationComponent implements OnInit {
                 company: q.customerCompany || q.companyName || '',
                 email: q.customerEmail || '',
                 phone: q.customerPhone || '',
-                address: ''
+                address: q.address || (q as any).customerAddress || ''
             },
             items,
-            subtotal,
+            subtotal: q.subtotal || q.totalCost || subtotal,
             totalDiscount,
-            totalTax,
-            grandTotal,
+            totalTax: q.totalTax || 0,
+            grandTotal: q.totalAmount || q.totalCost || grandTotal,
             termsAndConditions: q.termsAndConditions || q.internalNotes || '',
-            notes: q.notes || q.specialRequirements || ''
+            notes: q.notes || q.specialRequirements || '',
+
+            // PDF Page 4 Technical Specs
+            model: q.model || '',
+            quantity: q.quantity || 1,
+            noOfStops: q.noOfStops || 2,
+            elevatorType: q.elevatorType || 'MRL Gearless - Rope Driven',
+            ratedLoad: q.ratedLoad || '',
+            maximumSpeed: q.maximumSpeed || '',
+            travelHeight: q.travelHeight || '',
+            driveSystem: q.driveSystem || '',
+            controlSystem: q.controlSystem || '',
+            cabinWalls: q.cabinWalls || '',
+            cabinDoors: q.cabinDoors || '',
+            doorType: q.doorType || '',
+            doorOpening: q.doorOpening || '',
+            copLopScreen: q.copLopScreen || '',
+            cabinCeiling: q.cabinCeiling || '',
+            cabinFloor: q.cabinFloor || '',
+            handrails: q.handrails || 1,
+
+            // Pricing Summary
+            pricingItems: (q as any).pricingItems || [],
+            standardSubtotal: (q as any).standardSubtotal || q.totalAmount || 0,
+            launchSubtotal: (q as any).launchSubtotal || q.totalAmount || 0,
+            standardTax: (q as any).standardTax || 0,
+            launchTax: (q as any).launchTax || 0,
+            standardGrandTotal: (q as any).standardGrandTotal || q.totalAmount || 0,
+            launchGrandTotal: (q as any).launchGrandTotal || q.totalAmount || 0,
+            launchGrandTotalInWords: (q as any).launchGrandTotalInWords || ''
         };
     }
 

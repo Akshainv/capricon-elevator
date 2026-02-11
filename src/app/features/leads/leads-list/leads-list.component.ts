@@ -16,6 +16,7 @@ interface DisplayLead {
   source: string;
   status: string;
   assignedToName: string;
+  createdByName: string;
 }
 
 @Component({
@@ -28,7 +29,9 @@ interface DisplayLead {
 export class LeadsListComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   sourceFilter: string = '';
+  statusFilter: string = '';
   nameFilter: string = '';
+  dateFilter: string = '';
 
   leads: DisplayLead[] = [];
   filteredLeads: DisplayLead[] = [];
@@ -109,18 +112,24 @@ export class LeadsListComponent implements OnInit, OnDestroy {
         const displayLeads = allLeads;
 
         // Map to display format with employee name
-        this.leads = displayLeads.map(lead => ({
-          id: lead._id,
-          name: lead.fullName,
-          email: lead.email,
-          phone: lead.phoneNumber,
-          company: lead.companyName || '-',
-          source: lead.leadSource,
-          status: lead.status,
-          assignedToName: (lead.assignedTo && this.employeesMap.get(lead.assignedTo)) ||
-            (lead.createdBy && this.employeesMap.get(lead.createdBy)) ||
-            'Unassigned'
-        }));
+        this.leads = displayLeads.map(lead => {
+          if (lead.fullName === displayLeads[0].fullName) {
+            console.log('[DEBUG] Lead data:', lead);
+          }
+          return {
+            id: lead._id,
+            name: lead.fullName,
+            email: lead.email,
+            phone: lead.phoneNumber,
+            company: lead.companyName || '-',
+            source: lead.leadSource,
+            status: lead.status,
+            assignedToName: (lead.assignedTo && this.employeesMap.get(lead.assignedTo)) || 'Unassigned',
+            createdByName: lead.createdBySalesName ||
+              (lead.createdBy && this.employeesMap.get(lead.createdBy)) ||
+              'System'
+          };
+        });
 
         console.log('Admin total leads loaded:', this.leads.length);
 
@@ -138,6 +147,7 @@ export class LeadsListComponent implements OnInit, OnDestroy {
 
   applyFiltersAndSort(): void {
     this.filteredLeads = this.leads.filter(lead => {
+      const leadData = this.leadsMap.get(lead.id);
       const matchesSearch = !this.searchTerm ||
         lead.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         lead.email.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -146,8 +156,24 @@ export class LeadsListComponent implements OnInit, OnDestroy {
 
       const matchesSource = !this.sourceFilter || lead.source === this.sourceFilter;
       const matchesName = !this.nameFilter || lead.name.toLowerCase().includes(this.nameFilter.toLowerCase());
+      const matchesStatus = !this.statusFilter || lead.status === this.statusFilter;
 
-      return matchesSearch && matchesSource && matchesName;
+      let matchesDate = true;
+      if (this.dateFilter && leadData && leadData.createdAt) {
+        const leadDate = new Date(leadData.createdAt).toISOString().split('T')[0];
+        matchesDate = leadDate === this.dateFilter;
+      }
+
+      return matchesSearch && matchesSource && matchesName && matchesStatus && matchesDate;
+    });
+
+    // ✅ SORT BY CREATED AT DESCENDING (Newest First)
+    this.filteredLeads.sort((a, b) => {
+      const leadA = this.leadsMap.get(a.id);
+      const leadB = this.leadsMap.get(b.id);
+      const dateA = leadA && leadA.createdAt ? new Date(leadA.createdAt).getTime() : 0;
+      const dateB = leadB && leadB.createdAt ? new Date(leadB.createdAt).getTime() : 0;
+      return dateB - dateA;
     });
 
     this.currentPage = 1;
@@ -209,6 +235,32 @@ export class LeadsListComponent implements OnInit, OnDestroy {
     }
   }
 
+  updateLeadStatus(lead: DisplayLead, newStatus: string, event: Event): void {
+    event.stopPropagation();
+
+    if (!lead || !lead.id) {
+      console.error('Cannot update status: Lead or ID missing');
+      return;
+    }
+
+    if (newStatus === lead.status) return;
+
+    console.log(`Admin updating lead ${lead.id} status to ${newStatus}`);
+
+    this.leadsService.updateLeadStatus(lead.id, newStatus).subscribe({
+      next: (updatedLead) => {
+        lead.status = updatedLead.status;
+        console.log('Status updated successfully in Admin view');
+      },
+      error: (err) => {
+        console.error('Error updating status from Admin view:', err);
+        alert('Failed to update lead status');
+        // Refresh to revert UI if needed
+        this.loadLeads();
+      }
+    });
+  }
+
   // Modal functionality
   viewLeadModal(leadId: string, event?: Event): void {
     if (event) {
@@ -255,7 +307,7 @@ export class LeadsListComponent implements OnInit, OnDestroy {
   }
 
   getPriority(): string {
-    return this.parsedNotes['Priority'] || 'medium';
+    return this.selectedLead?.priority || 'medium';
   }
 
   getAlternatePhone(): string {
@@ -295,42 +347,48 @@ export class LeadsListComponent implements OnInit, OnDestroy {
     return this.parsedNotes['Quantity'] || 'N/A';
   }
 
-  getPriorityClass(priority: string): string {
+  getPriorityClass(priority?: string): string {
+    const p = (priority || 'medium').toLowerCase();
     const classes: { [key: string]: string } = {
       'low': 'priority-low',
       'medium': 'priority-medium',
       'high': 'priority-high'
     };
-    return classes[priority.toLowerCase()] || 'priority-medium';
+    return classes[p] || 'priority-medium';
   }
 
-  getPriorityIcon(priority: string): string {
+  getPriorityIcon(priority?: string): string {
+    const p = (priority || 'medium').toLowerCase();
     const icons: { [key: string]: string } = {
       'low': 'fa-flag',
       'medium': 'fa-flag',
       'high': 'fa-flag'
     };
-    return icons[priority.toLowerCase()] || 'fa-flag';
+    return icons[p] || 'fa-flag';
   }
 
   getStatusClass(status: string): string {
     const statusClasses: { [key: string]: string } = {
-      'seeded lead': 'status-seeded',
-      'meeting fixed': 'status-fixed',
-      'meeting completed': 'status-completed',
-      'cs executed': 'status-executed'
+      'Seeded Lead': 'status-seeded',
+      'CS Executive Assigned': 'status-assigned',
+      'Qualified': 'status-qualified',
+      'Meeting Fixed': 'status-fixed',
+      'Meeting Completed': 'status-completed',
+      'Junk Lead': 'status-junk'
     };
-    return statusClasses[status.toLowerCase()] || '';
+    return statusClasses[status] || '';
   }
 
   getStatusIcon(status: string): string {
     const statusIcons: { [key: string]: string } = {
-      'seeded lead': 'fa-seedling',
-      'meeting fixed': 'fa-calendar-plus',
-      'meeting completed': 'fa-calendar-check',
-      'cs executed': 'fa-file-signature'
+      'Seeded Lead': 'fa-seedling',
+      'CS Executive Assigned': 'fa-user-tag',
+      'Qualified': 'fa-check-double',
+      'Meeting Fixed': 'fa-calendar-plus',
+      'Meeting Completed': 'fa-calendar-check',
+      'Junk Lead': 'fa-trash-alt'
     };
-    return statusIcons[status.toLowerCase()] || 'fa-circle';
+    return statusIcons[status] || 'fa-circle';
   }
 
   formatDate(date?: Date | string): string {

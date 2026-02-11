@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { ThemeService } from '../../../core/services/theme.service';
 import { Subject, takeUntil } from 'rxjs';
 
+import { NotificationService, Notification } from '../../../services/notification.service';
+
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -13,9 +15,14 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   currentTheme: 'dark' | 'light' = 'dark';
+  showNotifications = false;
   private destroy$ = new Subject<void>();
 
-  constructor(public themeService: ThemeService, private router: Router) {}
+  constructor(
+    public themeService: ThemeService,
+    public notificationService: NotificationService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.themeService.theme$
@@ -40,5 +47,32 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   getThemeLabel(): string {
     return this.currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+  }
+
+  toggleNotifications(): void {
+    this.showNotifications = !this.showNotifications;
+  }
+
+  markAsRead(id: string, event: Event): void {
+    event.stopPropagation();
+    this.notificationService.markAsRead(id).subscribe();
+  }
+
+  markAllAsRead(event: Event): void {
+    event.stopPropagation();
+    this.notificationService.markAllAsRead().subscribe();
+  }
+
+  handleNotificationClick(notification: Notification): void {
+    this.notificationService.markAsRead(notification._id).subscribe();
+    this.showNotifications = false;
+    if (notification.actionLink) {
+      this.router.navigate([notification.actionLink]);
+    }
+  }
+
+  formatTime(time: string): string {
+    const date = new Date(time);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + date.toLocaleDateString();
   }
 }

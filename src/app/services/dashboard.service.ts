@@ -52,12 +52,12 @@ export interface DashboardResponse<T> {
   providedIn: 'root'
 })
 export class DashboardService {
-  private apiUrl = 'https://capricon-elevator-api.onrender.com/dashboard';
+  private apiUrl = 'http://localhost:3000/dashboard';
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   private getHeaders() {
     return {
@@ -71,7 +71,7 @@ export class DashboardService {
    */
   getAdminDashboard(filter?: DashboardFilter): Observable<DashboardResponse<AdminDashboardData>> {
     let params = new HttpParams();
-    
+
     if (filter) {
       if (filter.period) {
         params = params.set('period', filter.period);
@@ -85,7 +85,7 @@ export class DashboardService {
     }
 
     console.log('🔵 Frontend: Calling GET /dashboard/admin');
-    
+
     return this.http.get<DashboardResponse<AdminDashboardData>>(
       `${this.apiUrl}/admin`,
       { ...this.getHeaders(), params }
@@ -98,7 +98,7 @@ export class DashboardService {
    */
   getSalesDashboard(filter?: DashboardFilter): Observable<DashboardResponse<SalesDashboardData>> {
     let params = new HttpParams();
-    
+
     if (filter) {
       if (filter.period) {
         params = params.set('period', filter.period);
@@ -112,7 +112,7 @@ export class DashboardService {
     }
 
     console.log('🔵 Frontend: Calling GET /dashboard/sales');
-    
+
     return this.http.get<DashboardResponse<SalesDashboardData>>(
       `${this.apiUrl}/sales`,
       { ...this.getHeaders(), params }

@@ -187,10 +187,13 @@
 }
 
 @keyframes pulse-badge {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
+
   50% {
     transform: scale(1.1);
     opacity: 0.9;
@@ -474,7 +477,6 @@
 
 .dropdown-item:hover {
   background: rgba(212, 179, 71, 0.1);
-  color: var(--accent-gold);
 }
 
 .dropdown-item i {
@@ -518,41 +520,219 @@
   color: #dc2626 !important;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .header {
-    padding: 0 15px;
-  }
-  
+/* ========================================
+   RESPONSIVE: DESKTOP (1200px - 1600px)
+   ======================================== */
+@media (min-width: 1200px) and (max-width: 1600px) {
   .search-box {
-    max-width: 200px;
-  }
-  
-  .profile-name {
-    display: none;
-  }
-  
-  .dropdown-menu {
-    width: 280px;
-  }
-  
-  .quick-actions-menu {
-    width: 240px;
+    max-width: 400px;
   }
 }
 
-@media (max-width: 480px) {
-  .menu-toggle {
-    width: 36px;
-    height: 36px;
+/* ========================================
+   RESPONSIVE: TABLETS (≤1024px)
+   ======================================== */
+@media (max-width: 1024px) {
+  .header {
+    padding: 0 25px 0 72px;
+    height: 65px;
   }
-  
+
+  .header-left {
+    gap: 12px;
+    flex: 1;
+  }
+
+  .search-box {
+    max-width: 180px;
+    flex: 0 1 auto;
+  }
+
+  .header-right {
+    gap: 20px !important;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-btn {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  .dropdown-menu {
+    width: 280px;
+  }
+
+  .profile-btn {
+    padding: 0 14px;
+    gap: 10px;
+  }
+}
+
+/* ========================================
+   RESPONSIVE: SMALL TABLETS (768px-1024px)
+   ======================================== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .header {
+    padding: 0 25px 0 72px;
+  }
+
+  .search-box {
+    max-width: 140px;
+  }
+
+  .header-right {
+    gap: 20px !important;
+  }
+
+  .profile-name {
+    display: block;
+    font-size: 0.85rem;
+  }
+
+  .profile-btn {
+    padding: 0 14px;
+    gap: 10px;
+  }
+}
+
+/* ========================================
+   RESPONSIVE: MOBILE (≤768px)
+   ======================================== */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 12px 0 72px;
+    height: 60px;
+  }
+
+  .header-left {
+    gap: 10px;
+  }
+
+  .search-box {
+    max-width: 150px;
+  }
+
+  .search-box input {
+    padding: 10px 12px 10px 38px;
+    font-size: 0.85rem;
+  }
+
+  .search-icon {
+    left: 12px;
+    font-size: 0.9rem;
+  }
+
+  .header-right {
+    gap: 12px;
+  }
+
   .header-btn {
     width: 36px;
     height: 36px;
   }
-  
-  .search-box {
-    max-width: 150px;
+
+  .profile-name {
+    display: none;
   }
+
+  .profile-btn {
+    padding: 0 10px;
+    gap: 0;
+  }
+}
+
+/* ========================================
+   RESPONSIVE: SMALL MOBILE (≤480px)
+   ======================================== */
+@media (max-width: 480px) {
+  .header {
+    padding: 0 10px 0 65px;
+    height: 56px;
+  }
+
+  .header-left {
+    gap: 8px;
+  }
+
+  .search-box {
+    max-width: 140px;
+  }
+
+  .search-box input {
+    padding: 8px 10px 8px 32px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+  }
+
+  .search-icon {
+    left: 10px;
+    font-size: 0.8rem;
+  }
+
+  .header-right {
+    gap: 8px;
+  }
+
+  .header-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .header-btn i {
+    font-size: 0.9rem;
+  }
+
+  .profile-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+}
+
+/* ========================================
+   RESPONSIVE: VERY SMALL (≤320px)
+   ======================================== */
+@media (max-width: 320px) {
+  .header {
+    padding: 0 8px 0 58px;
+    height: 52px;
+  }
+
+  .search-box {
+    display: none;
+  }
+
+  .header-right {
+    gap: 6px;
+  }
+
+  .header-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.empty-notifications {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.empty-notifications i {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  opacity: 0.5;
+  display: block;
+}
+
+.empty-notifications p {
+  font-size: 0.9rem;
+  margin: 0;
 }

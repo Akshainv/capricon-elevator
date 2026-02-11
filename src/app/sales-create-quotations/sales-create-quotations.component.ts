@@ -26,11 +26,9 @@ interface Product {
 }
 
 interface QuotationItem {
-  product: Product | null;
+  productName: string;
   quantity: number;
   price: number;
-  discount: number;
-  tax: number;
   total: number;
 }
 
@@ -59,6 +57,44 @@ export class SalesCreateQuotationComponent implements OnInit {
   quoteNumber: string = '';
   quoteDate: string = '';
   validUntil: string = '';
+  gstRate: number = 18;
+
+  bankDetails = {
+    accountNo: '777 705 751 175',
+    ifsc: 'ICIC0006264',
+    bank: 'ICICI Bank',
+    gstin: '32AAMCC4492R1ZY',
+    accountName: 'Capricorn Elevators Pvt Ltd',
+    accountType: 'Current Account',
+    branch: 'Edappally - Ernakulam, Kerala',
+    pan: 'AAMCC4492R'
+  };
+
+  paymentTerms = [
+    { slNo: 1, description: 'On Order Signing', rate: '30%' },
+    { slNo: 2, description: 'On GAD Approval', rate: '20%' },
+    { slNo: 3, description: 'Before Dispatch of materials', rate: '40%' },
+    { slNo: 4, description: 'After Installation & Commissioning', rate: '10%' }
+  ];
+
+  // Elevator Specifications (PDF Page 4)
+  model: string = 'Capricorn Grandeur Signature';
+  quantity: number = 1;
+  noOfStops: number = 2;
+  elevatorType: string = 'MRL Gearless - Rope Driven';
+  ratedLoad: string = '408 kg / 6 Pax';
+  maximumSpeed: string = 'Upto 1 m/s';
+  travelHeight: string = '3000 mm';
+  driveSystem: string = 'AC VVVF (Variable Voltage Variable Frequency)';
+  controlSystem: string = 'Microprocessor-based fully automatic control';
+  cabinWalls: string = 'Stainless Steel SS 304 Rose Gold Glossy with 2 Sides of plain toughened glass. Integrated LED strips on the back panel enhance aesthetics and illumination.';
+  cabinDoors: string = 'SS 304 Rose Gold Full Vision Tinted Glass';
+  doorType: string = 'Automatic, Sliding, Side Opening';
+  doorOpening: string = '700 mm x 2000 mm';
+  copLopScreen: string = 'With feather Touch Type';
+  cabinCeiling: string = 'SS 304 frame false ceiling with Acrylic Lighting & Blower';
+  cabinFloor: string = 'Provision for Marble/Granite (by client).';
+  handrails: number = 1;
 
   today: string = new Date().toISOString().split('T')[0];
   defaultValidUntil: string = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -73,16 +109,21 @@ export class SalesCreateQuotationComponent implements OnInit {
     { id: '7', name: 'Emergency Repair', category: 'Service', price: 25000, unit: 'Service' }
   ];
 
-  quotationItems: QuotationItem[] = [
-    {
-      product: null,
-      quantity: 1,
-      price: 0,
-      discount: 0,
-      tax: 18,
-      total: 0
-    }
+  pricingItems = [
+    { label: 'Basic Cost', standard: 0, launch: 0, isComplimentary: false, isNA: false },
+    { label: 'Installation', standard: 0, launch: 0, isComplimentary: false, isNA: false },
+    { label: 'Additional Door Cost', standard: 0, launch: 0, isComplimentary: false, isNA: false },
+    { label: 'Extra Travel Height Cost', standard: 0, launch: 0, isComplimentary: false, isNA: false },
+    { label: 'Premium Cabin (Glass/Mirror/RAL/Wood Finish)', standard: 0, launch: 0, isComplimentary: true, isNA: false },
+    { label: 'Custom Ceiling', standard: 0, launch: 0, isComplimentary: true, isNA: false },
+    { label: 'Glass Door', standard: 0, launch: 0, isComplimentary: true, isNA: false },
+    { label: 'Premium RAL Colour for Door', standard: 0, launch: 0, isComplimentary: false, isNA: false },
+    { label: 'Customised Cabin Size', standard: 0, launch: 0, isComplimentary: true, isNA: false },
+    { label: 'Transportation', standard: 0, launch: 0, isComplimentary: true, isNA: false },
+    { label: 'LOP - COP', standard: 0, launch: 0, isComplimentary: true, isNA: false }
   ];
+
+  quotationItems: QuotationItem[] = []; // Keep empty or for additional things
 
   termsAndConditions: string = `1. Payment Terms: 50% advance, 30% on installation, 20% on completion
 2. Delivery Time: 60-90 days from order confirmation
@@ -115,13 +156,13 @@ export class SalesCreateQuotationComponent implements OnInit {
           lead.assignedTo && lead.assignedTo.trim() !== ''
         );
 
-        this.leads = assignedLeads.map(apiLead => ({
+        this.leads = assignedLeads.map((apiLead: any) => ({
           id: apiLead._id,
           name: apiLead.fullName,
           email: apiLead.email,
           phone: apiLead.phoneNumber,
           company: apiLead.companyName || '',
-          address: this.extractAddressFromNotes(apiLead.notes || '')
+          address: apiLead.address || this.extractAddressFromNotes(apiLead.notes || '')
         }));
 
         this.filteredLeads = [...this.leads];
@@ -201,15 +242,15 @@ export class SalesCreateQuotationComponent implements OnInit {
       const [key, ...valueParts] = part.split(': ');
       if (key && valueParts.length > 0) {
         const value = valueParts.join(': ').trim();
-        const cleanKey = key.trim();
+        const cleanKey = key.trim().toLowerCase();
 
-        if (cleanKey === 'Address') {
+        if (cleanKey === 'address') {
           fullAddress += value;
-        } else if (cleanKey === 'City') {
+        } else if (cleanKey === 'city') {
           fullAddress += fullAddress ? ', ' + value : value;
-        } else if (cleanKey === 'State') {
+        } else if (cleanKey === 'state') {
           fullAddress += fullAddress ? ', ' + value : value;
-        } else if (cleanKey === 'Pincode') {
+        } else if (cleanKey === 'pincode') {
           fullAddress += fullAddress ? ' - ' + value : value;
         }
       }
@@ -246,11 +287,9 @@ export class SalesCreateQuotationComponent implements OnInit {
 
   addItem(): void {
     this.quotationItems.push({
-      product: null,
+      productName: '',
       quantity: 1,
       price: 0,
-      discount: 0,
-      tax: 18,
       total: 0
     });
   }
@@ -261,51 +300,59 @@ export class SalesCreateQuotationComponent implements OnInit {
     }
   }
 
-  onProductChange(index: number): void {
-    const item = this.quotationItems[index];
-    if (item.product) {
-      item.price = item.product.price;
-      this.calculateItemTotal(index);
-    }
-  }
-
   calculateItemTotal(index: number): void {
     const item = this.quotationItems[index];
-    const subtotal = item.quantity * item.price;
-    const discountAmount = subtotal * (item.discount / 100);
-    const taxableAmount = subtotal - discountAmount;
-    const taxAmount = taxableAmount * (item.tax / 100);
-    item.total = taxableAmount + taxAmount;
+    const qty = Number(item.quantity) || 0;
+    const price = Number(item.price) || 0;
+    item.total = qty * price;
   }
 
   get subtotal(): number {
-    return this.quotationItems.reduce((sum, item) => {
-      return sum + (item.quantity * item.price);
+    return this.calculateLaunchTotal();
+  }
+
+  calculateStandardTotal(): number {
+    return this.pricingItems.reduce((sum, item) => {
+      if (item.isNA) return sum;
+      return sum + (Number(item.standard) || 0);
     }, 0);
   }
 
-  get totalDiscount(): number {
-    return this.quotationItems.reduce((sum, item) => {
-      const itemSubtotal = item.quantity * item.price;
-      return sum + (itemSubtotal * (item.discount / 100));
+  calculateLaunchTotal(): number {
+    return this.pricingItems.reduce((sum, item) => {
+      if (item.isComplimentary || item.isNA) return sum;
+      return sum + (Number(item.launch) || 0);
     }, 0);
   }
 
   get totalTax(): number {
-    return this.quotationItems.reduce((sum, item) => {
-      const itemSubtotal = item.quantity * item.price;
-      const discountAmount = itemSubtotal * (item.discount / 100);
-      const taxableAmount = itemSubtotal - discountAmount;
-      return sum + (taxableAmount * (item.tax / 100));
-    }, 0);
+    return this.calculateLaunchTotal() * (this.gstRate / 100);
   }
 
   get grandTotal(): number {
-    return this.quotationItems.reduce((sum, item) => sum + item.total, 0);
+    const launchTotal = this.calculateLaunchTotal();
+    const gst = launchTotal * (this.gstRate / 100);
+    return launchTotal + gst;
   }
 
-  formatCurrency(amount: number): string {
-    return `₹${amount.toLocaleString('en-IN')}`;
+  get launchSubtotal(): number {
+    return this.calculateLaunchTotal();
+  }
+
+  get standardSubtotal(): number {
+    return this.calculateStandardTotal();
+  }
+
+  get standardGrandTotal(): number {
+    const stdTotal = this.calculateStandardTotal();
+    return stdTotal + (stdTotal * 0.18);
+  }
+
+  formatCurrency(amount: number | undefined): string {
+    if (amount === undefined || amount === null || isNaN(amount)) {
+      return '₹0';
+    }
+    return `₹${Math.round(amount).toLocaleString('en-IN')}`;
   }
 
   validateForm(): boolean {
@@ -319,6 +366,10 @@ export class SalesCreateQuotationComponent implements OnInit {
     }
     if (!this.customerPhone.trim()) {
       this.showToast('Please enter customer phone', 'error');
+      return false;
+    }
+    if (!this.customerAddress.trim()) {
+      this.showToast('Please enter customer address', 'error');
       return false;
     }
     if (!this.quoteDate) {
@@ -338,9 +389,11 @@ export class SalesCreateQuotationComponent implements OnInit {
       return false;
     }
 
-    const hasValidItems = this.quotationItems.some(item => item.product !== null);
-    if (!hasValidItems) {
-      this.showToast('Please add at least one product', 'error');
+    const hasTopLevelModel = this.model && this.model.trim() !== '';
+    const hasItemsWithProductName = this.quotationItems.some(item => item.productName && item.productName.trim() !== '');
+
+    if (!hasTopLevelModel && !hasItemsWithProductName) {
+      this.showToast('Please enter a Model Name in Specifications or add an item', 'error');
       return false;
     }
 
@@ -386,6 +439,9 @@ export class SalesCreateQuotationComponent implements OnInit {
   }
 
   private buildCompleteQuotationData(): any {
+    const launchSubtotal = this.calculateLaunchTotal();
+    const standardSubtotal = this.calculateStandardTotal();
+
     return {
       quoteNumber: this.quoteNumber,
       quoteDate: this.quoteDate,
@@ -397,25 +453,38 @@ export class SalesCreateQuotationComponent implements OnInit {
         address: this.customerAddress,
         company: this.customerCompany
       },
-      items: this.quotationItems
-        .filter(item => item.product !== null)
-        .map(item => ({
-          product: {
-            name: item.product!.name,
-            category: item.product!.category
-          },
-          quantity: item.quantity,
-          price: item.price,
-          discount: item.discount,
-          tax: item.tax,
-          total: item.total
-        })),
-      subtotal: this.subtotal,
-      totalDiscount: this.totalDiscount,
-      totalTax: this.totalTax,
-      grandTotal: this.grandTotal,
+      pricingItems: this.pricingItems,
+      standardSubtotal,
+      launchSubtotal,
+      standardTax: standardSubtotal * (this.gstRate / 100),
+      launchTax: launchSubtotal * (this.gstRate / 100),
+      standardGrandTotal: standardSubtotal * (1 + (this.gstRate / 100)),
+      launchGrandTotal: launchSubtotal * (1 + (this.gstRate / 100)),
+      subtotal: launchSubtotal,
+      grandTotal: launchSubtotal * (1 + (this.gstRate / 100)),
+      bankDetails: this.bankDetails,
+      paymentTerms: this.paymentTerms,
+      gstRate: this.gstRate,
       termsAndConditions: this.termsAndConditions,
-      notes: this.notes
+      notes: this.notes,
+      // Elevator Specs for PDF Page 4
+      model: this.model,
+      quantity: this.quantity,
+      noOfStops: this.noOfStops,
+      elevatorType: this.elevatorType,
+      ratedLoad: this.ratedLoad,
+      maximumSpeed: this.maximumSpeed,
+      travelHeight: this.travelHeight,
+      driveSystem: this.driveSystem,
+      controlSystem: this.controlSystem,
+      cabinWalls: this.cabinWalls,
+      cabinDoors: this.cabinDoors,
+      doorType: this.doorType,
+      doorOpening: this.doorOpening,
+      copLopScreen: this.copLopScreen,
+      cabinCeiling: this.cabinCeiling,
+      cabinFloor: this.cabinFloor,
+      handrails: this.handrails
     };
   }
 
@@ -504,14 +573,64 @@ export class SalesCreateQuotationComponent implements OnInit {
       customerCompany: this.customerCompany,
       quoteDate: this.quoteDate,
       validUntil: this.validUntil,
-      items: this.quotationItems.filter(item => item.product !== null),
+      items: this.quotationItems
+        .filter(item => item.productName.trim() !== '')
+        .map(item => ({
+          productName: item.productName,
+          productCategory: 'General',
+          quantity: item.quantity,
+          price: item.price,
+          total: item.total
+        })),
       termsAndConditions: this.termsAndConditions,
-      notes: this.notes
+      notes: this.notes,
+      pricingItems: this.pricingItems,
+      // PDF Page 4 fields - ALL 17 fields
+      model: this.model,
+      quantity: this.quantity,
+      noOfStops: this.noOfStops,
+      elevatorType: this.elevatorType,
+      ratedLoad: this.ratedLoad,
+      maximumSpeed: this.maximumSpeed,
+      capacity: this.ratedLoad || '408 kg / 6 Pax',
+      speed: this.maximumSpeed || 'Upto 1 m/s',
+      travelHeight: this.travelHeight,
+      driveSystem: this.driveSystem,
+      controlSystem: this.controlSystem,
+      cabinWalls: this.cabinWalls,
+      cabinDoors: this.cabinDoors,
+      doorType: this.doorType,
+      doorOpening: this.doorOpening,
+      copLopScreen: this.copLopScreen,
+      cabinCeiling: this.cabinCeiling,
+      cabinFloor: this.cabinFloor,
+      handrails: this.handrails,
+      // Bank & payment
+      bankDetails: this.bankDetails,
+      paymentTerms: this.paymentTerms,
+      gstRate: this.gstRate
     };
   }
 
+
   getQuotationData(): any {
     return this.buildCompleteQuotationData();
+  }
+
+  removePaymentTerm(index: number) {
+    this.paymentTerms.splice(index, 1);
+    this.updatePaymentTermsSlNo();
+  }
+
+  addPaymentTerm() {
+    const nextSlNo = this.paymentTerms.length + 1;
+    this.paymentTerms.push({ slNo: nextSlNo, description: '', rate: '' });
+  }
+
+  private updatePaymentTermsSlNo() {
+    this.paymentTerms.forEach((term, index) => {
+      term.slNo = index + 1;
+    });
   }
 
   showToast(message: string, type: 'success' | 'error' | 'info' = 'info') {
