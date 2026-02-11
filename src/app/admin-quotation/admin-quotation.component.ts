@@ -282,7 +282,6 @@ export class AdminQuotationComponent implements OnInit {
         const grandTotal = q.totalAmount || q.totalCost || (subtotal - totalDiscount + totalTax);
 
         return {
-            id: q._id || q.id || (q as any)._id || (q as any).id,
             quoteNumber: q.quoteNumber || '',
             quoteDate: q.quoteDate || q.createdAt || q.createdDate || '',
             validUntil: q.validUntil || '',

@@ -232,7 +232,6 @@ export class SalesMyQuotationsComponent implements OnInit {
     const grandTotal = q.totalAmount || q.totalCost || (subtotal - totalDiscount + totalTax);
 
     return {
-      id: q._id || q.id || (q as any)._id || (q as any).id,
       quoteNumber: q.quoteNumber || '',
       quoteDate: q.quoteDate || q.createdAt || q.createdDate || '',
       validUntil: q.validUntil || '',
@@ -351,20 +350,30 @@ export class SalesMyQuotationsComponent implements OnInit {
   }
 
   private proceedSendToClient(quote: Quotation): void {
+    this.loading = true;
     const quotationId = (quote._id || quote.id) as string;
+    const email = quote.customerEmail;
 
-    // Instead of sending from here, we navigate to the preview page
-    // where the actual 13-page PDF is generated and sent.
-    const previewData = this.buildPreviewFromQuotation(quote);
-    try { localStorage.setItem('quotationPreview', JSON.stringify(previewData)); } catch (e) { }
+    // Use existing buildPreview logic as it matches the PDF data structure
+    const quotationData = this.buildPreviewFromQuotation(quote);
 
-    console.log('🚀 Navigating to preview for auto-send...');
-    this.router.navigate(['/quotations/preview'], {
-      state: {
-        quotationData: previewData,
-        autoSend: true
+    console.log('📧 Sending email to client...');
+
+    this.quotationService.sendQuotationWithPDF(quotationId, email, quotationData).subscribe({
+      next: (response) => {
+        this.loading = false;
+        console.log('✅ Email sent successfully!', response);
+        this.showToast(`Quotation sent to ${email} successfully!`, 'success');
+
+        // Optionally update status to 'Sent' if it was 'Approved'
+        // But prompt says "Visible only for Approved", typically it might stay approved or change to sent.
+        // I'll leave status update optional or separate. The prompt says "Reuse existing logic".
       },
-      queryParams: { autoSend: 'true' }
+      error: (error) => {
+        this.loading = false;
+        console.error('❌ Error sending email:', error);
+        this.showToast('Failed to send email. Please try again.', 'error');
+      }
     });
   }
 

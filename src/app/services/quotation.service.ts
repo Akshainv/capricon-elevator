@@ -218,18 +218,14 @@ export class QuotationService {
     );
   }
 
-  // NEW METHOD: Send quotation with PDF upload
-  sendQuotationWithPDF(quotationId: string, email: string, quotationData: any, pdfBlob: Blob): Observable<any> {
+  // NEW METHOD: Send quotation with PDF generation
+  sendQuotationWithPDF(quotationId: string, email: string, quotationData: any): Observable<any> {
     const headers = this.getHeadersWithUser();
-    // Remove Content-Type so the browser sets it automatically with the boundary for FormData
-    const uploadHeaders = headers.delete('Content-Type');
-
-    const formData = new FormData();
-    formData.append('email', email);
-    formData.append('quotationData', JSON.stringify(quotationData));
-    formData.append('pdf', pdfBlob, `Quotation_${quotationId}.pdf`);
-
-    return this.http.post(`${this.apiUrl}/${quotationId}/send-pdf`, formData, { headers: uploadHeaders });
+    const payload = {
+      email: email,
+      quotationData: quotationData
+    };
+    return this.http.post(`${this.apiUrl}/${quotationId}/send-pdf`, payload, { headers });
   }
 
   convertToDeal(quotationId: string): Observable<any> {
@@ -353,7 +349,7 @@ export class QuotationService {
   formatQuotationForFrontend(backendData: any): Quotation {
     return {
       id: backendData._id || backendData.id,
-      _id: backendData._id || backendData.id,
+      _id: backendData._id,
       quoteNumber: backendData.quoteNumber,
       customerName: backendData.customerName,
       customerEmail: backendData.customerEmail,

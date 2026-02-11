@@ -6,13 +6,9 @@
     <h1 class="page-title">Quotation Preview</h1>
 
     <div class="header-actions">
-      <button class="btn-action btn-official" (click)="downloadOfficialPDF()">
+      <button class="btn-action btn-official" (click)="downloadOfficialPDF()" *ngIf="!isAdmin">
         <i class="fas fa-file-pdf"></i>
         <span>Download Official PDF</span>
-      </button>
-      <button class="btn-action btn-send" (click)="sendToClient()" [disabled]="isSendingEmail">
-        <i class="fas fa-paper-plane" [class.fa-spin]="isSendingEmail"></i>
-        <span>{{isSendingEmail ? 'Sending...' : 'Send to Client'}}</span>
       </button>
       <button class="btn-action btn-print" (click)="printQuotation()">
         <i class="fas fa-print"></i>
@@ -27,11 +23,9 @@
 
   <!-- PDF Preview Card -->
   <div class="pdf-preview-card official-view">
-    <div class="loading-overlay" *ngIf="isLoadingPdf || isSendingEmail" style="text-align: center; padding: 50px;">
+    <div class="loading-overlay" *ngIf="isLoadingPdf" style="text-align: center; padding: 50px;">
       <i class="fas fa-spinner fa-spin fa-3x" style="color: var(--accent-gold); margin-bottom: 20px;"></i>
-      <p style="font-size: 1.2rem; color: var(--text-secondary);">
-        {{isSendingEmail ? 'Sending Official 13-Page PDF to Client...' : 'Generating Official 13-Page PDF...'}}
-      </p>
+      <p style="font-size: 1.2rem; color: var(--text-secondary);">Generating Official 13-Page PDF...</p>
     </div>
 
     <!-- Toggle between official PDF and HTML Dynamic Preview -->

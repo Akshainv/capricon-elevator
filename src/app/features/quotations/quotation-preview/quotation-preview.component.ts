@@ -28,7 +28,6 @@ interface Customer {
 }
 
 interface QuotationData {
-  id?: string;
   quoteNumber: string;
   quoteDate: string;
   validUntil: string;
@@ -100,7 +99,6 @@ export class QuotationPreviewComponent implements OnInit, OnDestroy {
   isAdmin: boolean = false;
   previewMode: 'pdf' | 'html' = 'pdf';
   activePage: 'page1' | 'page4' | 'page9' = 'page1';
-  isSendingEmail: boolean = false;
 
   companyInfo = {
     name: 'Capricorn Elevators',
@@ -124,7 +122,6 @@ export class QuotationPreviewComponent implements OnInit, OnDestroy {
     await this.loadQuotationData();
     if (this.quotationData) {
       console.log('📄 QuotationPreviewComponent - Quotation Data loaded:', {
-        id: (this.quotationData as any).id || (this.quotationData as any)._id,
         quoteNumber: this.quotationData.quoteNumber,
         customerName: this.quotationData.customer?.name,
         customerAddress: this.quotationData.customer?.address,
@@ -132,16 +129,6 @@ export class QuotationPreviewComponent implements OnInit, OnDestroy {
         grandTotal: this.quotationData.grandTotal
       });
       await this.generatePreviewPdf();
-
-      // Check for auto-send request (support both state and query params)
-      const lastNav = this.router.lastSuccessfulNavigation;
-      const autoSend = lastNav?.extras?.state?.['autoSend'] ||
-        this.route.snapshot.queryParamMap.get('autoSend') === 'true';
-
-      if (autoSend && this.officialPdfUrl) {
-        // Small delay to ensure everything is ready
-        setTimeout(() => this.sendToClient(), 1000);
-      }
     }
   }
 
@@ -201,61 +188,6 @@ export class QuotationPreviewComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error downloading official PDF:', error);
       alert('Failed to generate official PDF template. Please ensure the template exists in assets/templates/');
-    }
-  }
-
-  async sendToClient(): Promise<void> {
-    if (!this.quotationData) return;
-
-    const email = this.quotationData.customer?.email;
-    if (!email) {
-      alert('Customer email is missing.');
-      return;
-    }
-
-    if (!confirm(`Are you sure you want to send this 13-page official quotation to ${email}?`)) {
-      return;
-    }
-
-    this.isSendingEmail = true;
-    this.cdr.detectChanges();
-
-    try {
-      // 1. Generate the PDF bytes (ensure they are current)
-      const quotationId = (this.quotationData as any).id || (this.quotationData as any)._id;
-
-      if (!quotationId) {
-        alert('Internal error: Quotation ID is missing. Try opening the preview again from the list.');
-        this.isSendingEmail = false;
-        this.cdr.detectChanges();
-        return;
-      }
-
-      const page4Img = await this.capturePageById('page4-template');
-      const page9Img = await this.capturePageById('page9-template');
-
-      const pdfBytes = await (this.pdfService as any).generateOfficialPdf(this.quotationData, {
-        page4Image: page4Img,
-        page9Image: page9Img
-      });
-
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-
-      // 2. Send via service
-      await this.quotationService.sendQuotationWithPDF(
-        quotationId,
-        email,
-        this.quotationData,
-        blob
-      ).toPromise();
-
-      alert(`✅ Quotation sent to ${email} successfully!`);
-    } catch (error) {
-      console.error('Error sending quotation:', error);
-      alert('Failed to send quotation. Please check console for details.');
-    } finally {
-      this.isSendingEmail = false;
-      this.cdr.detectChanges();
     }
   }
 
@@ -367,7 +299,6 @@ export class QuotationPreviewComponent implements OnInit, OnDestroy {
     const finalLaunchGrandTotal = finalLaunchSubtotal + finalLaunchTax;
 
     return {
-      id: q.id || q._id,
       quoteNumber: q.quoteNumber || '',
       quoteDate: q.quoteDate || q.createdAt || q.createdDate || '',
       validUntil: q.validUntil || '',
